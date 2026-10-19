@@ -363,6 +363,121 @@
 }
 
 /* =============================================================
+   ESCALA DE BREAKPOINTS (Responsividad HU-12)
+   ============================================================= */
+.breakpoint-scale-wrapper {
+  padding-top: 30px;
+  margin-bottom: 1rem;
+}
+
+.breakpoint-scale {
+  position: relative;
+  display: flex;
+  width: 100%;
+  height: 56px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.breakpoint-segment {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  border-right: 1px solid rgba(255, 255, 255, 0.25);
+  text-align: center;
+  padding: 0.25rem;
+}
+
+.breakpoint-segment:last-child {
+  border-right: 0;
+}
+
+.breakpoint-segment small {
+  font-weight: 500;
+  opacity: 0.85;
+  font-size: 0.65rem;
+}
+
+.breakpoint-marker {
+  position: absolute;
+  top: -24px;
+  bottom: -6px;
+  width: 0;
+  border-left: 2px dashed #0f172a;
+}
+
+.breakpoint-marker-label {
+  position: absolute;
+  top: -24px;
+  transform: translateX(-50%);
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #0f172a;
+  white-space: nowrap;
+}
+
+/* =============================================================
+   MARCOS DE VISTA PREVIA POR DISPOSITIVO (Responsividad HU-12)
+   ============================================================= */
+.device-frame {
+  background: #ffffff;
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.device-frame-header {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.75rem;
+  background-color: #1e293b;
+  color: #cbd5e1;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.device-frame-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: #64748b;
+}
+
+.device-frame-viewport {
+  position: relative;
+  overflow: hidden;
+  background-color: #f8fafc;
+}
+
+.device-frame-viewport iframe {
+  border: 0;
+  display: block;
+  pointer-events: none;
+  transform-origin: top left;
+}
+
+.device-frame-viewport-desktop {
+  width: 320px;
+  height: 260px;
+}
+
+.device-frame-viewport-tablet {
+  width: 220px;
+  height: 260px;
+}
+
+.device-frame-viewport-mobile {
+  width: 150px;
+  height: 260px;
+}
+
+/* =============================================================
    RESPONSIVIDAD (HU-12) — utilitarios compartidos
    ============================================================= */
 @media (max-width: 767.98px) {
