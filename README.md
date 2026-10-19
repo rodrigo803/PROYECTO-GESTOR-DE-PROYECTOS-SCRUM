@@ -1,47 +1,80 @@
-# 🚀 SCRUM Manager - Aplicación Web para Gestión de Proyectos
+# ScrumGestor — aporte jesus de lima
 
-Este repositorio contiene el código fuente, la documentación y los prototipos del proyecto "Desarrollo de una Aplicación Web para la Gestión de Proyectos bajo la Metodología SCRUM", desarrollado para el curso de **Administración y Programación de Sitios WEB - TI-162**.
+**Proyecto 1:** Prototipo no funcional, curso TI-162, Colegio Universitario de Cartago.  
+**Propósito:** agregar estas pantallas al repositorio GitHub compartido **sin reemplazar** los archivos de los compañeros.
 
-## 📋 Descripción General
-El objetivo del sistema es centralizar la gestión operativa de proyectos SCRUM en una aplicación web responsiva. Permite a las organizaciones tecnológicas abandonar el uso de hojas de cálculo dispersas, brindando una plataforma donde se puede organizar el Product Backlog, planificar Sprints, gestionar historias de usuario y tareas, y visualizar el avance mediante tableros Kanban y Dashboards.
+## Historias de usuario asignadas
 
-## 👥 Equipo de Desarrollo
-*   **Persona 1:** Jesus Alejandro De Lima, Product Backlog, Tablero Kanban y Retrospectiva[cite: 1].
-*   **Persona 2:** Rodrigo Rene Elias Ramirez - Encargado de Gestión de Usuarios, Gestión de Sprints, Gestión de Tareas y Dashboard[cite: 1].
-*   **Persona 3:** Sergio Alejandro Monge Moya - Encargado de Gestión de Proyectos, Sprint Backlog, Impedimentos y Responsividad[cite: 1].
+| Historia | Descripción | Archivos propios |
+|---|---|---|
+| HU-01 | Autenticación y cierre de sesión | `acceso.html`, `cerrar-sesion.html` |
+| HU-04 | Product Backlog | `product-backlog.html`, `historia-usuario.html`, `backlog-cliente.html`, `historia-cliente.html` |
+| HU-08 | Tablero Kanban | `tablero-kanban.html`, `tablero-cliente.html` |
+| HU-11 | Retrospectivas | `retrospectiva.html`, `retrospectiva-cliente.html` |
 
-## 👨‍🏫 Profesor / Facilitador
-*   **Nombre:** Roberto Soto Morales
+Se incluyen además `panel-admin-e1.html` y `panel-cliente-e1.html`, dos pantallas de orientación para recorrer este aporte sin depender de las páginas del resto del grupo.
 
-## 🛠️ Tecnologías y Arquitectura
-El proyecto sigue una arquitectura Cliente/Servidor[cite: 1].
+## Estructura para subir al repositorio
 
-*   **Front-end:** HTML5, CSS3, JavaScript, Framework CSS (ej. Bootstrap 5)[cite: 1].
-*   **Back-end:** sin especificar todavia...
-*   **Base de Datos:** MySQL, DBMaria, PHPMyAdmin.
-*   **Control de Versiones:** Git & GitHub.
-*   **Despliegue:** Plesk.
-*   **Gestión del Proyecto:** Microsoft Planner (Control de HUs y Checklists).
+```text
+/  (raíz del repositorio del grupo)
+├── acceso.html
+├── cerrar-sesion.html
+├── panel-admin-e1.html
+├── panel-cliente-e1.html
+├── product-backlog.html
+├── historia-usuario.html
+├── backlog-cliente.html
+├── historia-cliente.html
+├── tablero-kanban.html
+├── tablero-cliente.html
+├── retrospectiva.html
+├── retrospectiva-cliente.html
+├── css/
+│   └── estudiante1.css
+├── js/
+│   └── estudiante1.js
+└── README_ESTUDIANTE_1.md
+```
 
-## 🚀 Fases del Proyecto y Entregables
+*Las páginas de los compañeros (`index.html`, `proyectos.html`, `sprints.html`, `usuarios.html`, `impedimentos.html` y similares) no se modifican ni se incluyen en este ZIP.*
 
-### 📌 Proyecto 1: Prototipo No Funcional (Mockups) - 20/10/2026
-*   Desarrollo de las interfaces gráficas (HTML/CSS/JS) para la Vista de Cliente y la Vista Administrativa[cite: 1].
-*   Diseño responsivo para Escritorio, Tableta y Móvil[cite: 1].
-*   Documento PDF de justificación y Bitácoras individuales de trabajo[cite: 1].
+## Cómo subirlo a GitHub (desde el navegador)
 
-### 📌 Proyecto 2: Incremento Funcional - 24/11/2026
-*   Implementación de base de datos y backend[cite: 1].
-*   Funcionalidad de Autenticación, Usuarios, Proyectos, Product Backlog, Sprints y Tareas[cite: 1].
-*   **Requisito crítico:** Despliegue en Plesk e inyección de al menos 50 registros de la parte sustantiva del negocio[cite: 1].
+1. Descomprime `Aporte_Estudiante_1_GitHub.zip`.
+2. Entra al repositorio compartido del grupo y asegúrate de estar en la rama acordada.
+3. En `Add file > Upload files`, añade los **archivos HTML del nivel raíz** y `README_ESTUDIANTE_1.md`.
+4. Abre la carpeta `css` en GitHub y usa `Add file > Upload files` para agregar **solo** `estudiante1.css`.
+5. Abre la carpeta `js` en GitHub y sube **solo** `estudiante1.js`.
+6. En cada subida crea un commit con un mensaje como `HU-01 y HU-04: pantallas de Estudiante 1`.
+7. Comprueba que `acceso.html` abre y que desde ahí puedes entrar a las dos vistas.
 
-### 📌 Proyecto Final: Sistema Completo - 15/12/2026
-*   Implementación del Tablero Kanban interactivo, registro de impedimentos, dashboard de indicadores (Burndown chart) y retrospectivas[cite: 1].
-*   Validación final de responsividad y despliegue definitivo[cite: 1].
+> **No reemplaces** `index.html`, `README.md`, ni los CSS/JS existentes del equipo. Estas rutas y nombres se eligieron precisamente para evitar conflictos.
 
-## ⚙️ Instalación y Ejecución (Entorno de Desarrollo)
+## Integración desde el `index.html` del grupo
 
-### Para el Prototipo (Fase 1)
-1. Clona este repositorio en tu máquina local:
-   ```bash
-   git clone [https://github.com/tu-usuario/scrum-manager.git](https://github.com/tu-usuario/scrum-manager.git)
+Alguien del equipo puede **añadir** estos enlaces en el menú que ya existe en `index.html` o su barra lateral:
+
+```html
+<a href="acceso.html">Iniciar sesión (HU-01)</a>
+<a href="product-backlog.html">Administrar Product Backlog (HU-04)</a>
+<a href="backlog-cliente.html">Consultar Product Backlog (HU-04)</a>
+<a href="tablero-kanban.html">Administrar Kanban (HU-08)</a>
+<a href="tablero-cliente.html">Ver tablero Kanban (HU-08)</a>
+<a href="retrospectiva.html">Administrar retrospectivas (HU-11)</a>
+<a href="retrospectiva-cliente.html">Ver retrospectivas (HU-11)</a>
+```
+
+Los nombres de enlaces corresponden a los archivos de este aporte; verifica con el equipo qué elementos del menú final corresponden a administrador o a cliente. No se requiere hacer cambios en los archivos de otros módulos para abrir el aporte independiente.
+
+## Cómo probar antes de subir
+
+Abre `acceso.html` con el navegador. Las opciones **Vista del cliente / equipo** y **Vista administrativa** permiten recorrer todas las páginas de este aporte. No requiere instalación, servidor ni base de datos.
+
+## Alcance del Proyecto 1
+
+- Mockups estáticos para cliente y administración.
+- Navegación entre páginas de demostración.
+- Menú adaptable a teléfono (único JS, sin lógica de negocio).
+- **No hay inicio de sesión real, guardado, creación, actualización, borrado ni back-end.** Los datos son ilustrativos.
+- El Planner y la bitácora individual se trabajan por separado y se deben completar con evidencia verdadera.
