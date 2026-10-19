@@ -3,25 +3,25 @@
 Este repositorio contiene el código fuente, la documentación y los prototipos del proyecto "Desarrollo de una Aplicación Web para la Gestión de Proyectos bajo la Metodología SCRUM", desarrollado para el curso de **Administración y Programación de Sitios WEB - TI-162**.
 
 ## 📋 Descripción General
-El objetivo del sistema es centralizar la gestión operativa de proyectos SCRUM en una aplicación web responsiva. Permite a las organizaciones tecnológicas abandonar el uso de hojas de cálculo dispersas, brindando una plataforma donde se puede organizar el Product Backlog, planificar Sprints, gestionar historias de usuario y tareas, y visualizar el avance mediante tableros Kanban y Dashboards[cite: 1].
+El objetivo del sistema es centralizar la gestión operativa de proyectos SCRUM en una aplicación web responsiva. Permite a las organizaciones tecnológicas abandonar el uso de hojas de cálculo dispersas, brindando una plataforma donde se puede organizar el Product Backlog, planificar Sprints, gestionar historias de usuario y tareas, y visualizar el avance mediante tableros Kanban y Dashboards.
 
 ## 👥 Equipo de Desarrollo
-*   **Persona 1:** [Escribe aquí el nombre del integrante 1] - Encargado de Autenticación, Product Backlog, Tablero Kanban y Retrospectiva[cite: 1].
-*   **Persona 2:** [Escribe aquí tu nombre completo] - Encargado de Gestión de Usuarios, Gestión de Sprints, Gestión de Tareas y Dashboard[cite: 1].
-*   **Persona 3:** [Escribe aquí el nombre del integrante 3] - Encargado de Gestión de Proyectos, Sprint Backlog, Impedimentos y Responsividad[cite: 1].
+*   **Persona 1:** Jesus Alejandro De Lima, Product Backlog, Tablero Kanban y Retrospectiva[cite: 1].
+*   **Persona 2:** Rodrigo Rene Elias Ramirez - Encargado de Gestión de Usuarios, Gestión de Sprints, Gestión de Tareas y Dashboard[cite: 1].
+*   **Persona 3:** Sergio Alejandro Monge Moya - Encargado de Gestión de Proyectos, Sprint Backlog, Impedimentos y Responsividad[cite: 1].
 
 ## 👨‍🏫 Profesor / Facilitador
-*   **Nombre:** [Escribe aquí el nombre del profesor, ej. Lic. Roberto Soto Morales, MGP.][cite: 1]
+*   **Nombre:** Roberto Soto Morales
 
 ## 🛠️ Tecnologías y Arquitectura
 El proyecto sigue una arquitectura Cliente/Servidor[cite: 1].
 
 *   **Front-end:** HTML5, CSS3, JavaScript, Framework CSS (ej. Bootstrap 5)[cite: 1].
-*   **Back-end:** [Especificar tecnología acordada: ej. Node.js, ASP.NET Core, PHP o Java][cite: 1].
-*   **Base de Datos:** [Especificar: SQL Server, MySQL o PostgreSQL][cite: 1].
-*   **Control de Versiones:** Git & GitHub / GitLab[cite: 1].
-*   **Despliegue:** Hospedaje web institucional (Plesk)[cite: 1].
-*   **Gestión del Proyecto:** Microsoft Planner (Control de HUs y Checklists)[cite: 1].
+*   **Back-end:** sin especificar todavia...
+*   **Base de Datos:** MySQL, DBMaria, PHPMyAdmin.
+*   **Control de Versiones:** Git & GitHub.
+*   **Despliegue:** Plesk.
+*   **Gestión del Proyecto:** Microsoft Planner (Control de HUs y Checklists).
 
 ## 🚀 Fases del Proyecto y Entregables
 
