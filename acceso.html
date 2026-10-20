@@ -1,3 +1,140 @@
 <!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SCRUM Manager - Iniciar Sesión (HU-01)</title>
 
-<html lang="es"><head><meta charset="utf-8"/><meta content="width=device-width,initial-scale=1" name="viewport"/><title>Iniciar sesión | ScrumGestor</title><link href="css/estudiante1.css" rel="stylesheet"/><script defer="True" src="js/estudiante1.js"></script></head><body data-demo="estudiante1"><div class="login-page"><section class="login-left"><div><div class="logo"><span class="logomark">S</span><span class="brand">ScrumGestor</span></div><h1>Organiza tus proyectos, impulsa cada Sprint.</h1><p>Una vista organizada de historias, tareas y retrospectivas para gestionar proyectos con la metodología SCRUM.</p><div class="visual-board"><div class="visual-col"><span>PENDIENTE</span><div class="visual-ticket"></div><div class="visual-ticket short"></div></div><div class="visual-col"><span>EN PROGRESO</span><div class="visual-ticket"></div><div class="visual-ticket"></div></div><div class="visual-col"><span>FINALIZADO</span><div class="visual-ticket"></div></div></div></div><small style="color:#91a4c9">Colegio Universitario de Cartago · Proyecto 1</small></section><section class="login-right"><div class="login-box"><div class="eyebrow">HU-01 · AUTENTICACIÓN Y SEGURIDAD</div><h2>Bienvenido de nuevo</h2><p class="sub">Ingresa los datos para visualizar tu espacio de trabajo.</p><div class="field"><label>Correo electrónico</label><input aria-label="Correo electrónico" placeholder="usuario@ejemplo.com" type="email"/></div><div class="field"><label>Contraseña</label><input aria-label="Contraseña" placeholder="••••••••" type="password"/></div><div class="pillrow" style="justify-content:space-between;margin-top:15px"><span style="font-size:12px;color:#70809b">□ Mantener sesión iniciada</span><span class="link" style="font-size:12px">¿Olvidaste tu contraseña?</span></div><button class="btn disabled" style="width:100%;margin-top:24px" title="Solo diseño visual">Iniciar sesión (diseño)</button><div class="line-with-label">Accesos de demostración</div><div class="login-options"><a href="panel-cliente-e1.html">Vista del cliente / equipo ↗</a><a href="panel-admin-e1.html">Vista administrativa ↗</a></div><p class="footerhint">Prototipo académico no funcional. Los campos no validan credenciales ni se guardan datos. Usa los enlaces para recorrer las pantallas.</p></div></section></div></body></html>
+  <!-- Bootstrap 5 CSS CDN -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+
+  <!-- Bootstrap Icons CDN -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+  <!-- Google Fonts (Inter) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Estilos Personalizados Externos -->
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/modulos-sergio.css">
+  <link rel="stylesheet" href="css/modulos-jesus.css">
+</head>
+<body style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+
+  <!-- ========================================== -->
+  <!-- PANTALLA DE ACCESO (SIN NAVBAR NI SIDEBAR) -->
+  <!-- ========================================== -->
+  <div class="row g-0 min-vh-100">
+
+    <!-- Columna Izquierda: Marca y Visual (oculta en móvil) -->
+    <div class="col-lg-6 d-none d-lg-flex flex-column justify-content-between text-white p-5" style="background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%); min-height: 100vh;">
+      <div class="d-flex align-items-center gap-2">
+        <span class="brand-logo-badge">
+          <i class="bi bi-kanban-fill"></i>
+        </span>
+        <span class="fw-bold tracking-tight fs-5">SCRUM <span class="fw-semibold" style="color: #818cf8 !important;">Manager</span></span>
+      </div>
+
+      <div>
+        <h1 class="display-6 fw-bold mb-3">Organiza tus proyectos, impulsa cada Sprint.</h1>
+        <p class="text-light text-opacity-75 mb-4" style="max-width: 440px;">
+          Una vista organizada de proyectos, historias, tareas, impedimentos y retrospectivas para gestionar equipos con la metodología SCRUM.
+        </p>
+
+        <!-- Mini vista decorativa del tablero Kanban -->
+        <div class="row g-2" style="max-width: 460px;">
+          <div class="col-4">
+            <div class="bg-white bg-opacity-10 rounded-3 p-2">
+              <span class="small fw-bold text-light text-opacity-75">PENDIENTE</span>
+              <div class="auth-visual-ticket mt-2"></div>
+              <div class="auth-visual-ticket auth-visual-ticket-sm mt-2"></div>
+            </div>
+          </div>
+          <div class="col-4">
+            <div class="bg-white bg-opacity-10 rounded-3 p-2">
+              <span class="small fw-bold text-light text-opacity-75">EN PROGRESO</span>
+              <div class="auth-visual-ticket mt-2"></div>
+              <div class="auth-visual-ticket mt-2"></div>
+            </div>
+          </div>
+          <div class="col-4">
+            <div class="bg-white bg-opacity-10 rounded-3 p-2">
+              <span class="small fw-bold text-light text-opacity-75">FINALIZADO</span>
+              <div class="auth-visual-ticket mt-2"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <small class="text-light text-opacity-50">Colegio Universitario de Cartago · Proyecto 1</small>
+    </div>
+
+    <!-- Columna Derecha: Formulario de Acceso -->
+    <div class="col-lg-6 d-flex align-items-center justify-content-center p-4 p-sm-5" style="background-color: var(--bg-light);">
+      <div style="width: min(100%, 420px);">
+
+        <div class="d-flex align-items-center gap-2 mb-4 d-lg-none">
+          <span class="brand-logo-badge">
+            <i class="bi bi-kanban-fill"></i>
+          </span>
+          <span class="fw-bold tracking-tight fs-5 text-dark">SCRUM <span class="fw-semibold" style="color: var(--primary-color) !important;">Manager</span></span>
+        </div>
+
+        <span class="badge bg-primary-subtle text-primary border border-primary-subtle mb-3">HU-01 · AUTENTICACIÓN Y SEGURIDAD</span>
+        <h2 class="fw-bold text-dark mb-1">Bienvenido de nuevo</h2>
+        <p class="page-subtitle mb-4">Ingresa los datos para visualizar tu espacio de trabajo.</p>
+
+        <form>
+          <div class="mb-3">
+            <label for="loginEmail" class="form-label small fw-semibold">Correo electrónico</label>
+            <input type="email" class="form-control" id="loginEmail" placeholder="usuario@ejemplo.com" style="min-height: 44px;" aria-label="Correo electrónico">
+          </div>
+          <div class="mb-3">
+            <label for="loginPassword" class="form-label small fw-semibold">Contraseña</label>
+            <input type="password" class="form-control" id="loginPassword" placeholder="••••••••" style="min-height: 44px;" aria-label="Contraseña">
+          </div>
+          <div class="d-flex align-items-center justify-content-between mb-3">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="mantenerSesion">
+              <label class="form-check-label small text-muted" for="mantenerSesion">Mantener sesión iniciada</label>
+            </div>
+            <a href="#" class="small link-primary text-decoration-none">¿Olvidaste tu contraseña?</a>
+          </div>
+          <button type="button" class="btn btn-primary w-100 py-2 fw-semibold" disabled title="Solo diseño visual, sin autenticación real" style="min-height: 44px;">
+            Iniciar sesión (prototipo)
+          </button>
+        </form>
+
+        <div class="d-flex align-items-center gap-2 text-muted small my-4">
+          <hr class="flex-grow-1">
+          <span>Accesos de demostración</span>
+          <hr class="flex-grow-1">
+        </div>
+
+        <div class="row g-2">
+          <div class="col-6">
+            <a href="panel-cliente-e1.html" class="btn btn-outline-secondary w-100 py-2 small" style="min-height: 44px;">
+              Vista del cliente / equipo <i class="bi bi-arrow-up-right"></i>
+            </a>
+          </div>
+          <div class="col-6">
+            <a href="panel-admin-e1.html" class="btn btn-outline-secondary w-100 py-2 small" style="min-height: 44px;">
+              Vista administrativa <i class="bi bi-arrow-up-right"></i>
+            </a>
+          </div>
+        </div>
+
+        <p class="text-muted small mt-4 mb-0">
+          Prototipo académico no funcional. Los campos no validan credenciales ni se guardan datos. Usa los enlaces para recorrer las pantallas.
+        </p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+</body>
+</html>

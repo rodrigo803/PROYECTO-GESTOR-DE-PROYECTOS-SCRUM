@@ -1,0 +1,39 @@
+/* =============================================================
+   MODULOS-JESUS.CSS
+   Estilos propios de Jesus De Lima (HU-01, HU-04, HU-08, HU-11).
+   Se enlaza siempre despues de styles.css y modulos-sergio.css.
+   Reemplaza a css/estudiante1.css: solo contiene las reglas que
+   seguian haciendo falta tras adoptar la plantilla comun.
+   ============================================================= */
+
+/* =============================================================
+   TABLERO KANBAN (HU-08)
+   ============================================================= */
+.kanban-column {
+  background-color: #f8fafc;
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  padding: 0.85rem;
+  min-height: 360px;
+}
+
+.kanban-column-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+/* =============================================================
+   TICKETS DECORATIVOS DEL HERO DE INICIO DE SESION (HU-01)
+   ============================================================= */
+.auth-visual-ticket {
+  height: 38px;
+  border-radius: 8px;
+  background-color: rgba(255, 255, 255, 0.92);
+}
+
+.auth-visual-ticket.auth-visual-ticket-sm {
+  width: 70%;
+  height: 26px;
+}
