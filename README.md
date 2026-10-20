@@ -17,7 +17,7 @@ El objetivo del sistema es centralizar la gestión operativa de proyectos SCRUM 
 El proyecto sigue una arquitectura Cliente/Servidor[cite: 1].
 
 *   **Front-end:** HTML5, CSS3, JavaScript, Framework CSS (ej. Bootstrap 5)[cite: 1].
-*   **Back-end:** sin especificar todavia...
+*   **Back-end:** C#, .Net Core 10.0.
 *   **Base de Datos:** MySQL, DBMaria, PHPMyAdmin.
 *   **Control de Versiones:** Git & GitHub.
 *   **Despliegue:** Plesk.
