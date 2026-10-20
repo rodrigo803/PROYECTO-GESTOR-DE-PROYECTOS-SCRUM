@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SCRUM Manager - Sprint Backlog &amp; Tareas (Req 5)</title>
+  
+  <!-- Bootstrap 5 CSS CDN -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  
+  <!-- Bootstrap Icons CDN -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  
+  <!-- Google Fonts (Inter) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Estilos Personalizados Externos -->
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <!-- ========================================== -->
+  <!-- 1. NAVBAR SUPERIOR OSCURO                  -->
+  <!-- ========================================== -->
+  <nav class="navbar navbar-dark admin-navbar px-3 px-lg-4">
+    <div class="container-fluid p-0 d-flex align-items-center justify-content-between">
+      
+      <!-- Brand & Mobile Toggle -->
+      <div class="d-flex align-items-center gap-3">
+        <button class="btn btn-outline-secondary btn-sm d-lg-none text-light border-0" type="button" id="sidebarToggle" aria-label="Abrir menú">
+          <i class="bi bi-list fs-4"></i>
+        </button>
+        
+        <a class="navbar-brand d-flex align-items-center gap-2 m-0" href="index.html">
+          <span class="brand-logo-badge">
+            <i class="bi bi-kanban-fill"></i>
+          </span>
+          <span class="fw-bold tracking-tight text-white fs-5">SCRUM <span class="fw-semibold" style="color: #818cf8 !important;">Manager</span></span>
+        </a>
+      </div>
+
+      <!-- Chip de estado del Sprint y Perfil -->
+      <div class="d-flex align-items-center gap-3">
+        
+        <div class="d-none d-md-flex align-items-center gap-2 px-3 py-1 bg-dark-subtle rounded-pill border border-secondary border-opacity-25 text-light text-opacity-75 small">
+          <span class="status-dot bg-success"></span>
+          <span>Sprint 1 en curso</span>
+          <span class="text-secondary">|</span>
+          <span class="fw-medium text-info">Día 5 de 14</span>
+        </div>
+
+        <!-- Notificaciones -->
+        <div class="dropdown">
+          <button class="btn btn-link text-light position-relative p-2" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Notificaciones">
+            <i class="bi bi-bell fs-5"></i>
+            <span class="position-absolute top-1 start-100 translate-middle p-1 bg-danger border border-dark rounded-circle"></span>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+            <li><h6 class="dropdown-header">Notificaciones</h6></li>
+            <li><a class="dropdown-item small" href="#"><i class="bi bi-exclamation-circle text-warning me-2"></i>Sprint 1 al 68% de capacidad</a></li>
+            <li><a class="dropdown-item small" href="#"><i class="bi bi-check-circle text-success me-2"></i>Tarea "2FA UI" finalizada por Ana G.</a></li>
+          </ul>
+        </div>
+
+        <!-- Perfil Administrador -->
+        <div class="dropdown">
+          <button class="btn btn-dark d-flex align-items-center gap-2 py-1 px-2 rounded-3 border border-secondary border-opacity-25" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 32px; height: 32px; font-size: 0.85rem;">
+              RM
+            </div>
+            <div class="text-start d-none d-sm-block pe-1">
+              <div class="text-white fw-semibold small lh-1">Rodrigo Morales</div>
+              <small class="text-light text-opacity-50" style="font-size: 0.72rem;">Scrum Master / Admin</small>
+            </div>
+            <i class="bi bi-chevron-down text-light text-opacity-50 small"></i>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end shadow-sm py-2">
+            <li><h6 class="dropdown-header">Cuenta Administrador</h6></li>
+            <li><a class="dropdown-item d-flex align-items-center gap-2" href="#"><i class="bi bi-person text-secondary"></i> Mi Perfil</a></li>
+            <li><a class="dropdown-item d-flex align-items-center gap-2" href="#"><i class="bi bi-sliders text-secondary"></i> Configuración</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li>
+              <button class="dropdown-item d-flex align-items-center gap-2 text-danger" type="button" onclick="confirmarCierreSesion()">
+                <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+              </button>
+            </li>
+          </ul>
+        </div>
+
+      </div>
+
+    </div>
+  </nav>
+
+  <!-- ========================================== -->
+  <!-- 2. SIDEBAR FIJO (SPRINT BACKLOG ACTIVO)    -->
+  <!-- ========================================== -->
+  <aside class="admin-sidebar" id="adminSidebar">
+    
+    <div class="sidebar-heading">Navegación Principal</div>
+    <nav class="nav flex-column mb-3">
+      
+      <!-- Opción 1: Dashboard -->
+      <a href="index.html" class="sidebar-nav-link">
+        <i class="bi bi-grid-1x2"></i>
+        <span>Dashboard</span>
+      </a>
+
+      <!-- Opción 2: Gestión de Usuarios -->
+      <a href="usuarios.html" class="sidebar-nav-link">
+        <i class="bi bi-people"></i>
+        <span>Gestión de Usuarios</span>
+      </a>
+
+      <!-- Gestión de Proyectos (HU-03) -->
+      <a href="proyectos.html" class="sidebar-nav-link">
+        <i class="bi bi-folder2-open"></i>
+        <span>Gestión de Proyectos</span>
+      </a>
+
+      <!-- Opción 3: Gestión de Sprints -->
+      <a href="sprints.html" class="sidebar-nav-link">
+        <i class="bi bi-arrow-repeat"></i>
+        <span>Gestión de Sprints</span>
+      </a>
+
+      <!-- Planificación del Sprint (HU-06) -->
+      <a href="planificacion-sprint.html" class="sidebar-nav-link">
+        <i class="bi bi-list-check"></i>
+        <span>Planificación del Sprint</span>
+      </a>
+
+      <!-- Opción 4: Sprint Backlog (ACTIVO) -->
+      <a href="sprint-backlog.html" class="sidebar-nav-link active">
+        <i class="bi bi-card-checklist"></i>
+        <span>Sprint Backlog</span>
+      </a>
+
+      <!-- Impedimentos (HU-09) -->
+      <a href="impedimentos.html" class="sidebar-nav-link">
+        <i class="bi bi-exclamation-octagon"></i>
+        <span>Impedimentos</span>
+      </a>
+
+    </nav>
+
+    <!-- Calidad (HU-12) -->
+    <div class="sidebar-heading">Calidad</div>
+    <nav class="nav flex-column mb-3">
+      <a href="responsividad.html" class="sidebar-nav-link">
+        <i class="bi bi-phone"></i>
+        <span>Responsividad</span>
+      </a>
+    </nav>
+
+    <!-- Resumen del Proyecto Activo -->
+    <div class="sidebar-heading">Proyecto Activo</div>
+    <div class="px-3 py-2">
+      <div class="p-3 rounded-3" style="background-color: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08);">
+        <div class="d-flex align-items-center justify-content-between mb-1">
+          <span class="text-white small fw-semibold">Fintech Mobile App</span>
+          <span class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-25" style="font-size: 0.65rem;">ACTIVO</span>
+        </div>
+        <p class="text-light text-opacity-50 small mb-2" style="font-size: 0.78rem;">Fase 2: Arquitectura de Pagos</p>
+        <div class="progress" style="height: 5px; background-color: rgba(255,255,255,0.1);">
+          <div class="progress-bar bg-primary" role="progressbar" style="width: 65%;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Botón Cerrar Sesión en pie del Sidebar -->
+    <div class="mt-auto px-3 pt-4">
+      <button class="btn btn-outline-danger btn-sm w-100 d-flex align-items-center justify-content-center gap-2" onclick="confirmarCierreSesion()">
+        <i class="bi bi-box-arrow-right"></i>
+        <span>Cerrar Sesión</span>
+      </button>
+    </div>
+
+  </aside>
+
+  <!-- ========================================== -->
+  <!-- 3. ÁREA DE CONTENIDO: PANTALLA 2 (REQ 5)   -->
+  <!-- ========================================== -->
+  <main class="main-content">
+    
+    <!-- Toast de Notificaciones -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1080;">
+      <div id="actionToast" class="toast align-items-center text-white bg-dark border-0 shadow-lg" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+          <div class="toast-body d-flex align-items-center gap-2">
+            <i class="bi bi-check-circle-fill text-success fs-5" id="toastIcon"></i>
+            <span id="toastMessage">Operación realizada con éxito.</span>
+          </div>
+          <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Encabezado de la Pantalla -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+      <div>
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb mb-1 small text-muted">
+            <li class="breadcrumb-item"><a href="index.html" class="text-decoration-none text-muted">Inicio</a></li>
+            <li class="breadcrumb-item"><a href="sprints.html" class="text-decoration-none text-muted">Gestión de Sprints</a></li>
+            <li class="breadcrumb-item active text-primary fw-medium" aria-current="page">Sprint Backlog</li>
+          </ol>
+        </nav>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <h1 class="page-title mb-0">Sprint Backlog &amp; Tareas</h1>
+          <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1 fs-7">
+            <i class="bi bi-play-circle-fill me-1"></i> Sprint Activo: Sprint 1
+          </span>
+        </div>
+        <p class="page-subtitle mb-0 mt-1">Desglose de Historias de Usuario priorizadas y gestión del ciclo de vida de tareas técnicas.</p>
+      </div>
+
+      <!-- Indicador de Progreso del Sprint -->
+      <div class="bg-white p-3 rounded-3 border d-flex align-items-center gap-3 shadow-sm" style="min-width: 260px;">
+        <div class="flex-grow-1">
+          <div class="d-flex justify-content-between small mb-1">
+            <span class="text-muted fw-medium">Progreso Global:</span>
+            <span class="fw-bold text-primary">68%</span>
+          </div>
+          <div class="progress" style="height: 8px;">
+            <div class="progress-bar bg-primary" role="progressbar" style="width: 68%;"></div>
+          </div>
+        </div>
+        <div class="text-end border-start ps-3">
+          <div class="fs-5 fw-bold text-dark lh-1">42</div>
+          <small class="text-muted" style="font-size: 0.72rem;">Story Pts</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Métricas del Sprint Backlog -->
+    <div class="row g-3 mb-4">
+      <div class="col-6 col-md-3">
+        <div class="card-custom p-3 border-start border-4 border-warning">
+          <span class="text-muted small fw-medium">Tareas Pendientes</span>
+          <h4 class="fw-bold text-dark mt-1 mb-0">2</h4>
+          <small class="text-warning-emphasis fw-medium">10 hrs estimadas</small>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card-custom p-3 border-start border-4 border-info">
+          <span class="text-muted small fw-medium">En Progreso</span>
+          <h4 class="fw-bold text-dark mt-1 mb-0">3</h4>
+          <small class="text-info fw-medium">24 hrs en desarrollo</small>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card-custom p-3 border-start border-4" style="border-left-color: #9333ea !important;">
+          <span class="text-muted small fw-medium">En Revisión (QA / PR)</span>
+          <h4 class="fw-bold text-dark mt-1 mb-0">1</h4>
+          <small class="fw-medium" style="color: #9333ea;">16 hrs esperando review</small>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card-custom p-3 border-start border-4 border-success">
+          <span class="text-muted small fw-medium">Finalizadas</span>
+          <h4 class="fw-bold text-dark mt-1 mb-0">2</h4>
+          <small class="text-success fw-medium">13 hrs completadas</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- COMPONENTE PRINCIPAL: ACORDEÓN DE HISTORIAS DE USUARIO         -->
+    <!-- ============================================================== -->
+    <div class="accordion accordion-story" id="accordionSprintBacklog">
+
+      <!-- ============================================================ -->
+      <!-- HISTORIA 1: HU-01                                            -->
+      <!-- ============================================================ -->
+      <div class="accordion-item shadow-sm">
+        <h2 class="accordion-header" id="headingStoryOne">
+          <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseStoryOne" aria-expanded="true">
+            <div class="d-flex flex-wrap align-items-center justify-content-between w-100 me-3 gap-2">
+              
+              <!-- Título y Código de la HU -->
+              <div class="d-flex align-items-center gap-2">
+                <span class="badge bg-primary text-white px-2 py-1">HU-01</span>
+                <span class="fw-bold text-dark">Iniciar Sesión con Doble Factor de Autenticación (2FA)</span>
+              </div>
+
+              <!-- Badges de Metadatos -->
+              <div class="d-flex align-items-center gap-2 flex-wrap">
+                <span class="story-meta-badge bg-danger-subtle text-danger border border-danger-subtle">
+                  <i class="bi bi-exclamation-circle-fill me-1"></i> Prioridad Alta
+                </span>
+                <span class="story-meta-badge bg-primary-subtle text-primary border border-primary-subtle">
+                  <i class="bi bi-award-fill me-1"></i> 8 Story Points
+                </span>
+                <span class="story-meta-badge bg-light text-muted border">
+                  <i class="bi bi-list-task me-1"></i> 3 Tareas
+                </span>
+              </div>
+
+            </div>
+          </button>
+        </h2>
+
+        <div id="collapseStoryOne" class="accordion-collapse collapse show" data-bs-parent="#accordionSprintBacklog">
+          <div class="accordion-body p-0">
+            
+            <!-- Descripción breve de la HU y Botón de Acción -->
+            <div class="p-3 bg-light bg-opacity-75 border-bottom d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2">
+              <p class="text-muted small mb-0">
+                <strong>Criterio de Aceptación:</strong> El usuario debe recibir un token OTP de 6 dígitos por SMS/Email luego de ingresar credenciales correctas.
+              </p>
+              <button type="button" class="btn btn-sm btn-primary d-inline-flex align-items-center gap-1 shadow-sm text-nowrap" onclick="prepararModalTarea('HU-01: Iniciar Sesión con 2FA')" data-bs-toggle="modal" data-bs-target="#modalAgregarTarea">
+                <i class="bi bi-plus-lg"></i>
+                <span>Agregar Tarea</span>
+              </button>
+            </div>
+
+            <!-- Tabla Anidada de Tareas -->
+            <div class="table-responsive">
+              <table class="table table-custom mb-0">
+                <thead>
+                  <tr>
+                    <th scope="col" style="min-width: 220px;">Nombre de la Tarea</th>
+                    <th scope="col" style="min-width: 170px;">Responsable</th>
+                    <th scope="col" style="min-width: 130px;">Estimación</th>
+                    <th scope="col" style="min-width: 160px;">Estado</th>
+                    <th scope="col" class="text-end" style="min-width: 90px;">Acción</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  
+                  <!-- Tarea 1 -->
+                  <tr>
+                    <td>
+                      <div class="fw-semibold text-dark">Diseñar pantalla de ingreso de código OTP 2FA</div>
+                      <small class="text-muted">Prototipado en Figma y maquetado con Bootstrap</small>
+                    </td>
+                    <td>
+                      <div class="d-flex align-items-center gap-2">
+                        <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 28px; height: 28px; font-size: 0.75rem;">
+                          AG
+                        </div>
+                        <div>
+                          <span class="small fw-medium text-dark">Ana Gómez</span>
+                          <div class="text-muted" style="font-size: 0.7rem;">Frontend Dev</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <span class="badge bg-light text-dark border">
+                        <i class="bi bi-clock me-1 text-muted"></i> 8 horas
+                      </span>
+                    </td>
+                    <td>
+                      <div class="dropdown">
+                        <button class="status-badge-select status-finalizado dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                          <span class="status-dot"></span>
+                          <span class="status-text">Finalizado</span>
+                        </button>
+                        <ul class="dropdown-menu shadow-sm">
+                          <li><a class="dropdown-item small" href="#" onclick="cambiarEstadoTarea(this, 'pendiente')"><span class="status-dot bg-warning me-2"></span>Pendiente</a></li>
+                          <li><a class="dropdown-item small" href="#" onclick="cambiarEstadoTarea(this, 'progreso')"><span class="status-dot bg-info me-2"></span>En progreso</a></li>
+                          <li><a class="dropdown-item small" href="#" onclick="cambiarEstadoTarea(this, 'revision')"><span class="status-dot bg-purple me-2"></span>En revisión</a></li>
+                          <li><a class="dropdown-item small" href="#" onclick="cambiarEstadoTarea(this, 'finalizado')"><span class="status-dot bg-success me-2"></span>Finalizado</a></li>
+                        </ul>
+                      </div>
+                    </td>
+                    <td class="text-end">
+                      <button class="btn btn-sm btn-link text-muted p-1" title="Opciones"><i class="bi bi-three-dots"></i></button>
+                    </td>
+                  </tr>
+
+                  <!-- Tarea 2 -->
+                  <tr>
+                    <td>
+                      <div class="fw-semibold text-dark">Implementar microservicio para generación y envío SMS/Email OTP</div>
+                      <small class="text-muted">Integración con proveedor Twilio y SendGrid</small>
+                    </td>
+                    <td>
+                      <div class="d-flex align-items-center gap-2">
+                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 28px; height: 28px; font-size: 0.75rem;">
+                          CR
+                        </div>
+                        <div>
+                          <span class="small fw-medium text-dark">Carlos Ruiz</span>
+                          <div class="text-muted" style="font-size: 0.7rem;">Backend Lead</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <span class="badge bg-light text-dark border">
+                        <i class="bi bi-clock me-1 text-muted"></i> 16 horas
+                      </span>
+                    </td>
+                    <td>
+                      <div class="dropdown">
+                        <button class="status-badge-select status-revision dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                          <span class="status-dot"></span>
+                          <span class="status-text">En revisión</span>
+                        </button>
+                        <ul class="dropdown-menu shadow-sm">
+                          <li><a class="dropdown-item small" href="#" onclick="cambiarEstadoTarea(this, 'pendiente')"><span class="status-dot bg-warning me-2"></span>Pendiente</a></li>
+                          <li><a class="dropdown-item small" href="#" onclick="cambiarEstadoTarea(this, 'progreso')"><span class="status-dot bg-info me-2"></span>En progreso</a></li>
+                          <li><a class="dropdown-item small" href="#" onclick="cambiarEstadoTarea(this, 'revision')"><span class="status-dot bg-purple me-2"></span>En revisión</a></li>
+                          <li><a class="dropdown-item small" href="#" onclick="cambiarEstadoTarea(this, 'finalizado')"><span class="status-dot bg-success me-2"></span>Finalizado</a></li>
+                        </ul>
+                      </div>
+                    </td>
+                    <td class="text-end">
+                      <button class="btn btn-sm btn-link text-muted p-1" title="Opciones"><i class="bi bi-three-dots"></i></button>
+                    </td>
+                  </tr>
+
+                  <!-- Tarea 3 -->
+                  <tr>
+                    <td>
+                      <div class="fw-semibold text-dark">Pruebas unitarias y de estrés contra ataques de fuerza bruta</div>
+                      <small class="text-muted">Rate limiting de máximo 5 intentos antes de bloqueo temporal</small>
+                    </td>
+                    <td>
+                      <div class="d-flex align-items-center gap-2">
+                        <div class="bg-warning text-dark rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 28px; height: 28px; font-size: 0.75rem;">
+                          MS
+                        </div>
+                        <div>
+                          <span class="small fw-medium text-dark">Mateo Silva</span>
+                          <div class="text-muted" style="font-size: 0.7rem;">QA Engineer</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <span class="badge bg-light text-dark border">
+                        <i class="bi bi-clock me-1 text-muted"></i> 6 horas
+                      </span>
+                    </td>
+                    <td>
+                      <div class="dropdown">
+                        <button class="status-badge-select status-progreso dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                          <span class="status-dot"></span>
+                          <span class="status-text">En progreso</span>
+                        </button>
+                        <ul class="dropdown-menu shadow-sm">
+                          <li><a class="dropdown-item small" href="#" onclick="cambiarEstadoTarea(this, 'pendiente')"><span class="status-dot bg-warning me-2"></span>Pendiente</a></li>
+                          <li><a class="dropdown-item small" href="#" onclick="cambiarEstadoTarea(this, 'progreso')"><span class="status-dot bg-info me-2"></span>En progreso</a></li>
+                          <li><a class="dropdown-item small" href="#" onclick="cambiarEstadoTarea(this, 'revision')"><span class="status-dot bg-purple me-2"></span>En revisión</a></li>
+                          <li><a class="dropdown-item small" href="#" onclick="cambiarEstadoTarea(this, 'finalizado')"><span class="status-dot bg-success me-2"></span>Finalizado</a></li>
+                        </ul>
+                      </div>
+                    </td>
+                    <td class="text-end">
+                      <button class="btn btn-sm btn-link text-muted p-1" title="Opciones"><i class="bi bi-three-dots"></i></button>
+                    </td>
+                  </tr>
+
+                </tbody>
+              </table>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- ============================================================ -->
+      <!-- HISTORIA 2: HU-02                                            -->
+      <!-- ============================================================ -->
+      <div class="accordion-item shadow-sm">
+        <h2 class="accordion-header" id="headingStoryTwo">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseStoryTwo" aria-expanded="false">
+            <div class="d-flex flex-wrap align-items-center justify-content-between w-100 me-3 gap-2">
+              
+              <div class="d-flex align-items-center gap-2">
+                <span class="badge bg-primary text-white px-2 py-1">HU-02</span>
+                <span class="fw-bold text-dark">Gestión de Perfiles y Recuperación de Contraseña</span>
+              </div>
+
+              <div class="d-flex align-items-center gap-2 flex-wrap">
+                <span class="story-meta-badge bg-warning-subtle text-warning-emphasis border border-warning-subtle">
+                  <i class="bi bi-dash-circle-fill me-1"></i> Prioridad Media
+                </span>
+                <span class="story-meta-badge bg-primary-subtle text-primary border border-primary-subtle">
+                  <i class="bi bi-award-fill me-1"></i> 5 Story Points
+                </span>
+                <span class="story-meta-badge bg-light text-muted border">
+                  <i class="bi bi-list-task me-1"></i> 3 Tareas
+                </span>
+              </div>
+
+            </div>
+          </button>
+        </h2>
+
+        <div id="collapseStoryTwo" class="accordion-collapse collapse" data-bs-parent="#accordionSprintBacklog">
+          <div class="accordion-body p-0">
+            
+            <div class="p-3 bg-light bg-opacity-75 border-bottom d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2">
+              <p class="text-muted small mb-0">
+                <strong>Criterio de Aceptación:</strong> Envío de enlace temporal válido por 15 minutos para restablecer credenciales.
+              </p>
+              <button type="button" class="btn btn-sm btn-primary d-inline-flex align-items-center gap-1 shadow-sm text-nowrap" onclick="prepararModalTarea('HU-02: Gestión de Perfiles y Contraseña')" data-bs-toggle="modal" data-bs-target="#modalAgregarTarea">
+                <i class="bi bi-plus-lg"></i>
+                <span>Agregar Tarea</span>
+              </button>
+            </div>
+
+            <div class="table-responsive">
+              <table class="table table-custom mb-0">
+                <thead>
+                  <tr>
+                    <th scope="col" style="min-width: 220px;">Nombre de la Tarea</th>
+                    <th scope="col" style="min-width: 170px;">Responsable</th>
+                    <th scope="col" style="min-width: 130px;">Estimación</th>
+                    <th scope="col" style="min-width: 160px;">Estado</th>
+                    <th scope="col" class="text-end" style="min-width: 90px;">Acción</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  
+                  <tr>
+                    <td>
+                      <div class="fw-semibold text-dark">Maquetado del modal de recuperación de clave y validación de formulario</div>
+                      <small class="text-muted">Feedback en tiempo real con expresiones regulares</small>
+                    </td>
+                    <td>
+                      <div class="d-flex align-items-center gap-2">
+                        <div class="bg-info text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 28px; height: 28px; font-size: 0.75rem;">
+                          LM
+                        </div>
+                        <div>
+                          <span class="small fw-medium text-dark">Lucía Morales</span>
+                          <div class="text-muted" style="font-size: 0.7rem;">UI/UX Designer</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <span class="badge bg-light text-dark border">
+                        <i class="bi bi-clock me-1 text-muted"></i> 5 horas
+                      </span>
+                    </td>
+                    <td>
+                      <div class="dropdown">
+                        <button class="status-badge-select status-finalizado dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                          <span class="status-dot"></span>
+                          <span class="status-text">Finalizado</span>
+                        </button>
+                        <ul class="dropdown-menu shadow-sm">
+                          <li><a class="dropdown-item small" href="#" onclick="cambiarEstadoTarea(this, 'pendiente')"><span class="status-dot bg-warning me-2"></span>Pendiente</a></li>
+                          <li><a class="dropdown-item small" href="#" onclick="cambiarEstadoTarea(this, 'progreso')"><span class="status-dot bg-info me-2"></span>En progreso</a></li>
+                          <li><a class="dropdown-item small" href="#" onclick="cambiarEstadoTarea(this, 'revision')"><span class="status-dot bg-purple me-2"></span>En revisión</a></li>
+                          <li><a class="dropdown-item small" href="#" onclick="cambiarEstadoTarea(this, 'finalizado')"><span class="status-dot bg-success me-2"></span>Finalizado</a></li>
+                        </ul>
+                      </div>
+                    </td>
+                    <td class="text-end">
+                      <button class="btn btn-sm btn-link text-muted p-1" title="Opciones"><i class="bi bi-three-dots"></i></button>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td>
+                      <div class="fw-semibold text-dark">Endpoint de backend para validación de token de restablecimiento</div>
+                      <small class="text-muted">Expiración automática e invalidación de token de un solo uso</small>
+                    </td>
+                    <td>
+                      <div class="d-flex align-items-center gap-2">
+                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 28px; height: 28px; font-size: 0.75rem;">
+                          CR
+                        </div>
+                        <div>
+                          <span class="small fw-medium text-dark">Carlos Ruiz</span>
+                          <div class="text-muted" style="font-size: 0.7rem;">Backend Lead</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <span class="badge bg-light text-dark border">
+                        <i class="bi bi-clock me-1 text-muted"></i> 10 horas
+                      </span>
+                    </td>
+                    <td>
+                      <div class="dropdown">
+                        <button class="status-badge-select status-progreso dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                          <span class="status-dot"></span>
+                          <span class="status-text">En progreso</span>
+                        </button>
+                        <ul class="dropdown-menu shadow-sm">
+                          <li><a class="dropdown-item small" href="#" onclick="cambiarEstadoTarea(this, 'pendiente')"><span class="status-dot bg-warning me-2"></span>Pendiente</a></li>
+                          <li><a class="dropdown-item small" href="#" onclick="cambiarEstadoTarea(this, 'progreso')"><span class="status-dot bg-info me-2"></span>En progreso</a></li>
+                          <li><a class="dropdown-item small" href="#" onclick="cambiarEstadoTarea(this, 'revision')"><span class="status-dot bg-purple me-2"></span>En revisión</a></li>
+                          <li><a class="dropdown-item small" href="#" onclick="cambiarEstadoTarea(this, 'finalizado')"><span class="status-dot bg-success me-2"></span>Finalizado</a></li>
+                        </ul>
+                      </div>
+                    </td>
+                    <td class="text-end">
+                      <button class="btn btn-sm btn-link text-muted p-1" title="Opciones"><i class="bi bi-three-dots"></i></button>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td>
+                      <div class="fw-semibold text-dark">Validación de fortaleza de contraseñas contra base de datos de leaks</div>
+                      <small class="text-muted">Verificación opcional contra API 'Have I Been Pwned'</small>
+                    </td>
+                    <td>
+                      <div class="d-flex align-items-center gap-2">
+                        <div class="bg-warning text-dark rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 28px; height: 28px; font-size: 0.75rem;">
+                          MS
+                        </div>
+                        <div>
+                          <span class="small fw-medium text-dark">Mateo Silva</span>
+                          <div class="text-muted" style="font-size: 0.7rem;">QA Engineer</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <span class="badge bg-light text-dark border">
+                        <i class="bi bi-clock me-1 text-muted"></i> 4 horas
+                      </span>
+                    </td>
+                    <td>
+                      <div class="dropdown">
+                        <button class="status-badge-select status-pendiente dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                          <span class="status-dot"></span>
+                          <span class="status-text">Pendiente</span>
+                        </button>
+                        <ul class="dropdown-menu shadow-sm">
+                          <li><a class="dropdown-item small" href="#" onclick="cambiarEstadoTarea(this, 'pendiente')"><span class="status-dot bg-warning me-2"></span>Pendiente</a></li>
+                          <li><a class="dropdown-item small" href="#" onclick="cambiarEstadoTarea(this, 'progreso')"><span class="status-dot bg-info me-2"></span>En progreso</a></li>
+                          <li><a class="dropdown-item small" href="#" onclick="cambiarEstadoTarea(this, 'revision')"><span class="status-dot bg-purple me-2"></span>En revisión</a></li>
+                          <li><a class="dropdown-item small" href="#" onclick="cambiarEstadoTarea(this, 'finalizado')"><span class="status-dot bg-success me-2"></span>Finalizado</a></li>
+                        </ul>
+                      </div>
+                    </td>
+                    <td class="text-end">
+                      <button class="btn btn-sm btn-link text-muted p-1" title="Opciones"><i class="bi bi-three-dots"></i></button>
+                    </td>
+                  </tr>
+
+                </tbody>
+              </table>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- ============================================================ -->
+      <!-- HISTORIA 3: HU-03                                            -->
+      <!-- ============================================================ -->
+      <div class="accordion-item shadow-sm">
+        <h2 class="accordion-header" id="headingStoryThree">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseStoryThree" aria-expanded="false">
+            <div class="d-flex flex-wrap align-items-center justify-content-between w-100 me-3 gap-2">
+              
+              <div class="d-flex align-items-center gap-2">
+                <span class="badge bg-primary text-white px-2 py-1">HU-03</span>
+                <span class="fw-bold text-dark">Auditoría y Registro de Inicios de Sesión Sospechosos</span>
+              </div>
+
+              <div class="d-flex align-items-center gap-2 flex-wrap">
+                <span class="story-meta-badge bg-info-subtle text-info-emphasis border border-info-subtle">
+                  <i class="bi bi-info-circle-fill me-1"></i> Prioridad Media
+                </span>
+                <span class="story-meta-badge bg-primary-subtle text-primary border border-primary-subtle">
+                  <i class="bi bi-award-fill me-1"></i> 5 Story Points
+                </span>
+                <span class="story-meta-badge bg-light text-muted border">
+                  <i class="bi bi-list-task me-1"></i> 2 Tareas
+                </span>
+              </div>
+
+            </div>
+          </button>
+        </h2>
+
+        <div id="collapseStoryThree" class="accordion-collapse collapse" data-bs-parent="#accordionSprintBacklog">
+          <div class="accordion-body p-0">
+            
+            <div class="p-3 bg-light bg-opacity-75 border-bottom d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2">
+              <p class="text-muted small mb-0">
+                <strong>Criterio de Aceptación:</strong> Alerta automática por email si se detecta un inicio de sesión desde un nuevo país o dirección IP inusual.
+              </p>
+              <button type="button" class="btn btn-sm btn-primary d-inline-flex align-items-center gap-1 shadow-sm text-nowrap" onclick="prepararModalTarea('HU-03: Auditoría y Registro de Accesos')" data-bs-toggle="modal" data-bs-target="#modalAgregarTarea">
+                <i class="bi bi-plus-lg"></i>
+                <span>Agregar Tarea</span>
+              </button>
+            </div>
+
+            <div class="table-responsive">
+              <table class="table table-custom mb-0">
+                <thead>
+                  <tr>
+                    <th scope="col" style="min-width: 220px;">Nombre de la Tarea</th>
+                    <th scope="col" style="min-width: 170px;">Responsable</th>
+                    <th scope="col" style="min-width: 130px;">Estimación</th>
+                    <th scope="col" style="min-width: 160px;">Estado</th>
+                    <th scope="col" class="text-end" style="min-width: 90px;">Acción</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  
+                  <tr>
+                    <td>
+                      <div class="fw-semibold text-dark">Diseño del esquema de base de datos para auditoría de conexiones e IP</div>
+                      <small class="text-muted">Tabla particionada por mes para optimizar consultas masivas</small>
+                    </td>
+                    <td>
+                      <div class="d-flex align-items-center gap-2">
+                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 28px; height: 28px; font-size: 0.75rem;">
+                          CR
+                        </div>
+                        <div>
+                          <span class="small fw-medium text-dark">Carlos Ruiz</span>
+                          <div class="text-muted" style="font-size: 0.7rem;">Backend Lead</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <span class="badge bg-light text-dark border">
+                        <i class="bi bi-clock me-1 text-muted"></i> 8 horas
+                      </span>
+                    </td>
+                    <td>
+                      <div class="dropdown">
+                        <button class="status-badge-select status-progreso dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                          <span class="status-dot"></span>
+                          <span class="status-text">En progreso</span>
+                        </button>
+                        <ul class="dropdown-menu shadow-sm">
+                          <li><a class="dropdown-item small" href="#" onclick="cambiarEstadoTarea(this, 'pendiente')"><span class="status-dot bg-warning me-2"></span>Pendiente</a></li>
+                          <li><a class="dropdown-item small" href="#" onclick="cambiarEstadoTarea(this, 'progreso')"><span class="status-dot bg-info me-2"></span>En progreso</a></li>
+                          <li><a class="dropdown-item small" href="#" onclick="cambiarEstadoTarea(this, 'revision')"><span class="status-dot bg-purple me-2"></span>En revisión</a></li>
+                          <li><a class="dropdown-item small" href="#" onclick="cambiarEstadoTarea(this, 'finalizado')"><span class="status-dot bg-success me-2"></span>Finalizado</a></li>
+                        </ul>
+                      </div>
+                    </td>
+                    <td class="text-end">
+                      <button class="btn btn-sm btn-link text-muted p-1" title="Opciones"><i class="bi bi-three-dots"></i></button>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td>
+                      <div class="fw-semibold text-dark">Componente visual de alertas de seguridad y registro de sesiones activas</div>
+                      <small class="text-muted">Botón para revocar sesiones sospechosas en tiempo real</small>
+                    </td>
+                    <td>
+                      <div class="d-flex align-items-center gap-2">
+                        <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 28px; height: 28px; font-size: 0.75rem;">
+                          AG
+                        </div>
+                        <div>
+                          <span class="small fw-medium text-dark">Ana Gómez</span>
+                          <div class="text-muted" style="font-size: 0.7rem;">Frontend Dev</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <span class="badge bg-light text-dark border">
+                        <i class="bi bi-clock me-1 text-muted"></i> 6 horas
+                      </span>
+                    </td>
+                    <td>
+                      <div class="dropdown">
+                        <button class="status-badge-select status-pendiente dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                          <span class="status-dot"></span>
+                          <span class="status-text">Pendiente</span>
+                        </button>
+                        <ul class="dropdown-menu shadow-sm">
+                          <li><a class="dropdown-item small" href="#" onclick="cambiarEstadoTarea(this, 'pendiente')"><span class="status-dot bg-warning me-2"></span>Pendiente</a></li>
+                          <li><a class="dropdown-item small" href="#" onclick="cambiarEstadoTarea(this, 'progreso')"><span class="status-dot bg-info me-2"></span>En progreso</a></li>
+                          <li><a class="dropdown-item small" href="#" onclick="cambiarEstadoTarea(this, 'revision')"><span class="status-dot bg-purple me-2"></span>En revisión</a></li>
+                          <li><a class="dropdown-item small" href="#" onclick="cambiarEstadoTarea(this, 'finalizado')"><span class="status-dot bg-success me-2"></span>Finalizado</a></li>
+                        </ul>
+                      </div>
+                    </td>
+                    <td class="text-end">
+                      <button class="btn btn-sm btn-link text-muted p-1" title="Opciones"><i class="bi bi-three-dots"></i></button>
+                    </td>
+                  </tr>
+
+                </tbody>
+              </table>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- ========================================================= -->
+  <!-- MODAL: AGREGAR TAREA (REQUERIMIENTO 5)                    -->
+  <!-- ========================================================= -->
+  <div class="modal fade" id="modalAgregarTarea" tabindex="-1" aria-labelledby="modalAgregarTareaLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg">
+        
+        <!-- Modal Header -->
+        <div class="modal-header bg-dark text-white px-4 py-3">
+          <div class="d-flex align-items-center gap-2">
+            <div class="bg-primary p-2 rounded text-white">
+              <i class="bi bi-check2-circle fs-5"></i>
+            </div>
+            <div>
+              <h5 class="modal-title fw-bold fs-5 mb-0" id="modalAgregarTareaLabel">Agregar Nueva Tarea</h5>
+              <small class="text-light text-opacity-75" id="modalTareaSubtitulo">Asociada a: Historia de Usuario</small>
+            </div>
+          </div>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+
+        <!-- Formulario del Modal -->
+        <form id="formAgregarTarea" onsubmit="guardarNuevaTarea(event)">
+          <div class="modal-body p-4">
+            
+            <div class="row g-3">
+              
+              <!-- HU Contextual -->
+              <div class="col-12">
+                <label class="form-label fw-semibold text-dark small">Historia de Usuario Relacionada</label>
+                <input type="text" class="form-control form-control-sm bg-light" id="tareaHuAsociada" value="HU-01: Iniciar Sesión con 2FA" readonly>
+              </div>
+
+              <!-- 1. Nombre de la Tarea -->
+              <div class="col-12">
+                <label for="tareaNombre" class="form-label fw-semibold text-dark">
+                  Nombre de la Tarea <span class="text-danger">*</span>
+                </label>
+                <input type="text" class="form-control" id="tareaNombre" placeholder="ej. Crear validación criptográfica en backend" required>
+              </div>
+
+              <!-- 2. Descripción de la Tarea -->
+              <div class="col-12">
+                <label for="tareaDescripcion" class="form-label fw-semibold text-dark">
+                  Descripción Técnica de la Tarea <span class="text-danger">*</span>
+                </label>
+                <textarea class="form-control" id="tareaDescripcion" rows="2" placeholder="Detalla los requisitos técnicos, endpoints o librerías necesarias..." required></textarea>
+              </div>
+
+              <!-- 3. Asignar Responsable (Select de desarrolladores) -->
+              <div class="col-12">
+                <label for="tareaResponsable" class="form-label fw-semibold text-dark">
+                  Asignar Responsable <span class="text-danger">*</span>
+                </label>
+                <select class="form-select" id="tareaResponsable" required>
+                  <option value="" disabled selected>Selecciona un desarrollador...</option>
+                  <option value="Carlos Ruiz">Carlos Ruiz (Backend Lead)</option>
+                  <option value="Ana Gómez">Ana Gómez (Frontend Dev)</option>
+                  <option value="Mateo Silva">Mateo Silva (QA Automation)</option>
+                  <option value="Lucía Morales">Lucía Morales (UI/UX Designer)</option>
+                </select>
+              </div>
+
+              <!-- 4. Estimación de Esfuerzo en Horas -->
+              <div class="col-12 col-md-6">
+                <label for="tareaHoras" class="form-label fw-semibold text-dark">
+                  Estimación (Horas) <span class="text-danger">*</span>
+                </label>
+                <div class="input-group">
+                  <span class="input-group-text bg-light"><i class="bi bi-clock text-muted"></i></span>
+                  <input type="number" class="form-control" id="tareaHoras" placeholder="ej. 8" min="1" max="100" required>
+                  <span class="input-group-text bg-light text-muted small">hrs</span>
+                </div>
+              </div>
+
+              <!-- 5. Estado Inicial (Select por defecto en 'Pendiente') -->
+              <div class="col-12 col-md-6">
+                <label for="tareaEstadoInicial" class="form-label fw-semibold text-dark">
+                  Estado Inicial <span class="text-danger">*</span>
+                </label>
+                <select class="form-select" id="tareaEstadoInicial" required>
+                  <option value="Pendiente" selected>Pendiente</option>
+                  <option value="En progreso">En progreso</option>
+                  <option value="En revisión">En revisión</option>
+                  <option value="Finalizado">Finalizado</option>
+                </select>
+              </div>
+
+            </div>
+
+          </div>
+
+          <!-- Modal Footer -->
+          <div class="modal-footer bg-light px-4 py-3">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-primary d-flex align-items-center gap-2">
+              <i class="bi bi-check2-circle"></i>
+              <span>Guardar Tarea</span>
+            </button>
+          </div>
+        </form>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
