@@ -44,6 +44,13 @@
 
       <!-- Perfil Cliente -->
       <div class="d-flex align-items-center gap-3">
+        <div class="d-none d-md-flex align-items-center gap-2 px-3 py-1 bg-dark-subtle rounded-pill border border-secondary border-opacity-25 text-light text-opacity-75 small">
+          <span class="status-dot bg-success"></span>
+          <span>Sprint 1 en curso</span>
+          <span class="text-secondary">|</span>
+          <span class="fw-medium text-info">Día 9 de 14</span>
+        </div>
+
         <div class="dropdown">
           <button class="btn btn-dark d-flex align-items-center gap-2 py-1 px-2 rounded-3 border border-secondary border-opacity-25" type="button" data-bs-toggle="dropdown" aria-expanded="false">
             <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 32px; height: 32px; font-size: 0.85rem;">AG</div>
@@ -76,17 +83,33 @@
 
     <div class="sidebar-heading">Vista Cliente</div>
     <nav class="nav flex-column mb-3">
+      <a href="inicio-cliente.html" class="sidebar-nav-link">
+        <i class="bi bi-house"></i>
+        <span>Inicio</span>
+      </a>
       <a href="proyectos-cliente.html" class="sidebar-nav-link">
         <i class="bi bi-kanban"></i>
         <span>Mis Proyectos</span>
+      </a>
+      <a href="backlog-cliente.html" class="sidebar-nav-link">
+        <i class="bi bi-journal-text"></i>
+        <span>Product Backlog</span>
       </a>
       <a href="compromiso-sprint.html" class="sidebar-nav-link active">
         <i class="bi bi-card-checklist"></i>
         <span>Compromiso del Sprint</span>
       </a>
+      <a href="tablero-cliente.html" class="sidebar-nav-link">
+        <i class="bi bi-columns-gap"></i>
+        <span>Tablero</span>
+      </a>
       <a href="impedimentos-cliente.html" class="sidebar-nav-link">
         <i class="bi bi-cone-striped"></i>
         <span>Reportar Impedimento</span>
+      </a>
+      <a href="retrospectiva-cliente.html" class="sidebar-nav-link">
+        <i class="bi bi-chat-square-text"></i>
+        <span>Retrospectiva</span>
       </a>
     </nav>
 

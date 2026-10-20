@@ -137,6 +137,6 @@ function mostrarToast(mensaje, tipo = 'success') {
 function confirmarCierreSesion() {
   if (confirm('¿Estás seguro de que deseas cerrar sesión en SCRUM Manager?')) {
     alert('Sesión finalizada. Redirigiendo a pantalla de login...');
-    window.location.href = 'index.html';
+    window.location.href = 'cerrar-sesion.html';
   }
 }

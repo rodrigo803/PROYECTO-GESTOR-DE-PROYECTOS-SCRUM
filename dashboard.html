@@ -49,7 +49,7 @@
           <span class="status-dot bg-success"></span>
           <span>Sprint 1 en curso</span>
           <span class="text-secondary">|</span>
-          <span class="fw-medium text-info">Día 5 de 14</span>
+          <span class="fw-medium text-info">Día 9 de 14</span>
         </div>
 
         <!-- Notificaciones -->
@@ -102,52 +102,48 @@
     
     <div class="sidebar-heading">Navegación Principal</div>
     <nav class="nav flex-column mb-3">
-      
-      <!-- Opción 1: Dashboard (ACTIVO) -->
       <a href="dashboard.html" class="sidebar-nav-link active">
         <i class="bi bi-grid-1x2"></i>
         <span>Dashboard</span>
       </a>
-
-      <!-- Opción 2: Gestión de Usuarios -->
       <a href="usuarios.html" class="sidebar-nav-link">
         <i class="bi bi-people"></i>
         <span>Gestión de Usuarios</span>
       </a>
-
-      <!-- Gestión de Proyectos (HU-03) -->
       <a href="proyectos.html" class="sidebar-nav-link">
-        <i class="bi bi-folder2-open"></i>
+        <i class="bi bi-kanban"></i>
         <span>Gestión de Proyectos</span>
       </a>
-
-      <!-- Opción 3: Gestión de Sprints (Req 4) -->
+      <a href="product-backlog.html" class="sidebar-nav-link">
+        <i class="bi bi-journal-text"></i>
+        <span>Product Backlog</span>
+      </a>
       <a href="sprints.html" class="sidebar-nav-link">
         <i class="bi bi-arrow-repeat"></i>
         <span>Gestión de Sprints</span>
       </a>
-
-      <!-- Planificación del Sprint (HU-06) -->
       <a href="planificacion-sprint.html" class="sidebar-nav-link">
-        <i class="bi bi-list-check"></i>
+        <i class="bi bi-calendar2-week"></i>
         <span>Planificación del Sprint</span>
       </a>
-
-      <!-- Opción 4: Sprint Backlog (Req 5) -->
       <a href="sprint-backlog.html" class="sidebar-nav-link">
         <i class="bi bi-card-checklist"></i>
         <span>Sprint Backlog</span>
       </a>
-
-      <!-- Impedimentos (HU-09) -->
+      <a href="tablero-kanban.html" class="sidebar-nav-link">
+        <i class="bi bi-columns-gap"></i>
+        <span>Tablero Kanban</span>
+      </a>
       <a href="impedimentos.html" class="sidebar-nav-link">
-        <i class="bi bi-exclamation-octagon"></i>
+        <i class="bi bi-cone-striped"></i>
         <span>Impedimentos</span>
       </a>
-
+      <a href="retrospectiva.html" class="sidebar-nav-link">
+        <i class="bi bi-chat-square-text"></i>
+        <span>Retrospectiva</span>
+      </a>
     </nav>
 
-    <!-- Calidad (HU-12) -->
     <div class="sidebar-heading">Calidad</div>
     <nav class="nav flex-column mb-3">
       <a href="responsividad.html" class="sidebar-nav-link">
@@ -185,7 +181,23 @@
   <!-- 3. ÁREA DE CONTENIDO: DASHBOARD PRINCIPAL  -->
   <!-- ========================================== -->
   <main class="main-content">
-    
+
+    <!-- Encabezado de Página -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-3">
+      <div class="d-flex align-items-center gap-2 flex-wrap">
+        <h1 class="page-title mb-0">Dashboard e Indicadores</h1>
+        <span class="badge bg-primary-subtle text-primary border border-primary-subtle">HU-10</span>
+      </div>
+      <div class="view-switch">
+        <a href="dashboard.html" class="view-switch-option active">
+          <i class="bi bi-display"></i> Administrativa
+        </a>
+        <a href="inicio-cliente.html" class="view-switch-option">
+          <i class="bi bi-person"></i> Cliente
+        </a>
+      </div>
+    </div>
+
     <!-- Hero / Banner de Bienvenida -->
     <div class="p-4 p-lg-5 mb-4 rounded-4 text-white shadow-sm" style="background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%);">
       <div class="row align-items-center">
