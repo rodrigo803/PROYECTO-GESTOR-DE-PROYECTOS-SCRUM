@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SCRUM Manager - Sprints del Proyecto (Vista Cliente - HU-05)</title>
+  
+  <!-- Bootstrap 5 CSS CDN -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  
+  <!-- Bootstrap Icons CDN -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  
+  <!-- Google Fonts (Inter) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Estilos Personalizados Externos -->
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/modulos-sergio.css">
+  <link rel="stylesheet" href="css/modulos-jesus.css">
+</head>
+<body>
+
+  <!-- ========================================== -->
+  <!-- 1. NAVBAR SUPERIOR OSCURO                  -->
+  <!-- ========================================== -->
+  <nav class="navbar navbar-dark admin-navbar px-3 px-lg-4">
+    <div class="container-fluid p-0 d-flex align-items-center justify-content-between">
+      
+      <!-- Brand & Mobile Toggle -->
+      <div class="d-flex align-items-center gap-3">
+        <button class="btn btn-outline-secondary btn-sm d-lg-none text-light border-0" type="button" id="sidebarToggle" aria-label="Abrir menú">
+          <i class="bi bi-list fs-4"></i>
+        </button>
+        
+        <a class="navbar-brand d-flex align-items-center gap-2 m-0" href="inicio-cliente.html">
+          <span class="brand-logo-badge">
+            <i class="bi bi-kanban-fill"></i>
+          </span>
+          <span class="fw-bold tracking-tight text-white fs-5">SCRUM <span class="fw-semibold" style="color: #818cf8 !important;">Manager</span></span>
+        </a>
+      </div>
+
+      <!-- Chip de estado del Sprint y Perfil Cliente -->
+      <div class="d-flex align-items-center gap-3">
+        
+        <div class="d-none d-md-flex align-items-center gap-2 px-3 py-1 bg-dark-subtle rounded-pill border border-secondary border-opacity-25 text-light text-opacity-75 small">
+          <span class="status-dot bg-success"></span>
+          <span>Sprint 1 en curso</span>
+          <span class="text-secondary">|</span>
+          <span class="fw-medium text-info">Día 9 de 14</span>
+        </div>
+
+        <!-- Perfil Cliente (Ana Gómez) -->
+        <div class="dropdown">
+          <button class="btn btn-dark d-flex align-items-center gap-2 py-1 px-2 rounded-3 border border-secondary border-opacity-25" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 32px; height: 32px; font-size: 0.85rem;">
+              AG
+            </div>
+            <div class="text-start d-none d-sm-block pe-1">
+              <div class="text-white fw-semibold small lh-1">Ana Gómez</div>
+              <small class="text-light text-opacity-50" style="font-size: 0.72rem;">Frontend Dev · Squad</small>
+            </div>
+            <i class="bi bi-chevron-down text-light text-opacity-50 small"></i>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end shadow-sm py-2">
+            <li><h6 class="dropdown-header">Sesión de Integrante / Cliente</h6></li>
+            <li><a class="dropdown-item d-flex align-items-center gap-2" href="#"><i class="bi bi-person text-secondary"></i> Mi Perfil</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li>
+              <button class="dropdown-item d-flex align-items-center gap-2 text-danger" type="button" onclick="confirmarCierreSesion()">
+                <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+              </button>
+            </li>
+          </ul>
+        </div>
+
+      </div>
+
+    </div>
+  </nav>
+
+  <!-- ========================================== -->
+  <!-- 2. SIDEBAR DE CLIENTE                      -->
+  <!-- ========================================== -->
+  <aside class="admin-sidebar client-sidebar" id="adminSidebar">
+    
+    <div class="sidebar-heading">Vista Cliente</div>
+    <nav class="nav flex-column mb-3">
+      <a href="inicio-cliente.html" class="sidebar-nav-link">
+        <i class="bi bi-house"></i>
+        <span>Inicio (Dashboard)</span>
+      </a>
+      <a href="proyectos-cliente.html" class="sidebar-nav-link">
+        <i class="bi bi-kanban"></i>
+        <span>Mis Proyectos</span>
+      </a>
+      <a href="usuarios-cliente.html" class="sidebar-nav-link">
+        <i class="bi bi-people"></i>
+        <span>Equipo y Roles</span>
+      </a>
+      <a href="backlog-cliente.html" class="sidebar-nav-link">
+        <i class="bi bi-journal-text"></i>
+        <span>Product Backlog</span>
+      </a>
+      <a href="sprints-cliente.html" class="sidebar-nav-link active">
+        <i class="bi bi-arrow-repeat"></i>
+        <span>Sprints del Proyecto</span>
+      </a>
+      <a href="compromiso-sprint.html" class="sidebar-nav-link">
+        <i class="bi bi-calendar2-week"></i>
+        <span>Compromiso del Sprint</span>
+      </a>
+      <a href="sprint-backlog-cliente.html" class="sidebar-nav-link">
+        <i class="bi bi-card-checklist"></i>
+        <span>Sprint Backlog & Tareas</span>
+      </a>
+      <a href="tablero-cliente.html" class="sidebar-nav-link">
+        <i class="bi bi-columns-gap"></i>
+        <span>Tablero Kanban</span>
+      </a>
+      <a href="impedimentos-cliente.html" class="sidebar-nav-link">
+        <i class="bi bi-cone-striped"></i>
+        <span>Reportar Impedimento</span>
+      </a>
+      <a href="retrospectiva-cliente.html" class="sidebar-nav-link">
+        <i class="bi bi-chat-square-text"></i>
+        <span>Retrospectiva</span>
+      </a>
+    </nav>
+
+    <!-- Resumen de Proyecto Activo -->
+    <div class="sidebar-heading">Proyecto Asignado</div>
+    <div class="px-3 py-2">
+      <div class="p-3 rounded-3" style="background-color: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08);">
+        <div class="d-flex align-items-center justify-content-between mb-1">
+          <span class="text-white small fw-semibold">Fintech Mobile App</span>
+          <span class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-25" style="font-size: 0.65rem;">ACTIVO</span>
+        </div>
+        <p class="text-light text-opacity-50 small mb-2" style="font-size: 0.78rem;">Fase 2: Arquitectura de Pagos</p>
+        <div class="progress" style="height: 5px; background-color: rgba(255,255,255,0.1);">
+          <div class="progress-bar" role="progressbar" style="width: 68%; background-color: var(--client-accent);"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Botón Cerrar Sesión -->
+    <div class="mt-auto px-3 pt-4">
+      <button class="btn btn-outline-danger btn-sm w-100 d-flex align-items-center justify-content-center gap-2" onclick="confirmarCierreSesion()">
+        <i class="bi bi-box-arrow-right"></i>
+        <span>Cerrar Sesión</span>
+      </button>
+    </div>
+
+  </aside>
+
+  <!-- ========================================== -->
+  <!-- 3. ÁREA DE CONTENIDO: SPRINTS DEL PROYECTO -->
+  <!-- ========================================== -->
+  <main class="main-content">
+
+    <!-- Encabezado de la Pantalla -->
+    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-start gap-3 mb-4">
+      <div>
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb mb-1 small text-muted">
+            <li class="breadcrumb-item text-muted">Vista Cliente</li>
+            <li class="breadcrumb-item active fw-medium" aria-current="page" style="color: var(--client-accent-hover);">Sprints del Proyecto</li>
+          </ol>
+        </nav>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <h1 class="page-title mb-0">Sprints e Iteraciones del Proyecto</h1>
+          <span class="badge bg-primary-subtle text-primary border border-primary-subtle">HU-05</span>
+          <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1 fs-7">
+            <i class="bi bi-record-fill me-1"></i>Sprint 1 en Ejecución
+          </span>
+        </div>
+        <p class="page-subtitle mb-0">Supervisa las iteraciones de desarrollo, objetivos de negocio, fechas de entrega y ritmo de entrega del squad para Fintech Mobile App.</p>
+      </div>
+
+      <!-- Selector de Vista (Administrativa | Cliente) -->
+      <div class="view-switch view-switch-client">
+        <a href="sprints.html" class="view-switch-option">
+          <i class="bi bi-display"></i> Administrativa
+        </a>
+        <a href="sprints-cliente.html" class="view-switch-option active">
+          <i class="bi bi-person"></i> Cliente
+        </a>
+      </div>
+    </div>
+
+    <!-- Métricas Globales del Ciclo de Sprints -->
+    <div class="row g-3 mb-4">
+      <div class="col-6 col-lg-3">
+        <div class="metric-card d-flex align-items-center gap-3">
+          <div class="metric-card-icon metric-card-icon-teal"><i class="bi bi-calendar3-range"></i></div>
+          <div>
+            <div class="metric-card-label">Sprints del Proyecto</div>
+            <div class="metric-card-value">3 iteraciones</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <div class="metric-card d-flex align-items-center gap-3">
+          <div class="metric-card-icon metric-card-icon-indigo"><i class="bi bi-flag-fill"></i></div>
+          <div>
+            <div class="metric-card-label">Capacidad Sprint 1</div>
+            <div class="metric-card-value">42 pts</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <div class="metric-card d-flex align-items-center gap-3">
+          <div class="metric-card-icon metric-card-icon-amber"><i class="bi bi-speedometer2"></i></div>
+          <div>
+            <div class="metric-card-label">Velocidad Promedio</div>
+            <div class="metric-card-value">36 pts / sprint</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <div class="metric-card d-flex align-items-center gap-3">
+          <div class="metric-card-icon metric-card-icon-rose"><i class="bi bi-clock-history"></i></div>
+          <div>
+            <div class="metric-card-label">Tiempo Restante Sprint 1</div>
+            <div class="metric-card-value">5 días</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- SPRINT 1 ACTIVO: DETALLE DESTACADO         -->
+    <!-- ========================================== -->
+    <div class="card-custom p-4 mb-4 border-top border-4" style="border-top-color: var(--client-accent) !important;">
+      <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-3">
+        <div>
+          <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
+            <h4 class="fw-bold text-dark mb-0">Sprint 1 &mdash; Core Auth &amp; Onboarding</h4>
+            <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1 fs-7">
+              <i class="bi bi-play-circle-fill me-1"></i>En Curso · Activo
+            </span>
+            <span class="badge bg-info-subtle text-info border border-info-subtle">
+              <i class="bi bi-shield-check me-1"></i>A tiempo (+3.2 pts de avance)
+            </span>
+          </div>
+          <p class="text-muted small mb-0" style="max-width: 680px;">
+            <strong>Objetivo de Negocio:</strong> Implementar el flujo integral de registro, inicio de sesión seguro mediante doble factor de autenticación (2FA OTP) y configuración inicial de perfiles de usuario.
+          </p>
+        </div>
+        
+        <!-- Enlaces Rápidos del Sprint Activo -->
+        <div class="d-flex flex-wrap gap-2">
+          <a href="inicio-cliente.html#burndown" class="btn btn-outline-primary btn-sm">
+            <i class="bi bi-graph-down me-1"></i>Ver Burndown
+          </a>
+          <a href="sprint-backlog-cliente.html" class="btn btn-primary btn-sm">
+            <i class="bi bi-card-checklist me-1"></i>Ver Tareas del Sprint
+          </a>
+          <a href="tablero-cliente.html" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-columns-gap me-1"></i>Tablero Kanban
+          </a>
+        </div>
+      </div>
+
+      <!-- Barra de Progreso y Datos Clave -->
+      <div class="row g-3 align-items-center p-3 bg-light rounded-3">
+        <div class="col-12 col-md-5">
+          <div class="d-flex justify-content-between small mb-1">
+            <span class="text-muted fw-medium">Avance del Sprint:</span>
+            <strong class="text-primary">68% completado (29 de 42 pts)</strong>
+          </div>
+          <div class="progress" style="height: 8px;">
+            <div class="progress-bar" style="width: 68%; background-color: var(--client-accent);"></div>
+          </div>
+          <small class="text-muted mt-1 d-block">13 Story Points pendientes (50 horas en 6 tareas activas)</small>
+        </div>
+        <div class="col-6 col-md-3 border-start ps-md-3">
+          <span class="text-muted small d-block">Periodo de Iteración:</span>
+          <strong class="text-dark small"><i class="bi bi-calendar-event me-1 text-muted"></i>10 Oct &mdash; 24 Oct 2026</strong>
+          <small class="text-muted d-block">Día 9 de 14 · 2 semanas de duración</small>
+        </div>
+        <div class="col-6 col-md-2 border-start ps-md-3">
+          <span class="text-muted small d-block">Capacidad:</span>
+          <strong class="text-dark small">42 Story Points</strong>
+          <small class="text-muted d-block">160 hrs hombre</small>
+        </div>
+        <div class="col-12 col-md-2 border-start ps-md-3 text-md-end">
+          <span class="text-muted small d-block">Equipo Asignado:</span>
+          <span class="badge bg-secondary-subtle text-secondary border">4 desarrolladores</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- ROADMAP VISUAL DE ITERACIONES DEL PROYECTO -->
+    <!-- ========================================== -->
+    <h5 class="fw-bold text-dark mb-3"><i class="bi bi-signpost-split me-2 text-primary"></i>Roadmap de Sprints del Proyecto</h5>
+    <div class="row g-4 mb-4">
+
+      <!-- Sprint 0 (Cerrado) -->
+      <div class="col-12 col-lg-4">
+        <div class="card-custom p-3 h-100 border-start border-4 border-secondary">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <span class="badge bg-secondary-subtle text-secondary border">Sprint 0 · Cerrado</span>
+            <span class="badge bg-success-subtle text-success"><i class="bi bi-check2 me-1"></i>100% Cumplido</span>
+          </div>
+          <h5 class="fw-bold text-dark fs-6 mb-1">Setup &amp; Infraestructura Inicial</h5>
+          <small class="text-muted d-block mb-2"><i class="bi bi-calendar-check me-1"></i>20 Sep &mdash; 04 Oct 2026 (Finalizado)</small>
+          <p class="small text-muted mb-3">
+            Configuración de repositorios, pipeline de integración continua CI/CD, cluster de base de datos relacional y arquitectura base.
+          </p>
+          <div class="mt-auto pt-2 border-top d-flex justify-content-between align-items-center small">
+            <span class="text-muted">Puntos entregados:</span>
+            <strong class="text-dark">30 / 30 pts</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sprint 1 (Activo) -->
+      <div class="col-12 col-lg-4">
+        <div class="card-custom p-3 h-100 border-start border-4" style="border-left-color: var(--client-accent) !important; background-color: #f0fdfa;">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <span class="badge rounded-pill text-white" style="background-color: var(--client-accent);">Sprint 1 · Activo</span>
+            <span class="badge bg-info-subtle text-info border border-info-subtle">Día 9 de 14</span>
+          </div>
+          <h5 class="fw-bold text-dark fs-6 mb-1">Core Auth &amp; Onboarding</h5>
+          <small class="text-muted d-block mb-2"><i class="bi bi-clock me-1"></i>10 Oct &mdash; 24 Oct 2026 (En ejecución)</small>
+          <p class="small text-muted mb-3">
+            Flujo de registro y autenticación 2FA con SMS/Email OTP, recuperación de contraseñas y gestión de perfiles de usuario.
+          </p>
+          <div class="mt-auto pt-2 border-top d-flex justify-content-between align-items-center small">
+            <span class="text-muted">Avance del trabajo:</span>
+            <strong style="color: var(--client-accent-hover);">29 / 42 pts (68%)</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sprint 2 (Planificado) -->
+      <div class="col-12 col-lg-4">
+        <div class="card-custom p-3 h-100 border-start border-4 border-warning">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle">Sprint 2 · Planificado</span>
+            <span class="badge bg-light text-muted border">Próxima iteración</span>
+          </div>
+          <h5 class="fw-bold text-dark fs-6 mb-1">Billing &amp; Subscriptions</h5>
+          <small class="text-muted d-block mb-2"><i class="bi bi-calendar-event me-1"></i>27 Oct &mdash; 10 Nov 2026 (2 semanas)</small>
+          <p class="small text-muted mb-3">
+            Integración de checkout con pasarela de pago Stripe, facturación electrónica y gestión de suscripciones recurrentes.
+          </p>
+          <div class="mt-auto pt-2 border-top d-flex justify-content-between align-items-center small">
+            <span class="text-muted">Capacidad estimada:</span>
+            <strong class="text-dark">38 pts (HU-04, 05, 06)</strong>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Tabla Comparativa de Sprints para el Cliente -->
+    <div class="card-custom overflow-hidden">
+      <div class="p-3 border-bottom d-flex align-items-center justify-content-between bg-light bg-opacity-50">
+        <h5 class="mb-0 fw-bold fs-6 text-dark">Historial y Proyección de Sprints del Proyecto</h5>
+        <span class="badge bg-secondary-subtle text-secondary rounded-pill">Fintech Mobile App</span>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-custom table-hover align-middle">
+          <thead>
+            <tr>
+              <th>Sprint</th>
+              <th>Fechas de Iteración</th>
+              <th>Objetivo Principal</th>
+              <th>Capacidad</th>
+              <th>Estado</th>
+              <th class="text-end">Acción</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="table-success table-opacity-10">
+              <td>
+                <div class="fw-bold text-dark">Sprint 1</div>
+                <small class="text-muted">Core Auth &amp; Onboarding</small>
+              </td>
+              <td>
+                <span class="small text-dark fw-medium d-block">10 Oct &mdash; 24 Oct 2026</span>
+                <small class="text-success fw-medium">Día 9 de 14 · Quedan 5 días</small>
+              </td>
+              <td><small class="text-muted">Autenticación segura 2FA y perfiles de usuario.</small></td>
+              <td>
+                <span class="fw-semibold text-dark small">42 pts</span>
+                <small class="text-muted d-block">160 hrs estimadas</small>
+              </td>
+              <td>
+                <span class="badge bg-success-subtle text-success border border-success-subtle">
+                  <i class="bi bi-record-fill me-1"></i>Activo
+                </span>
+              </td>
+              <td class="text-end">
+                <a href="sprint-backlog-cliente.html" class="btn btn-sm btn-outline-primary">
+                  <i class="bi bi-card-checklist me-1"></i>Backlog
+                </a>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <div class="fw-bold text-dark">Sprint 2</div>
+                <small class="text-muted">Billing &amp; Subscriptions</small>
+              </td>
+              <td>
+                <span class="small text-dark fw-medium d-block">27 Oct &mdash; 10 Nov 2026</span>
+                <small class="text-muted">Inicia en 8 días</small>
+              </td>
+              <td><small class="text-muted">Pasarela Stripe y facturación electrónica.</small></td>
+              <td>
+                <span class="fw-semibold text-dark small">38 pts</span>
+                <small class="text-muted d-block">145 hrs estimadas</small>
+              </td>
+              <td>
+                <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle">
+                  <i class="bi bi-hourglass-split me-1"></i>Planificado
+                </span>
+              </td>
+              <td class="text-end">
+                <a href="compromiso-sprint.html" class="btn btn-sm btn-outline-secondary">
+                  <i class="bi bi-calendar2-week me-1"></i>Compromiso
+                </a>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <div class="fw-bold text-dark">Sprint 0</div>
+                <small class="text-muted">Setup &amp; Infraestructura</small>
+              </td>
+              <td>
+                <span class="small text-dark fw-medium d-block">20 Sep &mdash; 04 Oct 2026</span>
+                <small class="text-muted">Cerrado exitosamente</small>
+              </td>
+              <td><small class="text-muted">Pipeline CI/CD, base de datos y arquitectura base.</small></td>
+              <td>
+                <span class="fw-semibold text-dark small">30 pts</span>
+                <small class="text-muted d-block">120 hrs entregadas</small>
+              </td>
+              <td>
+                <span class="badge bg-secondary-subtle text-secondary border">
+                  <i class="bi bi-archive-fill me-1"></i>Cerrado
+                </span>
+              </td>
+              <td class="text-end">
+                <a href="inicio-cliente.html" class="btn btn-sm btn-outline-secondary">
+                  <i class="bi bi-eye me-1"></i>Resumen
+                </a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

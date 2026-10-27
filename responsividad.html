@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SCRUM Manager - Validación de Responsividad (HU-12)</title>
+
+  <!-- Bootstrap 5 CSS CDN -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+
+  <!-- Bootstrap Icons CDN -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+  <!-- Google Fonts (Inter) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Estilos Personalizados Externos -->
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/modulos-sergio.css">
+</head>
+<body>
+
+  <!-- ========================================== -->
+  <!-- 1. NAVBAR SUPERIOR OSCURO                  -->
+  <!-- ========================================== -->
+  <nav class="navbar navbar-dark admin-navbar px-3 px-lg-4">
+    <div class="container-fluid p-0 d-flex align-items-center justify-content-between">
+
+      <!-- Brand & Mobile Toggle -->
+      <div class="d-flex align-items-center gap-3">
+        <button class="btn btn-outline-secondary btn-sm d-lg-none text-light border-0" type="button" id="sidebarToggle" aria-label="Abrir menú">
+          <i class="bi bi-list fs-4"></i>
+        </button>
+
+        <a class="navbar-brand d-flex align-items-center gap-2 m-0" href="dashboard.html">
+          <span class="brand-logo-badge">
+            <i class="bi bi-kanban-fill"></i>
+          </span>
+          <span class="fw-bold tracking-tight text-white fs-5">SCRUM <span class="fw-semibold" style="color: #818cf8 !important;">Manager</span></span>
+        </a>
+      </div>
+
+      <!-- Perfil Administrador -->
+      <div class="d-flex align-items-center gap-3">
+        <div class="d-none d-md-flex align-items-center gap-2 px-3 py-1 bg-dark-subtle rounded-pill border border-secondary border-opacity-25 text-light text-opacity-75 small">
+          <span class="status-dot bg-success"></span>
+          <span>Sprint 1 en curso</span>
+          <span class="text-secondary">|</span>
+          <span class="fw-medium text-info">Día 9 de 14</span>
+        </div>
+
+        <div class="dropdown">
+          <button class="btn btn-dark d-flex align-items-center gap-2 py-1 px-2 rounded-3 border border-secondary border-opacity-25" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 32px; height: 32px; font-size: 0.85rem;">RM</div>
+            <div class="text-start d-none d-sm-block pe-1">
+              <div class="text-white fw-semibold small lh-1">Rodrigo Morales</div>
+              <small class="text-light text-opacity-50" style="font-size: 0.72rem;">Scrum Master / Admin</small>
+            </div>
+            <i class="bi bi-chevron-down text-light text-opacity-50 small"></i>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end shadow-sm py-2">
+            <li><h6 class="dropdown-header">Cuenta Administrador</h6></li>
+            <li><a class="dropdown-item d-flex align-items-center gap-2" href="#"><i class="bi bi-person text-secondary"></i> Mi Perfil</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li>
+              <button class="dropdown-item d-flex align-items-center gap-2 text-danger" type="button" onclick="confirmarCierreSesion()">
+                <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+              </button>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </nav>
+
+  <!-- ========================================== -->
+  <!-- 2. SIDEBAR FIJO (RESPONSIVIDAD ACTIVO)     -->
+  <!-- ========================================== -->
+  <aside class="admin-sidebar" id="adminSidebar">
+
+    <div class="sidebar-heading">Navegación Principal</div>
+    <nav class="nav flex-column mb-3">
+      <a href="dashboard.html" class="sidebar-nav-link">
+        <i class="bi bi-grid-1x2"></i>
+        <span>Dashboard</span>
+      </a>
+      <a href="usuarios.html" class="sidebar-nav-link">
+        <i class="bi bi-people"></i>
+        <span>Gestión de Usuarios</span>
+      </a>
+      <a href="proyectos.html" class="sidebar-nav-link">
+        <i class="bi bi-kanban"></i>
+        <span>Gestión de Proyectos</span>
+      </a>
+      <a href="product-backlog.html" class="sidebar-nav-link">
+        <i class="bi bi-journal-text"></i>
+        <span>Product Backlog</span>
+      </a>
+      <a href="sprints.html" class="sidebar-nav-link">
+        <i class="bi bi-arrow-repeat"></i>
+        <span>Gestión de Sprints</span>
+      </a>
+      <a href="planificacion-sprint.html" class="sidebar-nav-link">
+        <i class="bi bi-calendar2-week"></i>
+        <span>Planificación del Sprint</span>
+      </a>
+      <a href="sprint-backlog.html" class="sidebar-nav-link">
+        <i class="bi bi-card-checklist"></i>
+        <span>Sprint Backlog</span>
+      </a>
+      <a href="tablero-kanban.html" class="sidebar-nav-link">
+        <i class="bi bi-columns-gap"></i>
+        <span>Tablero Kanban</span>
+      </a>
+      <a href="impedimentos.html" class="sidebar-nav-link">
+        <i class="bi bi-cone-striped"></i>
+        <span>Impedimentos</span>
+      </a>
+      <a href="retrospectiva.html" class="sidebar-nav-link">
+        <i class="bi bi-chat-square-text"></i>
+        <span>Retrospectiva</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-heading">Calidad</div>
+    <nav class="nav flex-column mb-3">
+      <a href="responsividad.html" class="sidebar-nav-link active">
+        <i class="bi bi-phone"></i>
+        <span>Responsividad</span>
+      </a>
+    </nav>
+
+    <!-- Botón Cerrar Sesión en pie del Sidebar -->
+    <div class="mt-auto px-3 pt-4">
+      <button class="btn btn-outline-danger btn-sm w-100 d-flex align-items-center justify-content-center gap-2" onclick="confirmarCierreSesion()">
+        <i class="bi bi-box-arrow-right"></i>
+        <span>Cerrar Sesión</span>
+      </button>
+    </div>
+
+  </aside>
+
+  <!-- ========================================== -->
+  <!-- 3. ÁREA DE CONTENIDO: VALIDACIÓN DE RESPONSIVIDAD -->
+  <!-- ========================================== -->
+  <main class="main-content">
+
+    <!-- Encabezado de la Pantalla -->
+    <div class="mb-4">
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-1 small text-muted">
+          <li class="breadcrumb-item"><a href="dashboard.html" class="text-decoration-none text-muted">Inicio</a></li>
+          <li class="breadcrumb-item active text-primary fw-medium" aria-current="page">Responsividad</li>
+        </ol>
+      </nav>
+      <div class="d-flex align-items-center gap-2 flex-wrap">
+        <h1 class="page-title mb-0">Validación de Responsividad</h1>
+        <span class="badge bg-primary-subtle text-primary border border-primary-subtle">HU-12</span>
+      </div>
+      <p class="page-subtitle mb-0">Comprobación visual de que mis pantallas se adaptan correctamente a escritorio, tableta y móvil.</p>
+    </div>
+
+    <!-- Escala de Breakpoints de Bootstrap -->
+    <div class="card-custom p-4 mb-4">
+      <h5 class="fw-bold text-dark mb-3"><i class="bi bi-rulers text-primary me-2"></i>Escala de Breakpoints de Bootstrap</h5>
+
+      <div class="breakpoint-scale-wrapper">
+        <div class="breakpoint-marker" style="left: 23.4%;"></div>
+        <div class="breakpoint-marker-label" style="left: 23.4%;">375px <i class="bi bi-phone"></i></div>
+        <div class="breakpoint-marker" style="left: 48%;"></div>
+        <div class="breakpoint-marker-label" style="left: 48%;">768px <i class="bi bi-tablet"></i></div>
+        <div class="breakpoint-marker" style="left: 80%;"></div>
+        <div class="breakpoint-marker-label" style="left: 80%;">1280px <i class="bi bi-display"></i></div>
+
+        <div class="breakpoint-scale">
+          <div class="breakpoint-segment" style="width: 36%; background-color: #c7d2fe;">
+            xs <small>&lt;576px</small>
+          </div>
+          <div class="breakpoint-segment" style="width: 12%; background-color: #a5b4fc;">
+            sm <small>&ge;576px</small>
+          </div>
+          <div class="breakpoint-segment" style="width: 14%; background-color: #818cf8;">
+            md <small>&ge;768px</small>
+          </div>
+          <div class="breakpoint-segment" style="width: 13%; background-color: #6366f1;">
+            lg <small>&ge;992px</small>
+          </div>
+          <div class="breakpoint-segment" style="width: 12.5%; background-color: #4f46e5;">
+            xl <small>&ge;1200px</small>
+          </div>
+          <div class="breakpoint-segment" style="width: 12.5%; background-color: #4338ca;">
+            xxl <small>&ge;1400px</small>
+          </div>
+        </div>
+      </div>
+      <p class="small text-muted mb-0">
+        Las líneas punteadas marcan los tres anchos usados en las vistas previas de abajo: móvil (375px), tableta (768px) y escritorio (1280px).
+        El sidebar se oculta automáticamente por debajo de 992px (breakpoint <code>lg</code>).
+      </p>
+    </div>
+
+    <!-- Vista Previa por Página y Dispositivo -->
+    <div class="card-custom overflow-hidden mb-4">
+      <div class="p-3 border-bottom bg-light bg-opacity-50">
+        <h5 class="mb-0 fw-bold fs-6 text-dark">Vista Previa por Página y Dispositivo</h5>
+        <small class="text-muted">Cada pestaña muestra la misma página renderizada a 1280px, 768px y 375px mediante iframes escalados.</small>
+      </div>
+
+      <!-- Tabs de Navegación -->
+      <ul class="nav nav-tabs px-3 pt-2" id="previewTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button class="nav-link active" id="tab-proyectos-btn" data-bs-toggle="tab" data-bs-target="#tab-proyectos" type="button" role="tab">
+            <i class="bi bi-folder2-open me-1"></i>Proyectos
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="tab-planificacion-btn" data-bs-toggle="tab" data-bs-target="#tab-planificacion" type="button" role="tab">
+            <i class="bi bi-list-check me-1"></i>Planificación del Sprint
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="tab-impedimentos-btn" data-bs-toggle="tab" data-bs-target="#tab-impedimentos" type="button" role="tab">
+            <i class="bi bi-exclamation-octagon me-1"></i>Impedimentos
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="tab-cliente-btn" data-bs-toggle="tab" data-bs-target="#tab-cliente" type="button" role="tab">
+            <i class="bi bi-person me-1"></i>Vista Cliente
+          </button>
+        </li>
+      </ul>
+
+      <div class="tab-content p-3">
+
+        <!-- Preview: Gestión de Proyectos -->
+        <div class="tab-pane fade show active" id="tab-proyectos" role="tabpanel">
+          <div class="d-flex flex-wrap gap-3 justify-content-center justify-content-lg-start">
+
+            <div class="device-frame">
+              <div class="device-frame-header">
+                <span class="device-frame-dot"></span><span class="device-frame-dot"></span><span class="device-frame-dot"></span>
+                <span class="ms-2"><i class="bi bi-display me-1"></i>Escritorio &middot; 1280px</span>
+              </div>
+              <div class="device-frame-viewport device-frame-viewport-desktop">
+                <iframe src="proyectos.html" title="proyectos.html en escritorio" style="width: 1280px; height: 1040px; transform: scale(0.25);" loading="lazy"></iframe>
+              </div>
+            </div>
+
+            <div class="device-frame">
+              <div class="device-frame-header">
+                <span class="device-frame-dot"></span><span class="device-frame-dot"></span><span class="device-frame-dot"></span>
+                <span class="ms-2"><i class="bi bi-tablet me-1"></i>Tableta &middot; 768px</span>
+              </div>
+              <div class="device-frame-viewport device-frame-viewport-tablet">
+                <iframe src="proyectos.html" title="proyectos.html en tableta" style="width: 768px; height: 908px; transform: scale(0.2865);" loading="lazy"></iframe>
+              </div>
+            </div>
+
+            <div class="device-frame">
+              <div class="device-frame-header">
+                <span class="device-frame-dot"></span><span class="device-frame-dot"></span><span class="device-frame-dot"></span>
+                <span class="ms-2"><i class="bi bi-phone me-1"></i>Móvil &middot; 375px</span>
+              </div>
+              <div class="device-frame-viewport device-frame-viewport-mobile">
+                <iframe src="proyectos.html" title="proyectos.html en móvil" style="width: 375px; height: 650px; transform: scale(0.4);" loading="lazy"></iframe>
+              </div>
+            </div>
+
+          </div>
+          <p class="small text-muted mt-3 mb-0">
+            En móvil, la tabla de proyectos se sustituye por tarjetas (<code>d-none d-md-block</code> / <code>d-md-none</code>) y los filtros pasan a una fila con <code>flex-wrap</code>.
+          </p>
+        </div>
+
+        <!-- Preview: Planificación del Sprint -->
+        <div class="tab-pane fade" id="tab-planificacion" role="tabpanel">
+          <div class="d-flex flex-wrap gap-3 justify-content-center justify-content-lg-start">
+
+            <div class="device-frame">
+              <div class="device-frame-header">
+                <span class="device-frame-dot"></span><span class="device-frame-dot"></span><span class="device-frame-dot"></span>
+                <span class="ms-2"><i class="bi bi-display me-1"></i>Escritorio &middot; 1280px</span>
+              </div>
+              <div class="device-frame-viewport device-frame-viewport-desktop">
+                <iframe src="planificacion-sprint.html" title="planificacion-sprint.html en escritorio" style="width: 1280px; height: 1040px; transform: scale(0.25);" loading="lazy"></iframe>
+              </div>
+            </div>
+
+            <div class="device-frame">
+              <div class="device-frame-header">
+                <span class="device-frame-dot"></span><span class="device-frame-dot"></span><span class="device-frame-dot"></span>
+                <span class="ms-2"><i class="bi bi-tablet me-1"></i>Tableta &middot; 768px</span>
+              </div>
+              <div class="device-frame-viewport device-frame-viewport-tablet">
+                <iframe src="planificacion-sprint.html" title="planificacion-sprint.html en tableta" style="width: 768px; height: 908px; transform: scale(0.2865);" loading="lazy"></iframe>
+              </div>
+            </div>
+
+            <div class="device-frame">
+              <div class="device-frame-header">
+                <span class="device-frame-dot"></span><span class="device-frame-dot"></span><span class="device-frame-dot"></span>
+                <span class="ms-2"><i class="bi bi-phone me-1"></i>Móvil &middot; 375px</span>
+              </div>
+              <div class="device-frame-viewport device-frame-viewport-mobile">
+                <iframe src="planificacion-sprint.html" title="planificacion-sprint.html en móvil" style="width: 375px; height: 650px; transform: scale(0.4);" loading="lazy"></iframe>
+              </div>
+            </div>
+
+          </div>
+          <p class="small text-muted mt-3 mb-0">
+            El panel sticky "Compromiso del Sprint" pasa a ocupar el ancho completo debajo del Product Backlog en pantallas menores a <code>lg</code> (992px).
+          </p>
+        </div>
+
+        <!-- Preview: Impedimentos -->
+        <div class="tab-pane fade" id="tab-impedimentos" role="tabpanel">
+          <div class="d-flex flex-wrap gap-3 justify-content-center justify-content-lg-start">
+
+            <div class="device-frame">
+              <div class="device-frame-header">
+                <span class="device-frame-dot"></span><span class="device-frame-dot"></span><span class="device-frame-dot"></span>
+                <span class="ms-2"><i class="bi bi-display me-1"></i>Escritorio &middot; 1280px</span>
+              </div>
+              <div class="device-frame-viewport device-frame-viewport-desktop">
+                <iframe src="impedimentos.html" title="impedimentos.html en escritorio" style="width: 1280px; height: 1040px; transform: scale(0.25);" loading="lazy"></iframe>
+              </div>
+            </div>
+
+            <div class="device-frame">
+              <div class="device-frame-header">
+                <span class="device-frame-dot"></span><span class="device-frame-dot"></span><span class="device-frame-dot"></span>
+                <span class="ms-2"><i class="bi bi-tablet me-1"></i>Tableta &middot; 768px</span>
+              </div>
+              <div class="device-frame-viewport device-frame-viewport-tablet">
+                <iframe src="impedimentos.html" title="impedimentos.html en tableta" style="width: 768px; height: 908px; transform: scale(0.2865);" loading="lazy"></iframe>
+              </div>
+            </div>
+
+            <div class="device-frame">
+              <div class="device-frame-header">
+                <span class="device-frame-dot"></span><span class="device-frame-dot"></span><span class="device-frame-dot"></span>
+                <span class="ms-2"><i class="bi bi-phone me-1"></i>Móvil &middot; 375px</span>
+              </div>
+              <div class="device-frame-viewport device-frame-viewport-mobile">
+                <iframe src="impedimentos.html" title="impedimentos.html en móvil" style="width: 375px; height: 650px; transform: scale(0.4);" loading="lazy"></iframe>
+              </div>
+            </div>
+
+          </div>
+          <p class="small text-muted mt-3 mb-0">
+            Los chips de estado y los selects de filtro usan <code>flex-wrap</code> para acomodarse en varias líneas en lugar de generar scroll horizontal.
+          </p>
+        </div>
+
+        <!-- Preview: Vista Cliente -->
+        <div class="tab-pane fade" id="tab-cliente" role="tabpanel">
+          <div class="d-flex flex-wrap gap-3 justify-content-center justify-content-lg-start">
+
+            <div class="device-frame">
+              <div class="device-frame-header">
+                <span class="device-frame-dot"></span><span class="device-frame-dot"></span><span class="device-frame-dot"></span>
+                <span class="ms-2"><i class="bi bi-display me-1"></i>Escritorio &middot; 1280px</span>
+              </div>
+              <div class="device-frame-viewport device-frame-viewport-desktop">
+                <iframe src="proyectos-cliente.html" title="proyectos-cliente.html en escritorio" style="width: 1280px; height: 1040px; transform: scale(0.25);" loading="lazy"></iframe>
+              </div>
+            </div>
+
+            <div class="device-frame">
+              <div class="device-frame-header">
+                <span class="device-frame-dot"></span><span class="device-frame-dot"></span><span class="device-frame-dot"></span>
+                <span class="ms-2"><i class="bi bi-tablet me-1"></i>Tableta &middot; 768px</span>
+              </div>
+              <div class="device-frame-viewport device-frame-viewport-tablet">
+                <iframe src="proyectos-cliente.html" title="proyectos-cliente.html en tableta" style="width: 768px; height: 908px; transform: scale(0.2865);" loading="lazy"></iframe>
+              </div>
+            </div>
+
+            <div class="device-frame">
+              <div class="device-frame-header">
+                <span class="device-frame-dot"></span><span class="device-frame-dot"></span><span class="device-frame-dot"></span>
+                <span class="ms-2"><i class="bi bi-phone me-1"></i>Móvil &middot; 375px</span>
+              </div>
+              <div class="device-frame-viewport device-frame-viewport-mobile">
+                <iframe src="proyectos-cliente.html" title="proyectos-cliente.html en móvil" style="width: 375px; height: 650px; transform: scale(0.4);" loading="lazy"></iframe>
+              </div>
+            </div>
+
+          </div>
+          <p class="small text-muted mt-3 mb-0">
+            La vista de cliente usa <code>client-sidebar</code> con acento teal y las mismas reglas de colapso de sidebar y grid fluida que la vista administrativa.
+          </p>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Matriz de Validación -->
+    <div class="card-custom overflow-hidden mb-4">
+      <div class="p-3 border-bottom bg-light bg-opacity-50">
+        <h5 class="mb-0 fw-bold fs-6 text-dark">Matriz de Validación por Página y Dispositivo</h5>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-custom table-hover mb-0">
+          <thead>
+            <tr>
+              <th scope="col">Página</th>
+              <th scope="col" class="text-center">Móvil (375px)</th>
+              <th scope="col" class="text-center">Tableta (768px)</th>
+              <th scope="col" class="text-center">Escritorio (1280px)</th>
+              <th scope="col" class="text-center">Sin scroll horizontal</th>
+              <th scope="col" class="text-center">Modales fullscreen-sm-down</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><i class="bi bi-folder2-open text-primary me-1"></i>Gestión de Proyectos <small class="text-muted">(admin)</small></td>
+              <td class="text-center"><i class="bi bi-check-circle-fill text-success"></i></td>
+              <td class="text-center"><i class="bi bi-check-circle-fill text-success"></i></td>
+              <td class="text-center"><i class="bi bi-check-circle-fill text-success"></i></td>
+              <td class="text-center"><i class="bi bi-check-circle-fill text-success"></i></td>
+              <td class="text-center"><i class="bi bi-check-circle-fill text-success"></i></td>
+            </tr>
+            <tr>
+              <td><i class="bi bi-kanban text-primary me-1"></i>Mis Proyectos <small class="text-muted">(cliente)</small></td>
+              <td class="text-center"><i class="bi bi-check-circle-fill text-success"></i></td>
+              <td class="text-center"><i class="bi bi-check-circle-fill text-success"></i></td>
+              <td class="text-center"><i class="bi bi-check-circle-fill text-success"></i></td>
+              <td class="text-center"><i class="bi bi-check-circle-fill text-success"></i></td>
+              <td class="text-center"><i class="bi bi-dash-circle text-muted" title="No aplica: sin modales"></i></td>
+            </tr>
+            <tr>
+              <td><i class="bi bi-list-check text-primary me-1"></i>Planificación del Sprint <small class="text-muted">(admin)</small></td>
+              <td class="text-center"><i class="bi bi-check-circle-fill text-success"></i></td>
+              <td class="text-center"><i class="bi bi-check-circle-fill text-success"></i></td>
+              <td class="text-center"><i class="bi bi-check-circle-fill text-success"></i></td>
+              <td class="text-center"><i class="bi bi-check-circle-fill text-success"></i></td>
+              <td class="text-center"><i class="bi bi-check-circle-fill text-success"></i></td>
+            </tr>
+            <tr>
+              <td><i class="bi bi-card-checklist text-primary me-1"></i>Compromiso del Sprint <small class="text-muted">(cliente)</small></td>
+              <td class="text-center"><i class="bi bi-check-circle-fill text-success"></i></td>
+              <td class="text-center"><i class="bi bi-check-circle-fill text-success"></i></td>
+              <td class="text-center"><i class="bi bi-check-circle-fill text-success"></i></td>
+              <td class="text-center"><i class="bi bi-check-circle-fill text-success"></i></td>
+              <td class="text-center"><i class="bi bi-dash-circle text-muted" title="No aplica: sin modales"></i></td>
+            </tr>
+            <tr>
+              <td><i class="bi bi-exclamation-octagon text-primary me-1"></i>Gestión de Impedimentos <small class="text-muted">(admin)</small></td>
+              <td class="text-center"><i class="bi bi-check-circle-fill text-success"></i></td>
+              <td class="text-center"><i class="bi bi-check-circle-fill text-success"></i></td>
+              <td class="text-center"><i class="bi bi-check-circle-fill text-success"></i></td>
+              <td class="text-center"><i class="bi bi-check-circle-fill text-success"></i></td>
+              <td class="text-center"><i class="bi bi-check-circle-fill text-success"></i></td>
+            </tr>
+            <tr>
+              <td><i class="bi bi-cone-striped text-primary me-1"></i>Reportar Impedimento <small class="text-muted">(cliente)</small></td>
+              <td class="text-center"><i class="bi bi-check-circle-fill text-success"></i></td>
+              <td class="text-center"><i class="bi bi-check-circle-fill text-success"></i></td>
+              <td class="text-center"><i class="bi bi-check-circle-fill text-success"></i></td>
+              <td class="text-center"><i class="bi bi-check-circle-fill text-success"></i></td>
+              <td class="text-center"><i class="bi bi-dash-circle text-muted" title="No aplica: sin modales"></i></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="p-3 border-top small text-muted">
+        <i class="bi bi-dash-circle me-1"></i>"No aplica" indica páginas sin modales (solo consulta o formulario embebido).
+      </div>
+    </div>
+
+    <!-- Patrones Responsivos Aplicados -->
+    <h5 class="fw-bold text-dark mb-3">Patrones Responsivos Aplicados</h5>
+    <div class="row g-3">
+
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="metric-card h-100">
+          <div class="metric-card-icon metric-card-icon-indigo mb-2"><i class="bi bi-layout-sidebar-inset"></i></div>
+          <div class="fw-bold text-dark mb-1">Sidebar Colapsable</div>
+          <p class="small text-muted mb-0">
+            El menú lateral se oculta por debajo de 992px y se despliega con el botón <code>#sidebarToggle</code> del navbar.
+          </p>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="metric-card h-100">
+          <div class="metric-card-icon metric-card-icon-teal mb-2"><i class="bi bi-table"></i></div>
+          <div class="fw-bold text-dark mb-1">Tabla &rarr; Tarjetas</div>
+          <p class="small text-muted mb-0">
+            Las tablas principales (<code>d-none d-md-block</code>) se convierten en tarjetas apiladas (<code>d-md-none</code>) en móvil.
+          </p>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="metric-card h-100">
+          <div class="metric-card-icon metric-card-icon-amber mb-2"><i class="bi bi-fullscreen"></i></div>
+          <div class="fw-bold text-dark mb-1"><code>modal-fullscreen-sm-down</code></div>
+          <p class="small text-muted mb-0">
+            Todos mis modales ocupan la pantalla completa por debajo de 576px para facilitar el llenado de formularios.
+          </p>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="metric-card h-100">
+          <div class="metric-card-icon metric-card-icon-rose mb-2"><i class="bi bi-hand-index-thumb"></i></div>
+          <div class="fw-bold text-dark mb-1">Botones Táctiles</div>
+          <p class="small text-muted mb-0">
+            Botones y enlaces de acción mantienen al menos 40px de alto (<code>min-height</code> en <code>.view-switch-option</code> y <code>.filter-chip</code>).
+          </p>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="metric-card h-100">
+          <div class="metric-card-icon metric-card-icon-indigo mb-2"><i class="bi bi-grid-3x3-gap"></i></div>
+          <div class="fw-bold text-dark mb-1">Grid Fluida</div>
+          <p class="small text-muted mb-0">
+            Tarjetas de métricas y paneles usan <code>col-12 col-sm-6 col-xl-3</code> y <code>flex-wrap</code> para reflujar sin scroll horizontal.
+          </p>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="metric-card h-100">
+          <div class="metric-card-icon metric-card-icon-teal mb-2"><i class="bi bi-arrows-angle-contract"></i></div>
+          <div class="fw-bold text-dark mb-1">Paneles y Offcanvas Ajustables</div>
+          <p class="small text-muted mb-0">
+            Offcanvas con ancho fijo en escritorio usan <code>max-width: 100%</code> para no recortarse en pantallas angostas.
+          </p>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

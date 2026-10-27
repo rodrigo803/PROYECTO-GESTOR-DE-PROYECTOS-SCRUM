@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SCRUM Manager - Inicio y Dashboard del Equipo (Vista Cliente)</title>
+
+  <!-- Bootstrap 5 CSS CDN -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+
+  <!-- Bootstrap Icons CDN -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+  <!-- Google Fonts (Inter) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Estilos Personalizados Externos -->
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/modulos-sergio.css">
+  <link rel="stylesheet" href="css/modulos-jesus.css">
+</head>
+<body>
+
+  <!-- ========================================== -->
+  <!-- 1. NAVBAR SUPERIOR OSCURO                  -->
+  <!-- ========================================== -->
+  <nav class="navbar navbar-dark admin-navbar px-3 px-lg-4">
+    <div class="container-fluid p-0 d-flex align-items-center justify-content-between">
+
+      <!-- Brand & Mobile Toggle -->
+      <div class="d-flex align-items-center gap-3">
+        <button class="btn btn-outline-secondary btn-sm d-lg-none text-light border-0" type="button" id="sidebarToggle" aria-label="Abrir menú">
+          <i class="bi bi-list fs-4"></i>
+        </button>
+
+        <a class="navbar-brand d-flex align-items-center gap-2 m-0" href="inicio-cliente.html">
+          <span class="brand-logo-badge">
+            <i class="bi bi-kanban-fill"></i>
+          </span>
+          <span class="fw-bold tracking-tight text-white fs-5">SCRUM <span class="fw-semibold" style="color: #818cf8 !important;">Manager</span></span>
+        </a>
+      </div>
+
+      <!-- Perfil Cliente -->
+      <div class="d-flex align-items-center gap-3">
+        <div class="d-none d-md-flex align-items-center gap-2 px-3 py-1 bg-dark-subtle rounded-pill border border-secondary border-opacity-25 text-light text-opacity-75 small">
+          <span class="status-dot bg-success"></span>
+          <span>Sprint 1 en curso</span>
+          <span class="text-secondary">|</span>
+          <span class="fw-medium text-info">Día 9 de 14</span>
+        </div>
+
+        <div class="dropdown">
+          <button class="btn btn-dark d-flex align-items-center gap-2 py-1 px-2 rounded-3 border border-secondary border-opacity-25" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 32px; height: 32px; font-size: 0.85rem;">AG</div>
+            <div class="text-start d-none d-sm-block pe-1">
+              <div class="text-white fw-semibold small lh-1">Ana Gómez</div>
+              <small class="text-light text-opacity-50" style="font-size: 0.72rem;">Frontend Dev · Squad</small>
+            </div>
+            <i class="bi bi-chevron-down text-light text-opacity-50 small"></i>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end shadow-sm py-2">
+            <li><h6 class="dropdown-header">Sesión de Integrante / Cliente</h6></li>
+            <li><a class="dropdown-item d-flex align-items-center gap-2" href="#"><i class="bi bi-person text-secondary"></i> Mi Perfil</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li>
+              <button class="dropdown-item d-flex align-items-center gap-2 text-danger" type="button" onclick="confirmarCierreSesion()">
+                <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+              </button>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </nav>
+
+  <!-- ========================================== -->
+  <!-- 2. SIDEBAR DE CLIENTE                      -->
+  <!-- ========================================== -->
+  <aside class="admin-sidebar client-sidebar" id="adminSidebar">
+
+    <div class="sidebar-heading">Vista Cliente</div>
+    <nav class="nav flex-column mb-3">
+      <a href="inicio-cliente.html" class="sidebar-nav-link active">
+        <i class="bi bi-house"></i>
+        <span>Inicio (Dashboard)</span>
+      </a>
+      <a href="proyectos-cliente.html" class="sidebar-nav-link">
+        <i class="bi bi-kanban"></i>
+        <span>Mis Proyectos</span>
+      </a>
+      <a href="usuarios-cliente.html" class="sidebar-nav-link">
+        <i class="bi bi-people"></i>
+        <span>Equipo y Roles</span>
+      </a>
+      <a href="backlog-cliente.html" class="sidebar-nav-link">
+        <i class="bi bi-journal-text"></i>
+        <span>Product Backlog</span>
+      </a>
+      <a href="sprints-cliente.html" class="sidebar-nav-link">
+        <i class="bi bi-arrow-repeat"></i>
+        <span>Sprints del Proyecto</span>
+      </a>
+      <a href="compromiso-sprint.html" class="sidebar-nav-link">
+        <i class="bi bi-calendar2-week"></i>
+        <span>Compromiso del Sprint</span>
+      </a>
+      <a href="sprint-backlog-cliente.html" class="sidebar-nav-link">
+        <i class="bi bi-card-checklist"></i>
+        <span>Sprint Backlog & Tareas</span>
+      </a>
+      <a href="tablero-cliente.html" class="sidebar-nav-link">
+        <i class="bi bi-columns-gap"></i>
+        <span>Tablero Kanban</span>
+      </a>
+      <a href="impedimentos-cliente.html" class="sidebar-nav-link">
+        <i class="bi bi-cone-striped"></i>
+        <span>Reportar Impedimento</span>
+      </a>
+      <a href="retrospectiva-cliente.html" class="sidebar-nav-link">
+        <i class="bi bi-chat-square-text"></i>
+        <span>Retrospectiva</span>
+      </a>
+    </nav>
+
+    <!-- Resumen de Proyecto Activo -->
+    <div class="sidebar-heading">Proyecto Asignado</div>
+    <div class="px-3 py-2">
+      <div class="p-3 rounded-3" style="background-color: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08);">
+        <div class="d-flex align-items-center justify-content-between mb-1">
+          <span class="text-white small fw-semibold">Fintech Mobile App</span>
+          <span class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-25" style="font-size: 0.65rem;">ACTIVO</span>
+        </div>
+        <p class="text-light text-opacity-50 small mb-2" style="font-size: 0.78rem;">Fase 2: Arquitectura de Pagos</p>
+        <div class="progress" style="height: 5px; background-color: rgba(255,255,255,0.1);">
+          <div class="progress-bar" role="progressbar" style="width: 68%; background-color: var(--client-accent);"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Botón Cerrar Sesión en pie del Sidebar -->
+    <div class="mt-auto px-3 pt-4">
+      <button class="btn btn-outline-danger btn-sm w-100 d-flex align-items-center justify-content-center gap-2" onclick="confirmarCierreSesion()">
+        <i class="bi bi-box-arrow-right"></i>
+        <span>Cerrar Sesión</span>
+      </button>
+    </div>
+
+  </aside>
+
+  <!-- ========================================== -->
+  <!-- 3. ÁREA DE CONTENIDO: DASHBOARD DE CLIENTE -->
+  <!-- ========================================== -->
+  <main class="main-content">
+
+    <!-- Encabezado de la Pantalla -->
+    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-start gap-3 mb-4">
+      <div>
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb mb-1 small text-muted">
+            <li class="breadcrumb-item text-muted">Vista Cliente</li>
+            <li class="breadcrumb-item active fw-medium" aria-current="page" style="color: var(--client-accent-hover);">Inicio y Dashboard</li>
+          </ol>
+        </nav>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <h1 class="page-title mb-0">Dashboard del Cliente &amp; Equipo</h1>
+          <span class="badge bg-primary-subtle text-primary border border-primary-subtle">HU-10</span>
+          <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1 fs-7">
+            <i class="bi bi-record-fill me-1"></i>Sprint 1 Activo
+          </span>
+        </div>
+        <p class="page-subtitle mb-0">Consulta el progreso de la iteración en tiempo real, el gráfico Burndown de reducción de trabajo y el estado del proyecto Fintech Mobile App.</p>
+      </div>
+
+      <!-- Selector de Vista -->
+      <div class="view-switch view-switch-client">
+        <a href="dashboard.html" class="view-switch-option">
+          <i class="bi bi-display"></i> Administrativa
+        </a>
+        <a href="inicio-cliente.html" class="view-switch-option active">
+          <i class="bi bi-person"></i> Cliente
+        </a>
+      </div>
+    </div>
+
+    <!-- Banner Hero de Bienvenida Cliente -->
+    <div class="p-4 rounded-4 text-white shadow-sm mb-4" style="background: linear-gradient(135deg, #042f2e 0%, #115e59 50%, #0d9488 100%);">
+      <div class="row align-items-center g-3">
+        <div class="col-lg-8">
+          <span class="badge bg-white bg-opacity-20 text-white border border-white border-opacity-25 px-3 py-1 mb-2">
+            <i class="bi bi-stars me-1"></i> Panel de Seguimiento Ágil
+          </span>
+          <h2 class="h3 fw-bold mb-2">Hola, Ana Gómez</h2>
+          <p class="lead text-light text-opacity-80 mb-3" style="font-size: 0.98rem; max-width: 620px;">
+            El squad está desarrollando el <strong>Sprint 1 (Core Auth &amp; Onboarding)</strong>. Actualmente el trabajo avanza al <strong>68%</strong> con un ritmo favorable (+3.2 pts respecto al plan).
+          </p>
+          <div class="d-flex flex-wrap gap-2">
+            <a href="tablero-cliente.html" class="btn btn-light fw-semibold text-teal px-3 py-2 shadow-sm" style="color: #0f766e;">
+              <i class="bi bi-columns-gap me-1"></i> Ver Tablero Kanban
+            </a>
+            <a href="sprint-backlog-cliente.html" class="btn btn-outline-light px-3 py-2">
+              <i class="bi bi-card-checklist me-1"></i> Ver Sprint Backlog
+            </a>
+            <a href="sprints-cliente.html" class="btn btn-outline-light px-3 py-2">
+              <i class="bi bi-arrow-repeat me-1"></i> Roadmap de Sprints
+            </a>
+          </div>
+        </div>
+        <div class="col-lg-4 text-lg-end d-none d-lg-block">
+          <div class="p-3 bg-white bg-opacity-10 rounded-3 border border-white border-opacity-15 d-inline-block text-start" style="min-width: 230px;">
+            <div class="small text-light text-opacity-75">Estado de la Iteración</div>
+            <div class="fs-5 fw-bold text-white mb-1">Sprint 1 · Activo</div>
+            <div class="d-flex justify-content-between small text-light text-opacity-75 mb-1">
+              <span>Progreso:</span>
+              <span class="fw-bold text-white">68%</span>
+            </div>
+            <div class="progress" style="height: 6px; background-color: rgba(255,255,255,0.2);">
+              <div class="progress-bar bg-info" style="width: 68%;"></div>
+            </div>
+            <div class="mt-2 text-light text-opacity-75 small">
+              <i class="bi bi-clock me-1"></i> Día 9 de 14 · Quedan 5 días
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Métricas Globales del Sprint Activo -->
+    <div class="row g-3 mb-4">
+      <div class="col-6 col-lg-3">
+        <div class="metric-card d-flex align-items-center gap-3">
+          <div class="metric-card-icon metric-card-icon-indigo"><i class="bi bi-flag-fill"></i></div>
+          <div>
+            <div class="metric-card-label">Compromiso Total</div>
+            <div class="metric-card-value">42 pts</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <div class="metric-card d-flex align-items-center gap-3">
+          <div class="metric-card-icon metric-card-icon-teal"><i class="bi bi-check2-circle"></i></div>
+          <div>
+            <div class="metric-card-label">Puntos Quemados</div>
+            <div class="metric-card-value">29 pts (68%)</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <div class="metric-card d-flex align-items-center gap-3">
+          <div class="metric-card-icon metric-card-icon-amber"><i class="bi bi-hourglass-split"></i></div>
+          <div>
+            <div class="metric-card-label">Trabajo Pendiente</div>
+            <div class="metric-card-value">13 pts (32%)</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <div class="metric-card d-flex align-items-center gap-3">
+          <div class="metric-card-icon metric-card-icon-rose"><i class="bi bi-speedometer2"></i></div>
+          <div>
+            <div class="metric-card-label">Salud del Sprint</div>
+            <div class="metric-card-value text-success fs-6"><i class="bi bi-shield-check me-1"></i>A tiempo</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- GRÁFICO BURNDOWN BÁSICO (VISTA CLIENTE)     -->
+    <!-- ========================================== -->
+    <div class="card-custom p-3 p-md-4 mb-4" id="burndown">
+      
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 pb-3 border-bottom mb-3">
+        <div>
+          <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
+            <h5 class="fw-bold text-dark mb-0 fs-6">Gráfico Burndown · Reducción de Trabajo del Sprint 1</h5>
+            <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-0 fs-8">En tiempo</span>
+          </div>
+          <small class="text-muted">Proyección visual del trabajo restante a lo largo de los 14 días (10 Oct &mdash; 24 Oct 2026)</small>
+        </div>
+
+        <div class="d-flex flex-wrap align-items-center gap-3 small">
+          <div class="d-flex align-items-center gap-1 text-muted">
+            <svg width="18" height="10"><line x1="0" y1="5" x2="18" y2="5" stroke="#94a3b8" stroke-width="2" stroke-dasharray="3,3"/></svg>
+            <span>Línea Ideal</span>
+          </div>
+          <div class="d-flex align-items-center gap-1 text-dark fw-medium">
+            <svg width="18" height="10"><line x1="0" y1="5" x2="18" y2="5" stroke="#4f46e5" stroke-width="3"/></svg>
+            <span>Real (Días 1-9)</span>
+          </div>
+          <div class="d-flex align-items-center gap-1 text-info fw-medium">
+            <svg width="18" height="10"><line x1="0" y1="5" x2="18" y2="5" stroke="#0284c7" stroke-width="2.5" stroke-dasharray="3,3"/></svg>
+            <span>Proyección (D10-D14)</span>
+          </div>
+          <div class="d-flex align-items-center gap-1 text-warning-emphasis fw-medium">
+            <span class="d-inline-block rounded-circle bg-warning" style="width: 8px; height: 8px;"></span>
+            <span>Hoy (Día 9)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- SVG Burndown Chart -->
+      <div class="burndown-container overflow-hidden">
+        <svg class="burndown-svg" viewBox="0 0 920 360" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Gráfico Burndown de Sprint 1">
+          <defs>
+            <linearGradient id="clientBurndownGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#4f46e5" stop-opacity="0.25"/>
+              <stop offset="100%" stop-color="#4f46e5" stop-opacity="0.0"/>
+            </linearGradient>
+          </defs>
+
+          <!-- Zona de Proyección (Días 10 a 14) -->
+          <rect x="566.5" y="30" width="313.5" height="280" class="burndown-forecast-band" />
+          <text x="723" y="46" text-anchor="middle" font-family="'Inter', sans-serif" font-size="10" font-weight="600" fill="#0284c7" letter-spacing="0.04em">
+            ZONA DE PROYECCIÓN (DÍAS 10 A 14)
+          </text>
+
+          <!-- Banda Día 9 (Hoy) -->
+          <rect x="535.2" y="30" width="62.7" height="280" class="burndown-today-band" rx="4" />
+          <line x1="566.5" y1="30" x2="566.5" y2="310" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="3,3" />
+          <rect x="541.5" y="12" width="50" height="18" rx="9" fill="#f59e0b" />
+          <text x="566.5" y="25" text-anchor="middle" font-family="'Inter', sans-serif" font-size="10" font-weight="700" fill="#ffffff">
+            HOY
+          </text>
+
+          <!-- Eje Y: Cuadrícula y Etiquetas -->
+          <line x1="65" y1="58" x2="880" y2="58" class="burndown-grid-line" />
+          <text x="55" y="62" text-anchor="end" class="burndown-axis-text">40 pts</text>
+
+          <line x1="65" y1="121" x2="880" y2="121" class="burndown-grid-line" />
+          <text x="55" y="125" text-anchor="end" class="burndown-axis-text">30 pts</text>
+
+          <line x1="65" y1="184" x2="880" y2="184" class="burndown-grid-line" />
+          <text x="55" y="188" text-anchor="end" class="burndown-axis-text">20 pts</text>
+
+          <line x1="65" y1="247" x2="880" y2="247" class="burndown-grid-line" />
+          <text x="55" y="251" text-anchor="end" class="burndown-axis-text">10 pts</text>
+
+          <line x1="65" y1="310" x2="880" y2="310" class="burndown-axis-line" />
+          <text x="55" y="314" text-anchor="end" class="burndown-axis-text fw-bold">0 pts</text>
+
+          <!-- Eje Y Título -->
+          <line x1="65" y1="30" x2="65" y2="310" class="burndown-axis-line" />
+          <text x="20" y="22" text-anchor="start" class="burndown-axis-title">STORY POINTS</text>
+
+          <!-- Eje X: Días y Fechas -->
+          <text x="65.0" y="328" text-anchor="middle" class="burndown-axis-text">D1</text>
+          <text x="65.0" y="342" text-anchor="middle" font-family="'Inter', sans-serif" font-size="9" fill="#94a3b8">10 Oct</text>
+
+          <text x="127.7" y="328" text-anchor="middle" class="burndown-axis-text">D2</text>
+          <text x="127.7" y="342" text-anchor="middle" font-family="'Inter', sans-serif" font-size="9" fill="#94a3b8">11 Oct</text>
+
+          <text x="190.4" y="328" text-anchor="middle" class="burndown-axis-text">D3</text>
+          <text x="190.4" y="342" text-anchor="middle" font-family="'Inter', sans-serif" font-size="9" fill="#94a3b8">12 Oct</text>
+
+          <text x="253.1" y="328" text-anchor="middle" class="burndown-axis-text">D4</text>
+          <text x="253.1" y="342" text-anchor="middle" font-family="'Inter', sans-serif" font-size="9" fill="#94a3b8">13 Oct</text>
+
+          <text x="315.8" y="328" text-anchor="middle" class="burndown-axis-text">D5</text>
+          <text x="315.8" y="342" text-anchor="middle" font-family="'Inter', sans-serif" font-size="9" fill="#94a3b8">14 Oct</text>
+
+          <text x="378.5" y="328" text-anchor="middle" class="burndown-axis-text">D6</text>
+          <text x="378.5" y="342" text-anchor="middle" font-family="'Inter', sans-serif" font-size="9" fill="#94a3b8">15 Oct</text>
+
+          <text x="441.2" y="328" text-anchor="middle" class="burndown-axis-text">D7</text>
+          <text x="441.2" y="342" text-anchor="middle" font-family="'Inter', sans-serif" font-size="9" fill="#94a3b8">16 Oct</text>
+
+          <text x="503.8" y="328" text-anchor="middle" class="burndown-axis-text">D8</text>
+          <text x="503.8" y="342" text-anchor="middle" font-family="'Inter', sans-serif" font-size="9" fill="#94a3b8">17 Oct</text>
+
+          <text x="566.5" y="328" text-anchor="middle" class="burndown-axis-text fw-bold" fill="#d97706">D9</text>
+          <text x="566.5" y="342" text-anchor="middle" font-family="'Inter', sans-serif" font-size="9" font-weight="600" fill="#d97706">18 Oct</text>
+
+          <text x="629.2" y="328" text-anchor="middle" class="burndown-axis-text text-muted">D10</text>
+          <text x="629.2" y="342" text-anchor="middle" font-family="'Inter', sans-serif" font-size="9" fill="#94a3b8">19 Oct</text>
+
+          <text x="691.9" y="328" text-anchor="middle" class="burndown-axis-text text-muted">D11</text>
+          <text x="691.9" y="342" text-anchor="middle" font-family="'Inter', sans-serif" font-size="9" fill="#94a3b8">20 Oct</text>
+
+          <text x="754.6" y="328" text-anchor="middle" class="burndown-axis-text text-muted">D12</text>
+          <text x="754.6" y="342" text-anchor="middle" font-family="'Inter', sans-serif" font-size="9" fill="#94a3b8">21 Oct</text>
+
+          <text x="817.3" y="328" text-anchor="middle" class="burndown-axis-text text-muted">D13</text>
+          <text x="817.3" y="342" text-anchor="middle" font-family="'Inter', sans-serif" font-size="9" fill="#94a3b8">22 Oct</text>
+
+          <text x="880.0" y="328" text-anchor="middle" class="burndown-axis-text fw-medium">D14</text>
+          <text x="880.0" y="342" text-anchor="middle" font-family="'Inter', sans-serif" font-size="9" fill="#94a3b8">24 Oct</text>
+
+          <!-- Línea Ideal -->
+          <line x1="65.0" y1="45.5" x2="880.0" y2="310.0" class="burndown-ideal-line" />
+
+          <!-- Área sombreada real -->
+          <path d="M 65.0,45.5 L 127.7,45.5 L 190.4,70.7 L 253.1,89.6 L 315.8,114.8 L 378.5,133.7 L 441.2,171.5 L 503.8,203.0 L 566.5,228.2 L 566.5,310.0 L 65.0,310.0 Z" fill="url(#clientBurndownGradient)" />
+
+          <!-- Línea Real (D1 a D9) -->
+          <path d="M 65.0,45.5 L 127.7,45.5 L 190.4,70.7 L 253.1,89.6 L 315.8,114.8 L 378.5,133.7 L 441.2,171.5 L 503.8,203.0 L 566.5,228.2" class="burndown-real-line" />
+
+          <!-- Línea de Proyección (D9 a D14) -->
+          <path d="M 566.5,228.2 L 629.2,247.1 L 691.9,266.0 L 754.6,284.9 L 817.3,297.5 L 880.0,310.0" class="burndown-projected-line" />
+
+          <!-- Puntos reales D1 a D8 -->
+          <circle cx="65.0" cy="45.5" r="4.5" class="burndown-point" onmouseover="actualizarDetalleBurndown(1)" onclick="actualizarDetalleBurndown(1)"><title>Día 1: 42 pts restantes</title></circle>
+          <circle cx="127.7" cy="45.5" r="4.5" class="burndown-point" onmouseover="actualizarDetalleBurndown(2)" onclick="actualizarDetalleBurndown(2)"><title>Día 2: 42 pts restantes</title></circle>
+          <circle cx="190.4" cy="70.7" r="4.5" class="burndown-point" onmouseover="actualizarDetalleBurndown(3)" onclick="actualizarDetalleBurndown(3)"><title>Día 3: 38 pts restantes</title></circle>
+          <circle cx="253.1" cy="89.6" r="4.5" class="burndown-point" onmouseover="actualizarDetalleBurndown(4)" onclick="actualizarDetalleBurndown(4)"><title>Día 4: 35 pts restantes</title></circle>
+          <circle cx="315.8" cy="114.8" r="4.5" class="burndown-point" onmouseover="actualizarDetalleBurndown(5)" onclick="actualizarDetalleBurndown(5)"><title>Día 5: 31 pts restantes</title></circle>
+          <circle cx="378.5" cy="133.7" r="4.5" class="burndown-point" onmouseover="actualizarDetalleBurndown(6)" onclick="actualizarDetalleBurndown(6)"><title>Día 6: 28 pts restantes</title></circle>
+          <circle cx="441.2" cy="171.5" r="4.5" class="burndown-point" onmouseover="actualizarDetalleBurndown(7)" onclick="actualizarDetalleBurndown(7)"><title>Día 7: 22 pts restantes</title></circle>
+          <circle cx="503.8" cy="203.0" r="4.5" class="burndown-point" onmouseover="actualizarDetalleBurndown(8)" onclick="actualizarDetalleBurndown(8)"><title>Día 8: 17 pts restantes</title></circle>
+
+          <!-- DÍA 9 HOY: 13 pts -->
+          <circle cx="566.5" cy="228.2" r="7.5" class="burndown-point-today" onmouseover="actualizarDetalleBurndown(9)" onclick="actualizarDetalleBurndown(9)"><title>Día 9 (HOY): 13 pts restantes</title></circle>
+          <rect x="541.5" y="198" width="50" height="20" rx="4" fill="#115e59" opacity="0.95" />
+          <text x="566.5" y="212" text-anchor="middle" font-family="'Inter', sans-serif" font-size="10" font-weight="700" fill="#ffffff">
+            13 pts
+          </text>
+
+          <!-- Puntos proyección D10 a D14 -->
+          <circle cx="629.2" cy="247.1" r="4" class="burndown-point-proj" onmouseover="actualizarDetalleBurndown(10)" onclick="actualizarDetalleBurndown(10)"><title>Día 10 (Proyección): 10 pts</title></circle>
+          <circle cx="691.9" cy="266.0" r="4" class="burndown-point-proj" onmouseover="actualizarDetalleBurndown(11)" onclick="actualizarDetalleBurndown(11)"><title>Día 11 (Proyección): 7 pts</title></circle>
+          <circle cx="754.6" cy="284.9" r="4" class="burndown-point-proj" onmouseover="actualizarDetalleBurndown(12)" onclick="actualizarDetalleBurndown(12)"><title>Día 12 (Proyección): 4 pts</title></circle>
+          <circle cx="817.3" cy="297.5" r="4" class="burndown-point-proj" onmouseover="actualizarDetalleBurndown(13)" onclick="actualizarDetalleBurndown(13)"><title>Día 13 (Proyección): 2 pts</title></circle>
+          <circle cx="880.0" cy="310.0" r="5" class="burndown-point-proj" onmouseover="actualizarDetalleBurndown(14)" onclick="actualizarDetalleBurndown(14)"><title>Día 14 (Meta): 0 pts</title></circle>
+        </svg>
+      </div>
+
+      <!-- Panel de Detalle Dinámico al pasar el cursor -->
+      <div class="burndown-interactive-panel mt-3" id="burndownDetallePanel" style="border-left-color: var(--client-accent) !important;">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
+          <div>
+            <div class="d-flex align-items-center gap-2 mb-1">
+              <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle px-2 py-1 fs-7">
+                <i class="bi bi-clock-history me-1"></i>Día 9 · 18 Oct (Hoy)
+              </span>
+              <span class="fw-bold text-dark small">Avance Registrado Actual</span>
+              <span class="badge bg-success-subtle text-success border border-success-subtle small">+3.2 pts adelantado</span>
+            </div>
+            <p class="small text-muted mb-0">
+              <strong>Hitos / Tareas:</strong> Endpoint de perfil completado. Tarea "Validar backup codes" en revisión QA.
+            </p>
+          </div>
+          <div class="d-flex gap-3 text-nowrap align-self-start align-self-md-center border-start ps-md-3">
+            <div>
+              <div class="small text-muted" style="font-size: 0.75rem;">Restante Real</div>
+              <div class="fw-bold fs-6 text-primary">13 pts</div>
+            </div>
+            <div>
+              <div class="small text-muted" style="font-size: 0.75rem;">Línea Ideal</div>
+              <div class="fw-bold fs-6 text-secondary">16.2 pts</div>
+            </div>
+            <div>
+              <div class="small text-muted" style="font-size: 0.75rem;">Quemados</div>
+              <div class="fw-bold fs-6 text-success">+4 pts</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="text-center mt-2">
+        <small class="text-muted" style="font-size: 0.78rem;">
+          <i class="bi bi-info-circle me-1"></i>Haz clic o pasa el cursor sobre cualquier día del gráfico para consultar el estado proyectado del Sprint.
+        </small>
+      </div>
+
+    </div>
+
+    <!-- Sección de Tareas Asignadas a Ana Gómez & Accesos Rápidos -->
+    <div class="row g-4 mb-4">
+      
+      <!-- Mis Tareas Activas en Sprint 1 -->
+      <div class="col-12 col-lg-7">
+        <div class="card-custom p-4 h-100">
+          <div class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2">
+            <div>
+              <h5 class="fw-bold text-dark mb-0 fs-6"><i class="bi bi-person-check me-2 text-success"></i>Mis Tareas Asignadas (Sprint 1)</h5>
+              <small class="text-muted">Tareas asignadas a Ana Gómez en la iteración actual</small>
+            </div>
+            <span class="badge bg-success-subtle text-success border border-success-subtle">2 tareas</span>
+          </div>
+
+          <div class="list-group list-group-flush mb-3">
+            <div class="list-group-item px-0 d-flex justify-content-between align-items-center">
+              <div>
+                <span class="badge bg-primary-subtle text-primary border border-primary-subtle me-1">HU-01</span>
+                <span class="fw-semibold text-dark">Diseño de pantallas de login con 2FA</span>
+                <small class="text-muted d-block">Maquetación visual responsive y validaciones de formulario</small>
+              </div>
+              <span class="status-badge-select status-finalizado"><span class="status-dot"></span>Finalizado</span>
+            </div>
+
+            <div class="list-group-item px-0 d-flex justify-content-between align-items-center">
+              <div>
+                <span class="badge bg-primary-subtle text-primary border border-primary-subtle me-1">HU-02</span>
+                <span class="fw-semibold text-dark">Formulario de cambio de contraseña</span>
+                <small class="text-muted d-block">Validación de fortaleza de credenciales y feedback interactivo</small>
+              </div>
+              <span class="status-badge-select status-progreso"><span class="status-dot"></span>En progreso</span>
+            </div>
+          </div>
+
+          <div class="d-flex flex-wrap gap-2 pt-2 border-top">
+            <a href="tablero-cliente.html" class="btn btn-primary btn-sm">
+              <i class="bi bi-columns-gap me-1"></i>Mover tarea en Tablero
+            </a>
+            <a href="sprint-backlog-cliente.html" class="btn btn-outline-secondary btn-sm">
+              <i class="bi bi-card-checklist me-1"></i>Ver todas las tareas
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Accesos Rápidos a Módulos del Cliente -->
+      <div class="col-12 col-lg-5">
+        <div class="card-custom h-100 p-3">
+          <div class="border-bottom pb-2 mb-2">
+            <h5 class="fw-bold text-dark mb-0 fs-6"><i class="bi bi-grid me-2 text-primary"></i>Navegación Rápida del Cliente</h5>
+            <small class="text-muted">Módulos habilitados en la plataforma</small>
+          </div>
+          <ul class="list-group list-group-flush small">
+            <li class="list-group-item d-flex align-items-center justify-content-between px-2 py-2">
+              <span><i class="bi bi-people text-teal me-2" style="color: var(--client-accent);"></i>Miembros del Squad y Roles</span>
+              <a href="usuarios-cliente.html" class="fw-semibold text-decoration-none">Abrir &rarr;</a>
+            </li>
+            <li class="list-group-item d-flex align-items-center justify-content-between px-2 py-2">
+              <span><i class="bi bi-arrow-repeat text-primary me-2"></i>Sprints e Iteraciones</span>
+              <a href="sprints-cliente.html" class="fw-semibold text-decoration-none">Abrir &rarr;</a>
+            </li>
+            <li class="list-group-item d-flex align-items-center justify-content-between px-2 py-2">
+              <span><i class="bi bi-card-checklist text-primary me-2"></i>Sprint Backlog y Tareas</span>
+              <a href="sprint-backlog-cliente.html" class="fw-semibold text-decoration-none">Abrir &rarr;</a>
+            </li>
+            <li class="list-group-item d-flex align-items-center justify-content-between px-2 py-2">
+              <span><i class="bi bi-columns-gap text-primary me-2"></i>Tablero Kanban</span>
+              <a href="tablero-cliente.html" class="fw-semibold text-decoration-none">Abrir &rarr;</a>
+            </li>
+            <li class="list-group-item d-flex align-items-center justify-content-between px-2 py-2">
+              <span><i class="bi bi-journal-text text-primary me-2"></i>Product Backlog</span>
+              <a href="backlog-cliente.html" class="fw-semibold text-decoration-none">Abrir &rarr;</a>
+            </li>
+            <li class="list-group-item d-flex align-items-center justify-content-between px-2 py-2">
+              <span><i class="bi bi-chat-square-text text-primary me-2"></i>Retrospectiva</span>
+              <a href="retrospectiva-cliente.html" class="fw-semibold text-decoration-none">Abrir &rarr;</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

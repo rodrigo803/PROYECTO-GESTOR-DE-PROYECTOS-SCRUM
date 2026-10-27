@@ -313,3 +313,191 @@ body {
   font-size: 0.9rem;
   color: var(--text-muted);
 }
+
+/* ========================================================= */
+/* GRÁFICO BURNDOWN (HU-10)                                  */
+/* ========================================================= */
+.burndown-container {
+  position: relative;
+  width: 100%;
+}
+
+.burndown-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  overflow: visible;
+}
+
+.burndown-grid-line {
+  stroke: #e2e8f0;
+  stroke-width: 1;
+  stroke-dasharray: 4,4;
+}
+
+.burndown-axis-line {
+  stroke: #cbd5e1;
+  stroke-width: 1.5;
+}
+
+.burndown-axis-text {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  fill: #64748b;
+  user-select: none;
+}
+
+.burndown-axis-title {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  fill: #475569;
+  letter-spacing: 0.03em;
+}
+
+.burndown-ideal-line {
+  stroke: #94a3b8;
+  stroke-width: 2.2;
+  stroke-dasharray: 6,6;
+  fill: none;
+}
+
+.burndown-real-line {
+  stroke: #4f46e5;
+  stroke-width: 3.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+  filter: drop-shadow(0 4px 8px rgba(79, 70, 229, 0.3));
+  transition: all 0.35s ease;
+}
+
+.burndown-projected-line {
+  stroke: #0284c7;
+  stroke-width: 2.6;
+  stroke-dasharray: 5,5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+  transition: all 0.35s ease;
+}
+
+.burndown-area {
+  fill: url(#burndownGradient);
+  transition: all 0.35s ease;
+}
+
+.burndown-point {
+  fill: #ffffff;
+  stroke: #4f46e5;
+  stroke-width: 2.5;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.burndown-point:hover, .burndown-point.active {
+  r: 7.5;
+  stroke-width: 3.5;
+  fill: #4f46e5;
+}
+
+.burndown-point-proj {
+  fill: #ffffff;
+  stroke: #0284c7;
+  stroke-width: 2;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.burndown-point-proj:hover {
+  r: 6.5;
+  stroke-width: 3;
+  fill: #0284c7;
+}
+
+.burndown-point-today {
+  fill: #f59e0b;
+  stroke: #ffffff;
+  stroke-width: 3;
+  filter: drop-shadow(0 0 8px rgba(245, 158, 11, 0.7));
+  animation: burndownPulse 2s infinite;
+}
+
+@keyframes burndownPulse {
+  0% { r: 6; }
+  50% { r: 8.5; }
+  100% { r: 6; }
+}
+
+.burndown-today-band {
+  fill: rgba(245, 158, 11, 0.08);
+}
+
+.burndown-forecast-band {
+  fill: rgba(14, 165, 233, 0.04);
+}
+
+.burndown-metric-card {
+  background: #ffffff;
+  border-radius: 10px;
+  border: 1px solid var(--card-border);
+  padding: 1rem 1.15rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.burndown-metric-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px -2px rgba(0, 0, 0, 0.08);
+}
+
+.burndown-interactive-panel {
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-left: 4px solid var(--primary-color);
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+}
+
+/* ========================================================= */
+/* ESTILOS DE GESTIÓN DE USUARIOS Y AVATARES                  */
+/* ========================================================= */
+.avatar-circle {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
+.avatar-circle-lg {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.table-action-btn {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  font-size: 0.88rem;
+  transition: all 0.15s ease;
+}
+
+.table-action-btn:hover {
+  transform: translateY(-1px);
+}
+

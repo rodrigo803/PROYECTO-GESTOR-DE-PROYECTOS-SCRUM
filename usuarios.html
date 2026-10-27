@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SCRUM Manager - Gestión de Usuarios</title>
+  <title>SCRUM Manager - Gestión de Usuarios y Roles (HU-02)</title>
   
   <!-- Bootstrap 5 CSS CDN -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
@@ -18,23 +18,42 @@
 
   <!-- Estilos Personalizados Externos -->
   <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/modulos-sergio.css">
 </head>
 <body>
 
-  <!-- NAVBAR SUPERIOR -->
+  <!-- ========================================== -->
+  <!-- 1. NAVBAR SUPERIOR ADMINISTRATIVA          -->
+  <!-- ========================================== -->
   <nav class="navbar navbar-dark admin-navbar px-3 px-lg-4">
     <div class="container-fluid p-0 d-flex align-items-center justify-content-between">
+      
+      <!-- Lado Izquierdo: Botón Menú Móvil y Marca -->
       <div class="d-flex align-items-center gap-3">
         <button class="btn btn-outline-secondary btn-sm d-lg-none text-light border-0" type="button" id="sidebarToggle" aria-label="Abrir menú">
           <i class="bi bi-list fs-4"></i>
         </button>
-        <a class="navbar-brand d-flex align-items-center gap-2 m-0" href="index.html">
-          <span class="brand-logo-badge"><i class="bi bi-kanban-fill"></i></span>
+
+        <a class="navbar-brand d-flex align-items-center gap-2 m-0" href="dashboard.html">
+          <span class="brand-logo-badge">
+            <i class="bi bi-kanban-fill"></i>
+          </span>
           <span class="fw-bold tracking-tight text-white fs-5">SCRUM <span class="fw-semibold" style="color: #818cf8 !important;">Manager</span></span>
         </a>
       </div>
 
+      <!-- Lado Derecho: Estado del Sprint y Perfil Administrador -->
       <div class="d-flex align-items-center gap-3">
+        
+        <!-- Estado rápido del Sprint -->
+        <div class="d-none d-md-flex align-items-center gap-2 px-3 py-1 bg-dark-subtle rounded-pill border border-secondary border-opacity-25 text-light text-opacity-75 small">
+          <span class="status-dot bg-success"></span>
+          <span>Sprint 1 en curso</span>
+          <span class="text-secondary">|</span>
+          <span class="fw-medium text-info">Día 9 de 14</span>
+        </div>
+
+        <!-- Menú de Usuario Administrador (Rodrigo Morales) -->
         <div class="dropdown">
           <button class="btn btn-dark d-flex align-items-center gap-2 py-1 px-2 rounded-3 border border-secondary border-opacity-25" type="button" data-bs-toggle="dropdown" aria-expanded="false">
             <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 32px; height: 32px; font-size: 0.85rem;">RM</div>
@@ -45,18 +64,31 @@
             <i class="bi bi-chevron-down text-light text-opacity-50 small"></i>
           </button>
           <ul class="dropdown-menu dropdown-menu-end shadow-sm py-2">
-            <li><button class="dropdown-item text-danger" type="button" onclick="confirmarCierreSesion()"><i class="bi bi-box-arrow-right me-2"></i>Cerrar Sesión</button></li>
+            <li><h6 class="dropdown-header">Sesión de Administrador</h6></li>
+            <li><a class="dropdown-item d-flex align-items-center gap-2" href="usuarios.html"><i class="bi bi-person text-secondary"></i> Mi Perfil y Roles</a></li>
+            <li><a class="dropdown-item d-flex align-items-center gap-2" href="usuarios-cliente.html"><i class="bi bi-person-badge text-secondary"></i> Ver como Developer (Cliente)</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li>
+              <button class="dropdown-item d-flex align-items-center gap-2 text-danger" type="button" onclick="confirmarCierreSesion()">
+                <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+              </button>
+            </li>
           </ul>
         </div>
+
       </div>
+
     </div>
   </nav>
 
-  <!-- SIDEBAR (GESTIÓN DE USUARIOS ACTIVO) -->
+  <!-- ========================================== -->
+  <!-- 2. SIDEBAR DE ADMINISTRACIÓN               -->
+  <!-- ========================================== -->
   <aside class="admin-sidebar" id="adminSidebar">
+    
     <div class="sidebar-heading">Navegación Principal</div>
     <nav class="nav flex-column mb-3">
-      <a href="index.html" class="sidebar-nav-link">
+      <a href="dashboard.html" class="sidebar-nav-link">
         <i class="bi bi-grid-1x2"></i>
         <span>Dashboard</span>
       </a>
@@ -64,123 +96,1045 @@
         <i class="bi bi-people"></i>
         <span>Gestión de Usuarios</span>
       </a>
+      <a href="proyectos.html" class="sidebar-nav-link">
+        <i class="bi bi-kanban"></i>
+        <span>Gestión de Proyectos</span>
+      </a>
+      <a href="product-backlog.html" class="sidebar-nav-link">
+        <i class="bi bi-journal-text"></i>
+        <span>Product Backlog</span>
+      </a>
       <a href="sprints.html" class="sidebar-nav-link">
         <i class="bi bi-arrow-repeat"></i>
         <span>Gestión de Sprints</span>
+      </a>
+      <a href="planificacion-sprint.html" class="sidebar-nav-link">
+        <i class="bi bi-calendar2-week"></i>
+        <span>Planificación del Sprint</span>
       </a>
       <a href="sprint-backlog.html" class="sidebar-nav-link">
         <i class="bi bi-card-checklist"></i>
         <span>Sprint Backlog</span>
       </a>
+      <a href="tablero-kanban.html" class="sidebar-nav-link">
+        <i class="bi bi-columns-gap"></i>
+        <span>Tablero Kanban</span>
+      </a>
+      <a href="impedimentos.html" class="sidebar-nav-link">
+        <i class="bi bi-cone-striped"></i>
+        <span>Impedimentos</span>
+      </a>
+      <a href="retrospectiva.html" class="sidebar-nav-link">
+        <i class="bi bi-chat-square-text"></i>
+        <span>Retrospectiva</span>
+      </a>
     </nav>
 
+    <div class="sidebar-heading">Calidad</div>
+    <nav class="nav flex-column mb-3">
+      <a href="responsividad.html" class="sidebar-nav-link">
+        <i class="bi bi-phone"></i>
+        <span>Responsividad</span>
+      </a>
+    </nav>
+
+    <!-- Resumen del Proyecto Activo -->
+    <div class="sidebar-heading">Proyecto Activo</div>
+    <div class="px-3 py-2">
+      <div class="p-3 rounded-3" style="background-color: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08);">
+        <div class="d-flex align-items-center justify-content-between mb-1">
+          <span class="text-white small fw-semibold">Fintech Mobile App</span>
+          <span class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-25" style="font-size: 0.65rem;">ACTIVO</span>
+        </div>
+        <p class="text-light text-opacity-50 small mb-2" style="font-size: 0.78rem;">Fase 2: Arquitectura de Pagos</p>
+        <div class="progress" style="height: 5px; background-color: rgba(255,255,255,0.1);">
+          <div class="progress-bar bg-primary" role="progressbar" style="width: 68%;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Botón Cerrar Sesión en pie del Sidebar -->
     <div class="mt-auto px-3 pt-4">
       <button class="btn btn-outline-danger btn-sm w-100 d-flex align-items-center justify-content-center gap-2" onclick="confirmarCierreSesion()">
         <i class="bi bi-box-arrow-right"></i>
         <span>Cerrar Sesión</span>
       </button>
     </div>
+
   </aside>
 
-  <!-- CONTENIDO PRINCIPAL: GESTIÓN DE USUARIOS -->
+  <!-- ========================================== -->
+  <!-- 3. ÁREA DE CONTENIDO: GESTIÓN DE USUARIOS   -->
+  <!-- ========================================== -->
   <main class="main-content">
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    
+    <!-- Toast de Notificaciones -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1080;">
+      <div id="actionToast" class="toast align-items-center text-white bg-dark border-0 shadow-lg" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+          <div class="toast-body d-flex align-items-center gap-2">
+            <i class="bi bi-check-circle-fill text-success fs-5" id="toastIcon"></i>
+            <span id="toastMessage">Operación realizada con éxito.</span>
+          </div>
+          <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Encabezado de la Pantalla -->
+    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-start gap-3 mb-4">
       <div>
         <nav aria-label="breadcrumb">
           <ol class="breadcrumb mb-1 small text-muted">
-            <li class="breadcrumb-item"><a href="index.html" class="text-decoration-none text-muted">Inicio</a></li>
+            <li class="breadcrumb-item"><a href="dashboard.html" class="text-decoration-none text-muted">Inicio</a></li>
             <li class="breadcrumb-item active text-primary fw-medium" aria-current="page">Gestión de Usuarios</li>
           </ol>
         </nav>
-        <h1 class="page-title">Equipo de Desarrollo SCRUM</h1>
-        <p class="page-subtitle mb-0">Miembros activos asignados a las tareas de los Sprints del proyecto.</p>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <h1 class="page-title mb-0">Gestión de Usuarios y Roles</h1>
+          <span class="badge bg-primary-subtle text-primary border border-primary-subtle">HU-02</span>
+          <span class="badge bg-success-subtle text-success border border-success-subtle d-inline-flex align-items-center gap-1">
+            <span class="status-dot bg-success"></span> Squad Activo (Sprint 1)
+          </span>
+        </div>
+        <p class="page-subtitle mb-0">Administra los integrantes del equipo SCRUM, asigna roles de responsabilidad, gestiona capacidades semanales y permisos de acceso al sistema.</p>
+      </div>
+
+      <!-- Lado Derecho: Conmutador de Vistas y Botones de Acción -->
+      <div class="d-flex align-items-center gap-2 flex-wrap">
+        
+        <!-- Selector de Vista (Administrativa / Cliente) -->
+        <div class="view-switch">
+          <a href="usuarios.html" class="view-switch-option active" title="Vista de Administrador / Scrum Master">
+            <i class="bi bi-display"></i> Administrativa
+          </a>
+          <a href="usuarios-cliente.html" class="view-switch-option" title="Vista para Integrantes / Developers">
+            <i class="bi bi-person"></i> Cliente
+          </a>
+        </div>
+
+        <!-- Botón Exportar -->
+        <button type="button" class="btn btn-outline-secondary d-flex align-items-center gap-2 py-2 px-3 shadow-xs" onclick="exportarUsuarios('csv')" title="Descargar reporte del equipo">
+          <i class="bi bi-download"></i>
+          <span class="d-none d-sm-inline">Exportar</span>
+        </button>
+
+        <!-- Botón Acción Principal: Invitar / Nuevo Usuario -->
+        <button type="button" class="btn btn-primary d-flex align-items-center gap-2 py-2 px-3 shadow-sm" data-bs-toggle="modal" data-bs-target="#modalNuevoUsuario">
+          <i class="bi bi-person-plus-fill fs-5"></i>
+          <span class="fw-medium">Nuevo Usuario</span>
+        </button>
+
       </div>
     </div>
 
-    <!-- Tabla de Integrantes del Equipo -->
-    <div class="card-custom overflow-hidden">
-      <div class="p-3 border-bottom d-flex align-items-center justify-content-between bg-light bg-opacity-50">
-        <h5 class="mb-0 fw-bold fs-6 text-dark">Miembros del Squad</h5>
-        <span class="badge bg-primary-subtle text-primary rounded-pill">4 activos</span>
+    <!-- ========================================== -->
+    <!-- 4. TARJETAS DE MÉTRICAS KPI DEL SQUAD       -->
+    <!-- ========================================== -->
+    <div class="row g-3 mb-4">
+      
+      <!-- Total Integrantes -->
+      <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card-custom p-3 h-100">
+          <div class="d-flex align-items-center justify-content-between">
+            <div>
+              <span class="text-muted small fw-medium">Integrantes del Squad</span>
+              <h3 class="fw-bold text-dark mt-1 mb-0">6 Miembros</h3>
+            </div>
+            <div class="p-3 bg-primary-subtle text-primary rounded-3">
+              <i class="bi bi-people-fill fs-4"></i>
+            </div>
+          </div>
+          <div class="mt-2 small text-muted">
+            <i class="bi bi-check-circle-fill text-success me-1"></i> 5 activos · 1 facilitador
+          </div>
+        </div>
       </div>
+
+      <!-- Capacidad Semanal Bruta -->
+      <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card-custom p-3 h-100">
+          <div class="d-flex align-items-center justify-content-between">
+            <div>
+              <span class="text-muted small fw-medium">Capacidad Semanal Total</span>
+              <h3 class="fw-bold text-dark mt-1 mb-0">215 hrs / sem</h3>
+            </div>
+            <div class="p-3 bg-info-subtle text-info rounded-3">
+              <i class="bi bi-clock-history fs-4"></i>
+            </div>
+          </div>
+          <div class="mt-2 small text-muted">
+            Promedio de 35.8 hrs / miembro
+          </div>
+        </div>
+      </div>
+
+      <!-- Carga Comprometida Sprint 1 -->
+      <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card-custom p-3 h-100">
+          <div class="d-flex align-items-center justify-content-between">
+            <div>
+              <span class="text-muted small fw-medium">Carga Asignada (Sprint 1)</span>
+              <h3 class="fw-bold text-success mt-1 mb-0">160 hrs (74.4%)</h3>
+            </div>
+            <div class="p-3 bg-success-subtle text-success rounded-3">
+              <i class="bi bi-pie-chart-fill fs-4"></i>
+            </div>
+          </div>
+          <div class="mt-2 small text-muted">
+            42 Story Points en desarrollo
+          </div>
+        </div>
+      </div>
+
+      <!-- Capacidad Libre / Colchón -->
+      <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card-custom p-3 h-100">
+          <div class="d-flex align-items-center justify-content-between">
+            <div>
+              <span class="text-muted small fw-medium">Capacidad Libre (Colchón)</span>
+              <h3 class="fw-bold text-warning-emphasis mt-1 mb-0">55 hrs libres</h3>
+            </div>
+            <div class="p-3 bg-warning-subtle text-warning-emphasis rounded-3">
+              <i class="bi bi-shield-check fs-4"></i>
+            </div>
+          </div>
+          <div class="mt-2 small text-muted">
+            <span class="badge bg-success-subtle text-success border border-success-subtle py-0">Saludable</span> Sin sobreasignación
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ========================================== -->
+    <!-- 5. PANEL PRINCIPAL: TABLA DE USUARIOS      -->
+    <!-- ========================================== -->
+    <div class="card-custom overflow-hidden mb-4 shadow-xs">
+      
+      <!-- Cabecera de la Tarjeta con Filtros -->
+      <div class="p-3 border-bottom bg-light bg-opacity-50">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-3">
+          <div>
+            <h5 class="mb-0 fw-bold fs-6 text-dark">Directorio de Usuarios y Asignación de Roles</h5>
+            <small class="text-muted">Lista consolidada de integrantes con su estado operativo en el proyecto Fintech Mobile App</small>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <span id="contadorUsuarios" class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-1">Mostrando 6 usuarios</span>
+          </div>
+        </div>
+
+        <!-- Barra de Búsqueda y Filtros en Tiempo Real -->
+        <div class="row g-2">
+          
+          <!-- Búsqueda por texto -->
+          <div class="col-12 col-md-5">
+            <div class="input-group input-group-sm">
+              <span class="input-group-text bg-white border-end-0 text-muted">
+                <i class="bi bi-search"></i>
+              </span>
+              <input type="text" id="filtroUsuarioTexto" class="form-control border-start-0" placeholder="Buscar por nombre, correo electrónico o ID..." onkeyup="filtrarUsuarios()">
+            </div>
+          </div>
+
+          <!-- Filtro por Rol SCRUM -->
+          <div class="col-12 col-sm-6 col-md-3">
+            <select id="filtroUsuarioRol" class="form-select form-select-sm" onchange="filtrarUsuarios()">
+              <option value="todos">Todos los roles</option>
+              <option value="sm">Scrum Master</option>
+              <option value="po">Product Owner</option>
+              <option value="backend">Backend Lead</option>
+              <option value="frontend">Frontend Developer</option>
+              <option value="qa">QA Automation</option>
+              <option value="ux">UI/UX Designer</option>
+            </select>
+          </div>
+
+          <!-- Filtro por Estado -->
+          <div class="col-12 col-sm-6 col-md-3">
+            <select id="filtroUsuarioEstado" class="form-select form-select-sm" onchange="filtrarUsuarios()">
+              <option value="todos">Todos los estados</option>
+              <option value="activo">Activo / Disponible</option>
+              <option value="alta-carga">Alta Ocupación (&gt;80%)</option>
+              <option value="facilitacion">Facilitación y Gestión</option>
+            </select>
+          </div>
+
+          <!-- Limpiar Filtros -->
+          <div class="col-12 col-md-1 d-flex">
+            <button class="btn btn-outline-secondary btn-sm w-100" type="button" onclick="document.getElementById('filtroUsuarioTexto').value=''; document.getElementById('filtroUsuarioRol').value='todos'; document.getElementById('filtroUsuarioEstado').value='todos'; filtrarUsuarios();" title="Limpiar filtros">
+              <i class="bi bi-arrow-counterclockwise"></i>
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Tabla Responsiva de Usuarios -->
       <div class="table-responsive">
-        <table class="table table-custom table-hover">
+        <table class="table table-custom table-hover align-middle mb-0" id="tablaUsuarios">
           <thead>
             <tr>
-              <th>Miembro</th>
-              <th>Rol SCRUM</th>
-              <th>Capacidad Semanal</th>
-              <th>Tareas Asignadas</th>
-              <th>Estado</th>
+              <th scope="col" style="min-width: 230px;">Miembro del Squad</th>
+              <th scope="col" style="min-width: 170px;">Rol SCRUM & Especialidad</th>
+              <th scope="col" style="min-width: 130px;">Capacidad</th>
+              <th scope="col" style="min-width: 220px;">Carga Sprint 1 (Horas / Tareas)</th>
+              <th scope="col" style="min-width: 130px;">Estado</th>
+              <th scope="col" class="text-end" style="min-width: 120px;">Acciones</th>
             </tr>
           </thead>
           <tbody>
-            <tr>
+            
+            <!-- 1. Rodrigo Morales (Scrum Master / Admin) -->
+            <tr data-nombre="Rodrigo Morales" data-email="rodrigo.morales@devteam.io" data-id="USR-001" data-rol="sm" data-estado="facilitacion">
               <td>
-                <div class="d-flex align-items-center gap-2">
-                  <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 32px; height: 32px; font-size: 0.8rem;">CR</div>
+                <div class="d-flex align-items-center gap-3">
+                  <div class="avatar-circle bg-dark text-white">RM</div>
+                  <div>
+                    <div class="fw-bold text-dark d-flex align-items-center gap-1">
+                      Rodrigo Morales
+                      <span class="badge bg-secondary-subtle text-secondary" style="font-size: 0.68rem;">Tú</span>
+                    </div>
+                    <small class="text-muted">rodrigo.morales@devteam.io · <span class="text-secondary fw-semibold">USR-001</span></small>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <span class="badge bg-dark text-white mb-1"><i class="bi bi-person-badge me-1"></i>Scrum Master</span>
+                <div class="small text-muted" style="font-size: 0.76rem;">Facilitador & Métricas</div>
+              </td>
+              <td>
+                <div class="fw-semibold text-dark">40 hrs / sem</div>
+                <small class="text-muted">100% Gestión</small>
+              </td>
+              <td>
+                <div class="d-flex justify-content-between align-items-center small mb-1">
+                  <span class="text-muted">Facilitación y Coaching</span>
+                  <span class="fw-bold text-dark">3 impedimentos</span>
+                </div>
+                <div class="progress" style="height: 6px;">
+                  <div class="progress-bar bg-dark" role="progressbar" style="width: 100%;" title="Dedicación completa a facilitación"></div>
+                </div>
+              </td>
+              <td>
+                <span class="badge bg-success-subtle text-success border border-success-subtle">
+                  <span class="status-dot bg-success"></span> Activo
+                </span>
+              </td>
+              <td class="text-end">
+                <div class="btn-group btn-group-sm">
+                  <button type="button" class="btn btn-outline-secondary table-action-btn" title="Ver detalle de auditoría" onclick="verDetalleUsuario('USR-001', 'Rodrigo Morales', 'rodrigo.morales@devteam.io', 'Scrum Master', 'Facilitación ágil, métricas y remoción de impedimentos', 40, '3 impedimentos resueltos', 'Sprint 0, Sprint 1', 'Activo / Facilitación', 'RM', 'bg-dark')">
+                    <i class="bi bi-eye"></i>
+                  </button>
+                  <button type="button" class="btn btn-outline-secondary table-action-btn" title="Editar capacidad o rol" onclick="prepararEditarUsuario('USR-001', 'Rodrigo Morales', 'rodrigo.morales@devteam.io', 'sm', 40, 'activo')">
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+
+            <!-- 2. Valeria Castro (Product Owner) -->
+            <tr data-nombre="Valeria Castro" data-email="valeria.castro@devteam.io" data-id="USR-002" data-rol="po" data-estado="facilitacion">
+              <td>
+                <div class="d-flex align-items-center gap-3">
+                  <div class="avatar-circle text-white" style="background-color: #6366f1;">VC</div>
+                  <div>
+                    <div class="fw-bold text-dark">Valeria Castro</div>
+                    <small class="text-muted">valeria.castro@devteam.io · <span class="text-secondary fw-semibold">USR-002</span></small>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <span class="badge text-white mb-1" style="background-color: #6366f1;"><i class="bi bi-trophy me-1"></i>Product Owner</span>
+                <div class="small text-muted" style="font-size: 0.76rem;">Visión de Producto & Backlog</div>
+              </td>
+              <td>
+                <div class="fw-semibold text-dark">35 hrs / sem</div>
+                <small class="text-muted">Priorización</small>
+              </td>
+              <td>
+                <div class="d-flex justify-content-between align-items-center small mb-1">
+                  <span class="text-muted">Historias Gestionadas</span>
+                  <span class="fw-bold text-indigo">12 HUs en Backlog</span>
+                </div>
+                <div class="progress" style="height: 6px;">
+                  <div class="progress-bar" role="progressbar" style="width: 85%; background-color: #6366f1;" title="85% del backlog refinado"></div>
+                </div>
+              </td>
+              <td>
+                <span class="badge bg-success-subtle text-success border border-success-subtle">
+                  <span class="status-dot bg-success"></span> Activo
+                </span>
+              </td>
+              <td class="text-end">
+                <div class="btn-group btn-group-sm">
+                  <button type="button" class="btn btn-outline-secondary table-action-btn" title="Ver detalle de auditoría" onclick="verDetalleUsuario('USR-002', 'Valeria Castro', 'valeria.castro@devteam.io', 'Product Owner', 'Definición de roadmap, priorización MoSCoW y aceptación de entregables', 35, '4 historias en revisión', 'Sprint 0, Sprint 1', 'Activo / Priorización', 'VC', 'bg-indigo')">
+                    <i class="bi bi-eye"></i>
+                  </button>
+                  <button type="button" class="btn btn-outline-secondary table-action-btn" title="Editar capacidad o rol" onclick="prepararEditarUsuario('USR-002', 'Valeria Castro', 'valeria.castro@devteam.io', 'po', 35, 'activo')">
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+
+            <!-- 3. Carlos Ruiz (Backend Lead) -->
+            <tr data-nombre="Carlos Ruiz" data-email="carlos.ruiz@devteam.io" data-id="USR-003" data-rol="backend" data-estado="alta-carga">
+              <td>
+                <div class="d-flex align-items-center gap-3">
+                  <div class="avatar-circle bg-primary text-white">CR</div>
                   <div>
                     <div class="fw-bold text-dark">Carlos Ruiz</div>
-                    <small class="text-muted">carlos.ruiz@devteam.io</small>
+                    <small class="text-muted">carlos.ruiz@devteam.io · <span class="text-secondary fw-semibold">USR-003</span></small>
                   </div>
                 </div>
               </td>
-              <td><span class="badge bg-light text-dark border">Backend Lead</span></td>
-              <td>40 hrs / sem</td>
-              <td><span class="fw-semibold text-primary">3 tareas</span> (34 hrs)</td>
-              <td><span class="badge bg-success-subtle text-success">Disponible</span></td>
-            </tr>
-            <tr>
               <td>
-                <div class="d-flex align-items-center gap-2">
-                  <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 32px; height: 32px; font-size: 0.8rem;">AG</div>
+                <span class="badge bg-primary-subtle text-primary border border-primary-subtle mb-1"><i class="bi bi-server me-1"></i>Backend Lead</span>
+                <div class="small text-muted" style="font-size: 0.76rem;">APIs REST, JWT 2FA & SQL</div>
+              </td>
+              <td>
+                <div class="fw-semibold text-dark">40 hrs / sem</div>
+                <small class="text-muted">Desarrollo Core</small>
+              </td>
+              <td>
+                <div class="d-flex justify-content-between align-items-center small mb-1">
+                  <span class="text-muted">Asignado: <strong>34 hrs</strong> (3 tareas)</span>
+                  <span class="fw-bold text-warning-emphasis">85% ocupación</span>
+                </div>
+                <div class="progress" style="height: 6px;">
+                  <div class="progress-bar bg-warning" role="progressbar" style="width: 85%;" title="85% de capacidad semanal ocupada en Sprint 1"></div>
+                </div>
+              </td>
+              <td>
+                <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle">
+                  <span class="status-dot bg-warning"></span> Alta Ocupación
+                </span>
+              </td>
+              <td class="text-end">
+                <div class="btn-group btn-group-sm">
+                  <button type="button" class="btn btn-outline-secondary table-action-btn" title="Ver detalle de auditoría" onclick="verDetalleUsuario('USR-003', 'Carlos Ruiz', 'carlos.ruiz@devteam.io', 'Backend Lead', 'Arquitectura de microservicios, seguridad OAuth2/JWT y persistencia de base de datos', 40, '3 tareas técnicas (34 hrs)', '1 tarea finalizada (HU-01)', 'Alta Carga en Sprint 1', 'CR', 'bg-primary')">
+                    <i class="bi bi-eye"></i>
+                  </button>
+                  <button type="button" class="btn btn-outline-secondary table-action-btn" title="Editar capacidad o rol" onclick="prepararEditarUsuario('USR-003', 'Carlos Ruiz', 'carlos.ruiz@devteam.io', 'backend', 40, 'alta-carga')">
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                  <button type="button" class="btn btn-outline-danger table-action-btn" title="Dar de baja temporalmente" onclick="prepararDesactivarUsuario('USR-003', 'Carlos Ruiz')">
+                    <i class="bi bi-person-x"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+
+            <!-- 4. Ana Gómez (Frontend Developer) -->
+            <tr data-nombre="Ana Gómez" data-email="ana.gomez@devteam.io" data-id="USR-004" data-rol="frontend" data-estado="activo">
+              <td>
+                <div class="d-flex align-items-center gap-3">
+                  <div class="avatar-circle bg-success text-white">AG</div>
                   <div>
                     <div class="fw-bold text-dark">Ana Gómez</div>
-                    <small class="text-muted">ana.gomez@devteam.io</small>
+                    <small class="text-muted">ana.gomez@devteam.io · <span class="text-secondary fw-semibold">USR-004</span></small>
                   </div>
                 </div>
               </td>
-              <td><span class="badge bg-light text-dark border">Frontend Dev</span></td>
-              <td>40 hrs / sem</td>
-              <td><span class="fw-semibold text-primary">2 tareas</span> (14 hrs)</td>
-              <td><span class="badge bg-success-subtle text-success">Disponible</span></td>
-            </tr>
-            <tr>
               <td>
-                <div class="d-flex align-items-center gap-2">
-                  <div class="bg-warning text-dark rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 32px; height: 32px; font-size: 0.8rem;">MS</div>
+                <span class="badge bg-success-subtle text-success border border-success-subtle mb-1"><i class="bi bi-code-slash me-1"></i>Frontend Dev</span>
+                <div class="small text-muted" style="font-size: 0.76rem;">UI Responsiva & Componentes</div>
+              </td>
+              <td>
+                <div class="fw-semibold text-dark">40 hrs / sem</div>
+                <small class="text-muted">Desarrollo Web</small>
+              </td>
+              <td>
+                <div class="d-flex justify-content-between align-items-center small mb-1">
+                  <span class="text-muted">Asignado: <strong>14 hrs</strong> (2 tareas)</span>
+                  <span class="fw-bold text-success">35% ocupación</span>
+                </div>
+                <div class="progress" style="height: 6px;">
+                  <div class="progress-bar bg-success" role="progressbar" style="width: 35%;" title="35% de capacidad semanal ocupada en Sprint 1"></div>
+                </div>
+              </td>
+              <td>
+                <span class="badge bg-success-subtle text-success border border-success-subtle">
+                  <span class="status-dot bg-success"></span> Disponible
+                </span>
+              </td>
+              <td class="text-end">
+                <div class="btn-group btn-group-sm">
+                  <button type="button" class="btn btn-outline-secondary table-action-btn" title="Ver detalle de auditoría" onclick="verDetalleUsuario('USR-004', 'Ana Gómez', 'ana.gomez@devteam.io', 'Frontend Developer', 'Maquetación HTML5 semántico, lógica interactiva en JS Vanilla y accesibilidad', 40, '2 tareas técnicas (14 hrs)', '1 tarea finalizada (Login 2FA)', 'Disponible para nuevas tareas', 'AG', 'bg-success')">
+                    <i class="bi bi-eye"></i>
+                  </button>
+                  <button type="button" class="btn btn-outline-secondary table-action-btn" title="Editar capacidad o rol" onclick="prepararEditarUsuario('USR-004', 'Ana Gómez', 'ana.gomez@devteam.io', 'frontend', 40, 'activo')">
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                  <button type="button" class="btn btn-outline-danger table-action-btn" title="Dar de baja temporalmente" onclick="prepararDesactivarUsuario('USR-004', 'Ana Gómez')">
+                    <i class="bi bi-person-x"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+
+            <!-- 5. Mateo Silva (QA Automation) -->
+            <tr data-nombre="Mateo Silva" data-email="mateo.silva@devteam.io" data-id="USR-005" data-rol="qa" data-estado="activo">
+              <td>
+                <div class="d-flex align-items-center gap-3">
+                  <div class="avatar-circle bg-warning text-dark">MS</div>
                   <div>
                     <div class="fw-bold text-dark">Mateo Silva</div>
-                    <small class="text-muted">mateo.silva@devteam.io</small>
+                    <small class="text-muted">mateo.silva@devteam.io · <span class="text-secondary fw-semibold">USR-005</span></small>
                   </div>
                 </div>
               </td>
-              <td><span class="badge bg-light text-dark border">QA Automation</span></td>
-              <td>40 hrs / sem</td>
-              <td><span class="fw-semibold text-primary">2 tareas</span> (10 hrs)</td>
-              <td><span class="badge bg-success-subtle text-success">Disponible</span></td>
-            </tr>
-            <tr>
               <td>
-                <div class="d-flex align-items-center gap-2">
-                  <div class="bg-info text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 32px; height: 32px; font-size: 0.8rem;">LM</div>
+                <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle mb-1"><i class="bi bi-shield-check me-1"></i>QA Automation</span>
+                <div class="small text-muted" style="font-size: 0.76rem;">Pruebas E2E & Cobertura</div>
+              </td>
+              <td>
+                <div class="fw-semibold text-dark">35 hrs / sem</div>
+                <small class="text-muted">Calidad & DoD</small>
+              </td>
+              <td>
+                <div class="d-flex justify-content-between align-items-center small mb-1">
+                  <span class="text-muted">Asignado: <strong>10 hrs</strong> (2 tareas)</span>
+                  <span class="fw-bold text-success">28% ocupación</span>
+                </div>
+                <div class="progress" style="height: 6px;">
+                  <div class="progress-bar bg-success" role="progressbar" style="width: 28%;" title="28% de capacidad semanal ocupada en Sprint 1"></div>
+                </div>
+              </td>
+              <td>
+                <span class="badge bg-success-subtle text-success border border-success-subtle">
+                  <span class="status-dot bg-success"></span> Disponible
+                </span>
+              </td>
+              <td class="text-end">
+                <div class="btn-group btn-group-sm">
+                  <button type="button" class="btn btn-outline-secondary table-action-btn" title="Ver detalle de auditoría" onclick="verDetalleUsuario('USR-005', 'Mateo Silva', 'mateo.silva@devteam.io', 'QA Automation', 'Automatización de suites de prueba, verificación de criterios de aceptación y regresión', 35, '2 tareas técnicas (10 hrs)', 'Validación de 2FA en QA', 'Disponible para testing', 'MS', 'bg-warning text-dark')">
+                    <i class="bi bi-eye"></i>
+                  </button>
+                  <button type="button" class="btn btn-outline-secondary table-action-btn" title="Editar capacidad o rol" onclick="prepararEditarUsuario('USR-005', 'Mateo Silva', 'mateo.silva@devteam.io', 'qa', 35, 'activo')">
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                  <button type="button" class="btn btn-outline-danger table-action-btn" title="Dar de baja temporalmente" onclick="prepararDesactivarUsuario('USR-005', 'Mateo Silva')">
+                    <i class="bi bi-person-x"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+
+            <!-- 6. Lucía Morales (UI/UX Designer) -->
+            <tr data-nombre="Lucía Morales" data-email="lucia.morales@devteam.io" data-id="USR-006" data-rol="ux" data-estado="activo">
+              <td>
+                <div class="d-flex align-items-center gap-3">
+                  <div class="avatar-circle bg-info text-white">LM</div>
                   <div>
                     <div class="fw-bold text-dark">Lucía Morales</div>
-                    <small class="text-muted">lucia.morales@devteam.io</small>
+                    <small class="text-muted">lucia.morales@devteam.io · <span class="text-secondary fw-semibold">USR-006</span></small>
                   </div>
                 </div>
               </td>
-              <td><span class="badge bg-light text-dark border">UI/UX Designer</span></td>
-              <td>40 hrs / sem</td>
-              <td><span class="fw-semibold text-primary">1 tarea</span> (5 hrs)</td>
-              <td><span class="badge bg-success-subtle text-success">Disponible</span></td>
+              <td>
+                <span class="badge bg-info-subtle text-info border border-info-subtle mb-1"><i class="bi bi-palette me-1"></i>UI/UX Designer</span>
+                <div class="small text-muted" style="font-size: 0.76rem;">Design System & Usabilidad</div>
+              </td>
+              <td>
+                <div class="fw-semibold text-dark">25 hrs / sem</div>
+                <small class="text-muted">Prototipado</small>
+              </td>
+              <td>
+                <div class="d-flex justify-content-between align-items-center small mb-1">
+                  <span class="text-muted">Asignado: <strong>5 hrs</strong> (1 tarea)</span>
+                  <span class="fw-bold text-info">20% ocupación</span>
+                </div>
+                <div class="progress" style="height: 6px;">
+                  <div class="progress-bar bg-info" role="progressbar" style="width: 20%;" title="20% de capacidad semanal ocupada en Sprint 1"></div>
+                </div>
+              </td>
+              <td>
+                <span class="badge bg-success-subtle text-success border border-success-subtle">
+                  <span class="status-dot bg-success"></span> Disponible
+                </span>
+              </td>
+              <td class="text-end">
+                <div class="btn-group btn-group-sm">
+                  <button type="button" class="btn btn-outline-secondary table-action-btn" title="Ver detalle de auditoría" onclick="verDetalleUsuario('USR-006', 'Lucía Morales', 'lucia.morales@devteam.io', 'UI/UX Designer', 'Investigación de usuarios, diseño de flujos en alta fidelidad y guías WCAG', 25, '1 tarea técnica (5 hrs)', 'Mockups HU-01 aprobados', 'Disponible para diseño Sprint 2', 'LM', 'bg-info')">
+                    <i class="bi bi-eye"></i>
+                  </button>
+                  <button type="button" class="btn btn-outline-secondary table-action-btn" title="Editar capacidad o rol" onclick="prepararEditarUsuario('USR-006', 'Lucía Morales', 'lucia.morales@devteam.io', 'ux', 25, 'activo')">
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                  <button type="button" class="btn btn-outline-danger table-action-btn" title="Dar de baja temporalmente" onclick="prepararDesactivarUsuario('USR-006', 'Lucía Morales')">
+                    <i class="bi bi-person-x"></i>
+                  </button>
+                </div>
+              </td>
             </tr>
+
+            <!-- Fila Sin Resultados (Oculta por defecto) -->
+            <tr id="filaSinResultados" style="display: none;">
+              <td colspan="6" class="text-center py-5">
+                <div class="text-muted">
+                  <i class="bi bi-person-x fs-1 d-block mb-2 text-secondary"></i>
+                  <h6 class="fw-bold mb-1">No se encontraron miembros coincidentes</h6>
+                  <p class="small mb-2">Prueba modificando los términos de búsqueda o restableciendo los filtros de rol y estado.</p>
+                  <button class="btn btn-sm btn-outline-primary" type="button" onclick="document.getElementById('filtroUsuarioTexto').value=''; document.getElementById('filtroUsuarioRol').value='todos'; document.getElementById('filtroUsuarioEstado').value='todos'; filtrarUsuarios();">
+                    Restablecer filtros
+                  </button>
+                </div>
+              </td>
+            </tr>
+
           </tbody>
         </table>
       </div>
+
+      <!-- Pie de Tabla con Resumen de Carga -->
+      <div class="p-3 border-top bg-light bg-opacity-25 d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2">
+        <small class="text-muted">
+          <i class="bi bi-info-circle me-1"></i>Capacidades calculadas con base en el calendario de 14 días del <strong>Sprint 1</strong> (10 al 24 de Octubre de 2026).
+        </small>
+        <div class="d-flex align-items-center gap-3 small">
+          <span>Total Squad: <strong>6 miembros</strong></span>
+          <span class="text-secondary">|</span>
+          <span>Horas comprometidas: <strong class="text-primary">160h</strong></span>
+        </div>
+      </div>
+
     </div>
+
+    <!-- ========================================== -->
+    <!-- 6. PANELES ESTRATÉGICOS: CARGA & PERMISOS   -->
+    <!-- ========================================== -->
+    <div class="row g-4 mb-4">
+      
+      <!-- Panel Izquierdo: Balance de Carga del Squad -->
+      <div class="col-12 col-lg-6">
+        <div class="card-custom h-100 p-4">
+          <div class="d-flex align-items-center justify-content-between mb-3">
+            <div>
+              <h5 class="fw-bold text-dark fs-6 mb-0">Balance de Capacidad por Desarrollador</h5>
+              <small class="text-muted">Distribución de esfuerzo asignado en el Sprint 1 activo</small>
+            </div>
+            <span class="badge bg-primary-subtle text-primary border border-primary-subtle">Sprint 1</span>
+          </div>
+
+          <!-- Barras de Utilización por Miembro -->
+          <div class="space-y-3">
+            
+            <!-- Carlos Ruiz -->
+            <div class="mb-3">
+              <div class="d-flex justify-content-between align-items-center small mb-1">
+                <span class="fw-medium text-dark"><i class="bi bi-server me-1 text-primary"></i>Carlos Ruiz (Backend Lead)</span>
+                <span class="fw-bold text-warning-emphasis">34h / 40h (85%)</span>
+              </div>
+              <div class="progress" style="height: 8px;">
+                <div class="progress-bar bg-warning" role="progressbar" style="width: 85%;"></div>
+              </div>
+              <small class="text-muted" style="font-size: 0.72rem;">Alta concentración en HU-01 (Auth 2FA) y HU-02 (Roles API)</small>
+            </div>
+
+            <!-- Ana Gómez -->
+            <div class="mb-3">
+              <div class="d-flex justify-content-between align-items-center small mb-1">
+                <span class="fw-medium text-dark"><i class="bi bi-code-slash me-1 text-success"></i>Ana Gómez (Frontend Dev)</span>
+                <span class="fw-bold text-success">14h / 40h (35%)</span>
+              </div>
+              <div class="progress" style="height: 8px;">
+                <div class="progress-bar bg-success" role="progressbar" style="width: 35%;"></div>
+              </div>
+              <small class="text-muted" style="font-size: 0.72rem;">Capacidad disponible para absorber tareas de soporte o testing</small>
+            </div>
+
+            <!-- Mateo Silva -->
+            <div class="mb-3">
+              <div class="d-flex justify-content-between align-items-center small mb-1">
+                <span class="fw-medium text-dark"><i class="bi bi-shield-check me-1 text-warning"></i>Mateo Silva (QA Automation)</span>
+                <span class="fw-bold text-success">10h / 35h (28%)</span>
+              </div>
+              <div class="progress" style="height: 8px;">
+                <div class="progress-bar bg-success" role="progressbar" style="width: 28%;"></div>
+              </div>
+              <small class="text-muted" style="font-size: 0.72rem;">Preparado para la etapa final de certificación del sprint (Días 11-14)</small>
+            </div>
+
+            <!-- Lucía Morales -->
+            <div class="mb-3">
+              <div class="d-flex justify-content-between align-items-center small mb-1">
+                <span class="fw-medium text-dark"><i class="bi bi-palette me-1 text-info"></i>Lucía Morales (UI/UX)</span>
+                <span class="fw-bold text-info">5h / 25h (20%)</span>
+              </div>
+              <div class="progress" style="height: 8px;">
+                <div class="progress-bar bg-info" role="progressbar" style="width: 20%;"></div>
+              </div>
+              <small class="text-muted" style="font-size: 0.72rem;">Diseño completado; apoyando en validaciones visuales de entrega</small>
+            </div>
+
+          </div>
+
+          <!-- Insight del Scrum Master -->
+          <div class="p-3 bg-light rounded-3 border-start border-4 border-primary mt-3">
+            <div class="d-flex align-items-start gap-2">
+              <i class="bi bi-lightbulb-fill text-warning fs-5 flex-shrink-0 mt-1"></i>
+              <div>
+                <strong class="text-dark small d-block">Recomendación del Scrum Master</strong>
+                <p class="small text-muted mb-0">El equipo mantiene un índice de ocupación saludable de 74.4%. Dado que Carlos Ruiz concentra tareas críticas de seguridad, se sugiere que Mateo Silva apoye en la redacción de tests de integración para asegurar el Definition of Done sin retrasos.</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Panel Derecho: Matriz de Roles y Privilegios (RBAC) -->
+      <div class="col-12 col-lg-6">
+        <div class="card-custom h-100 p-4">
+          <div class="d-flex align-items-center justify-content-between mb-3">
+            <div>
+              <h5 class="fw-bold text-dark fs-6 mb-0">Matriz de Privilegios y Roles SCRUM</h5>
+              <small class="text-muted">Control de acceso basado en roles (RBAC) para el sistema</small>
+            </div>
+            <span class="badge bg-secondary-subtle text-secondary border">Seguridad</span>
+          </div>
+
+          <div class="table-responsive">
+            <table class="table table-sm table-bordered align-middle small mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>Privilegio / Acción</th>
+                  <th class="text-center" style="width: 70px;">PO</th>
+                  <th class="text-center" style="width: 70px;">SM</th>
+                  <th class="text-center" style="width: 70px;">Devs</th>
+                  <th class="text-center" style="width: 70px;">QA</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Crear / Editar Historias de Backlog</td>
+                  <td class="text-center text-success"><i class="bi bi-check-circle-fill"></i></td>
+                  <td class="text-center text-muted"><i class="bi bi-dash"></i></td>
+                  <td class="text-center text-muted"><i class="bi bi-dash"></i></td>
+                  <td class="text-center text-muted"><i class="bi bi-dash"></i></td>
+                </tr>
+                <tr>
+                  <td>Priorizar Historias en Product Backlog</td>
+                  <td class="text-center text-success"><i class="bi bi-check-circle-fill"></i></td>
+                  <td class="text-center text-muted"><i class="bi bi-dash"></i></td>
+                  <td class="text-center text-muted"><i class="bi bi-dash"></i></td>
+                  <td class="text-center text-muted"><i class="bi bi-dash"></i></td>
+                </tr>
+                <tr>
+                  <td>Crear, Iniciar y Cerrar Sprints</td>
+                  <td class="text-center text-muted"><i class="bi bi-dash"></i></td>
+                  <td class="text-center text-success"><i class="bi bi-check-circle-fill"></i></td>
+                  <td class="text-center text-muted"><i class="bi bi-dash"></i></td>
+                  <td class="text-center text-muted"><i class="bi bi-dash"></i></td>
+                </tr>
+                <tr>
+                  <td>Desglosar Tareas en Sprint Backlog</td>
+                  <td class="text-center text-muted"><i class="bi bi-dash"></i></td>
+                  <td class="text-center text-success"><i class="bi bi-check-circle-fill"></i></td>
+                  <td class="text-center text-success"><i class="bi bi-check-circle-fill"></i></td>
+                  <td class="text-center text-success"><i class="bi bi-check-circle-fill"></i></td>
+                </tr>
+                <tr>
+                  <td>Mover Tarjetas en Tablero Kanban</td>
+                  <td class="text-center text-muted"><i class="bi bi-dash"></i></td>
+                  <td class="text-center text-success"><i class="bi bi-check-circle-fill"></i></td>
+                  <td class="text-center text-success"><i class="bi bi-check-circle-fill"></i></td>
+                  <td class="text-center text-success"><i class="bi bi-check-circle-fill"></i></td>
+                </tr>
+                <tr>
+                  <td>Reportar Impedimentos Técnicos</td>
+                  <td class="text-center text-success"><i class="bi bi-check-circle-fill"></i></td>
+                  <td class="text-center text-success"><i class="bi bi-check-circle-fill"></i></td>
+                  <td class="text-center text-success"><i class="bi bi-check-circle-fill"></i></td>
+                  <td class="text-center text-success"><i class="bi bi-check-circle-fill"></i></td>
+                </tr>
+                <tr>
+                  <td>Administrar Integrantes y Capacidades</td>
+                  <td class="text-center text-muted"><i class="bi bi-dash"></i></td>
+                  <td class="text-center text-success"><i class="bi bi-check-circle-fill"></i></td>
+                  <td class="text-center text-muted"><i class="bi bi-dash"></i></td>
+                  <td class="text-center text-muted"><i class="bi bi-dash"></i></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="mt-3 text-end">
+            <a href="product-backlog.html" class="btn btn-sm btn-outline-secondary">
+              <i class="bi bi-journal-text me-1"></i>Ir al Backlog
+            </a>
+            <a href="sprint-backlog.html" class="btn btn-sm btn-outline-primary ms-1">
+              <i class="bi bi-card-checklist me-1"></i>Sprint Backlog
+            </a>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
   </main>
 
+  <!-- ========================================== -->
+  <!-- 7. MODALES INTERACTIVOS                    -->
+  <!-- ========================================== -->
+
+  <!-- Modal 1: Invitar / Nuevo Usuario -->
+  <div class="modal fade" id="modalNuevoUsuario" tabindex="-1" aria-labelledby="modalNuevoUsuarioLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg">
+        
+        <div class="modal-header bg-light">
+          <div class="d-flex align-items-center gap-2">
+            <div class="p-2 bg-primary-subtle text-primary rounded-3">
+              <i class="bi bi-person-plus-fill"></i>
+            </div>
+            <div>
+              <h5 class="modal-title fw-bold fs-6 text-dark mb-0" id="modalNuevoUsuarioLabel">Invitar Nuevo Miembro al Squad</h5>
+              <small class="text-muted">Asigna rol, capacidad semanal y envía invitación institucional</small>
+            </div>
+          </div>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <form id="formNuevoUsuario" onsubmit="guardarNuevoUsuario(event)">
+          <div class="modal-body p-4">
+            
+            <div class="mb-3">
+              <label for="nuevoUsuarioNombre" class="form-label fw-semibold small text-dark">Nombre y Apellidos <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="nuevoUsuarioNombre" placeholder="Ej. Daniel Fernández" required>
+            </div>
+
+            <div class="mb-3">
+              <label for="nuevoUsuarioEmail" class="form-label fw-semibold small text-dark">Correo Electrónico Institucional <span class="text-danger">*</span></label>
+              <input type="email" class="form-control" id="nuevoUsuarioEmail" placeholder="usuario@devteam.io" required>
+            </div>
+
+            <div class="row g-2 mb-3">
+              <div class="col-6">
+                <label for="nuevoUsuarioRol" class="form-label fw-semibold small text-dark">Rol SCRUM <span class="text-danger">*</span></label>
+                <select class="form-select" id="nuevoUsuarioRol" required>
+                  <option value="Frontend Developer">Frontend Developer</option>
+                  <option value="Backend Developer">Backend Developer</option>
+                  <option value="QA Automation">QA Automation</option>
+                  <option value="UI/UX Designer">UI/UX Designer</option>
+                  <option value="DevOps Engineer">DevOps Engineer</option>
+                  <option value="Product Owner">Product Owner</option>
+                  <option value="Scrum Master">Scrum Master</option>
+                </select>
+              </div>
+              <div class="col-6">
+                <label for="nuevoUsuarioCapacidad" class="form-label fw-semibold small text-dark">Capacidad Semanal <span class="text-danger">*</span></label>
+                <div class="input-group">
+                  <input type="number" class="form-control" id="nuevoUsuarioCapacidad" value="40" min="5" max="50" required>
+                  <span class="input-group-text small">hrs</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="nuevoUsuarioProyecto" class="form-label fw-semibold small text-dark">Proyecto Asignado</label>
+              <select class="form-select" id="nuevoUsuarioProyecto">
+                <option value="Fintech Mobile App" selected>Fintech Mobile App (Fase 2)</option>
+                <option value="Portal Web Corporativo">Portal Web Corporativo</option>
+                <option value="Microservicios de Pagos">Microservicios de Pagos</option>
+              </select>
+            </div>
+
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="nuevoUsuarioNotificar" checked>
+              <label class="form-check-label small text-muted" for="nuevoUsuarioNotificar">
+                Enviar correo de invitación con enlace de acceso y bienvenida
+              </label>
+            </div>
+
+          </div>
+          <div class="modal-footer bg-light">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-primary d-flex align-items-center gap-2">
+              <i class="bi bi-send-check"></i>
+              <span>Guardar e Invitar</span>
+            </button>
+          </div>
+        </form>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 2: Editar Usuario y Capacidad -->
+  <div class="modal fade" id="modalEditarUsuario" tabindex="-1" aria-labelledby="modalEditarUsuarioLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg">
+        
+        <div class="modal-header bg-light">
+          <div class="d-flex align-items-center gap-2">
+            <div class="p-2 bg-warning-subtle text-warning-emphasis rounded-3">
+              <i class="bi bi-pencil-square"></i>
+            </div>
+            <div>
+              <h5 class="modal-title fw-bold fs-6 text-dark mb-0" id="modalEditarUsuarioLabel">Editar Usuario y Capacidad</h5>
+              <small class="text-muted">Ajusta rol, horas semanales y estado operativo</small>
+            </div>
+          </div>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <form id="formEditarUsuario" onsubmit="guardarEdicionUsuario(event)">
+          <input type="hidden" id="editUsuarioId">
+          <div class="modal-body p-4">
+            
+            <div class="mb-3">
+              <label for="editUsuarioNombre" class="form-label fw-semibold small text-dark">Nombre Completo</label>
+              <input type="text" class="form-control" id="editUsuarioNombre" required>
+            </div>
+
+            <div class="mb-3">
+              <label for="editUsuarioEmail" class="form-label fw-semibold small text-dark">Correo Electrónico</label>
+              <input type="email" class="form-control" id="editUsuarioEmail" required>
+            </div>
+
+            <div class="row g-2 mb-3">
+              <div class="col-6">
+                <label for="editUsuarioRol" class="form-label fw-semibold small text-dark">Rol Asignado</label>
+                <select class="form-select" id="editUsuarioRol">
+                  <option value="backend">Backend Lead</option>
+                  <option value="frontend">Frontend Dev</option>
+                  <option value="qa">QA Automation</option>
+                  <option value="ux">UI/UX Designer</option>
+                  <option value="sm">Scrum Master</option>
+                  <option value="po">Product Owner</option>
+                </select>
+              </div>
+              <div class="col-6">
+                <label for="editUsuarioCapacidad" class="form-label fw-semibold small text-dark">Capacidad Semanal</label>
+                <div class="input-group">
+                  <input type="number" class="form-control" id="editUsuarioCapacidad" min="5" max="50" required>
+                  <span class="input-group-text small">hrs</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="editUsuarioEstado" class="form-label fw-semibold small text-dark">Estado Operativo</label>
+              <select class="form-select" id="editUsuarioEstado">
+                <option value="activo">Activo / Disponible</option>
+                <option value="alta-carga">Alta Ocupación (&gt;80%)</option>
+                <option value="facilitacion">Facilitación y Gestión</option>
+              </select>
+            </div>
+
+          </div>
+          <div class="modal-footer bg-light">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+          </div>
+        </form>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 3: Detalle y Auditoría de Usuario -->
+  <div class="modal fade" id="modalDetalleUsuario" tabindex="-1" aria-labelledby="modalDetalleUsuarioLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg">
+        
+        <div class="modal-header bg-light">
+          <h5 class="modal-title fw-bold fs-6 text-dark" id="modalDetalleUsuarioLabel">
+            <i class="bi bi-person-lines-fill me-1 text-primary"></i>Perfil y Auditoría del Integrante
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body p-4">
+          <div class="d-flex align-items-center gap-3 mb-4 pb-3 border-bottom">
+            <div id="detUsuarioAvatar" class="avatar-circle-lg bg-primary text-white">CR</div>
+            <div>
+              <h5 class="fw-bold text-dark mb-0" id="detUsuarioNombre">Carlos Ruiz</h5>
+              <span class="text-muted small" id="detUsuarioEmail">carlos.ruiz@devteam.io</span>
+              <div class="mt-1">
+                <span class="badge bg-primary-subtle text-primary border border-primary-subtle" id="detUsuarioRol">Backend Lead</span>
+                <span class="badge bg-light text-secondary border ms-1" id="detUsuarioId">USR-003</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <h6 class="fw-bold text-dark small mb-1">Especialidad Técnica</h6>
+            <p class="small text-muted mb-0" id="detUsuarioEspecialidad">Arquitectura de microservicios, seguridad OAuth2/JWT y persistencia de base de datos</p>
+          </div>
+
+          <div class="row g-2 mb-3">
+            <div class="col-6">
+              <div class="p-3 bg-light rounded-3 border">
+                <small class="text-muted d-block">Capacidad Semanal</small>
+                <strong class="text-dark" id="detUsuarioCapacidad">40 hrs / semana</strong>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="p-3 bg-light rounded-3 border">
+                <small class="text-muted d-block">Estado Operativo</small>
+                <strong class="text-success" id="detUsuarioEstado">Disponible</strong>
+              </div>
+            </div>
+          </div>
+
+          <div class="row g-2">
+            <div class="col-6">
+              <div class="p-3 bg-light rounded-3 border">
+                <small class="text-muted d-block">Asignación Sprint 1</small>
+                <strong class="text-primary" id="detUsuarioAsignadas">3 tareas técnicas</strong>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="p-3 bg-light rounded-3 border">
+                <small class="text-muted d-block">Participación Histórica</small>
+                <strong class="text-dark" id="detUsuarioCompletadas">Sprint 0, Sprint 1</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer bg-light">
+          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cerrar</button>
+          <a href="sprint-backlog.html" class="btn btn-primary btn-sm">
+            <i class="bi bi-card-checklist me-1"></i>Ver Tareas en Sprint Backlog
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 4: Confirmar Desactivación de Usuario -->
+  <div class="modal fade" id="modalDesactivarUsuario" tabindex="-1" aria-labelledby="modalDesactivarUsuarioLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg">
+        <div class="modal-header bg-danger bg-opacity-10 text-danger">
+          <h5 class="modal-title fw-bold fs-6" id="modalDesactivarUsuarioLabel">
+            <i class="bi bi-exclamation-triangle-fill me-1"></i>Confirmar Baja del Integrante
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-4">
+          <input type="hidden" id="desactivarUsuarioId">
+          <p class="mb-2">¿Estás seguro de que deseas desactivar a <strong id="desactivarUsuarioNombre" class="text-dark">Carlos Ruiz</strong> del Squad?</p>
+          <div class="alert alert-warning small mb-0">
+            <i class="bi bi-info-circle me-1"></i>Las tareas actualmente asignadas a este miembro en el Sprint 1 deberán ser reasignadas en el <strong>Sprint Backlog</strong> para no impactar la velocidad de entrega del equipo.
+          </div>
+        </div>
+        <div class="modal-footer bg-light">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-danger" onclick="ejecutarDesactivarUsuario()">Confirmar Desactivación</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts Bootstrap 5 y Lógica de la Aplicación -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
   <script src="js/app.js"></script>
 </body>

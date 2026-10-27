@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SCRUM Manager - Equipo y Usuarios (Vista Cliente - HU-02)</title>
+  
+  <!-- Bootstrap 5 CSS CDN -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  
+  <!-- Bootstrap Icons CDN -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  
+  <!-- Google Fonts (Inter) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Estilos Personalizados Externos -->
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/modulos-sergio.css">
+  <link rel="stylesheet" href="css/modulos-jesus.css">
+</head>
+<body>
+
+  <!-- ========================================== -->
+  <!-- 1. NAVBAR SUPERIOR OSCURO                  -->
+  <!-- ========================================== -->
+  <nav class="navbar navbar-dark admin-navbar px-3 px-lg-4">
+    <div class="container-fluid p-0 d-flex align-items-center justify-content-between">
+      
+      <!-- Brand & Mobile Toggle -->
+      <div class="d-flex align-items-center gap-3">
+        <button class="btn btn-outline-secondary btn-sm d-lg-none text-light border-0" type="button" id="sidebarToggle" aria-label="Abrir menú">
+          <i class="bi bi-list fs-4"></i>
+        </button>
+        
+        <a class="navbar-brand d-flex align-items-center gap-2 m-0" href="inicio-cliente.html">
+          <span class="brand-logo-badge">
+            <i class="bi bi-kanban-fill"></i>
+          </span>
+          <span class="fw-bold tracking-tight text-white fs-5">SCRUM <span class="fw-semibold" style="color: #818cf8 !important;">Manager</span></span>
+        </a>
+      </div>
+
+      <!-- Chip de estado del Sprint y Perfil Cliente -->
+      <div class="d-flex align-items-center gap-3">
+        
+        <div class="d-none d-md-flex align-items-center gap-2 px-3 py-1 bg-dark-subtle rounded-pill border border-secondary border-opacity-25 text-light text-opacity-75 small">
+          <span class="status-dot bg-success"></span>
+          <span>Sprint 1 en curso</span>
+          <span class="text-secondary">|</span>
+          <span class="fw-medium text-info">Día 9 de 14</span>
+        </div>
+
+        <!-- Perfil Cliente (Ana Gómez) -->
+        <div class="dropdown">
+          <button class="btn btn-dark d-flex align-items-center gap-2 py-1 px-2 rounded-3 border border-secondary border-opacity-25" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 32px; height: 32px; font-size: 0.85rem;">
+              AG
+            </div>
+            <div class="text-start d-none d-sm-block pe-1">
+              <div class="text-white fw-semibold small lh-1">Ana Gómez</div>
+              <small class="text-light text-opacity-50" style="font-size: 0.72rem;">Frontend Dev · Squad</small>
+            </div>
+            <i class="bi bi-chevron-down text-light text-opacity-50 small"></i>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end shadow-sm py-2">
+            <li><h6 class="dropdown-header">Sesión de Integrante / Cliente</h6></li>
+            <li><a class="dropdown-item d-flex align-items-center gap-2" href="#"><i class="bi bi-person text-secondary"></i> Mi Perfil</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li>
+              <button class="dropdown-item d-flex align-items-center gap-2 text-danger" type="button" onclick="confirmarCierreSesion()">
+                <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+              </button>
+            </li>
+          </ul>
+        </div>
+
+      </div>
+
+    </div>
+  </nav>
+
+  <!-- ========================================== -->
+  <!-- 2. SIDEBAR DE CLIENTE                      -->
+  <!-- ========================================== -->
+  <aside class="admin-sidebar client-sidebar" id="adminSidebar">
+    
+    <div class="sidebar-heading">Vista Cliente</div>
+    <nav class="nav flex-column mb-3">
+      <a href="inicio-cliente.html" class="sidebar-nav-link">
+        <i class="bi bi-house"></i>
+        <span>Inicio (Dashboard)</span>
+      </a>
+      <a href="proyectos-cliente.html" class="sidebar-nav-link">
+        <i class="bi bi-kanban"></i>
+        <span>Mis Proyectos</span>
+      </a>
+      <a href="usuarios-cliente.html" class="sidebar-nav-link active">
+        <i class="bi bi-people"></i>
+        <span>Equipo y Roles</span>
+      </a>
+      <a href="backlog-cliente.html" class="sidebar-nav-link">
+        <i class="bi bi-journal-text"></i>
+        <span>Product Backlog</span>
+      </a>
+      <a href="sprints-cliente.html" class="sidebar-nav-link">
+        <i class="bi bi-arrow-repeat"></i>
+        <span>Sprints del Proyecto</span>
+      </a>
+      <a href="compromiso-sprint.html" class="sidebar-nav-link">
+        <i class="bi bi-calendar2-week"></i>
+        <span>Compromiso del Sprint</span>
+      </a>
+      <a href="sprint-backlog-cliente.html" class="sidebar-nav-link">
+        <i class="bi bi-card-checklist"></i>
+        <span>Sprint Backlog & Tareas</span>
+      </a>
+      <a href="tablero-cliente.html" class="sidebar-nav-link">
+        <i class="bi bi-columns-gap"></i>
+        <span>Tablero Kanban</span>
+      </a>
+      <a href="impedimentos-cliente.html" class="sidebar-nav-link">
+        <i class="bi bi-cone-striped"></i>
+        <span>Reportar Impedimento</span>
+      </a>
+      <a href="retrospectiva-cliente.html" class="sidebar-nav-link">
+        <i class="bi bi-chat-square-text"></i>
+        <span>Retrospectiva</span>
+      </a>
+    </nav>
+
+    <!-- Resumen de Proyecto Activo -->
+    <div class="sidebar-heading">Proyecto Asignado</div>
+    <div class="px-3 py-2">
+      <div class="p-3 rounded-3" style="background-color: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08);">
+        <div class="d-flex align-items-center justify-content-between mb-1">
+          <span class="text-white small fw-semibold">Fintech Mobile App</span>
+          <span class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-25" style="font-size: 0.65rem;">ACTIVO</span>
+        </div>
+        <p class="text-light text-opacity-50 small mb-2" style="font-size: 0.78rem;">Fase 2: Arquitectura de Pagos</p>
+        <div class="progress" style="height: 5px; background-color: rgba(255,255,255,0.1);">
+          <div class="progress-bar" role="progressbar" style="width: 68%; background-color: var(--client-accent);"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Botón Cerrar Sesión -->
+    <div class="mt-auto px-3 pt-4">
+      <button class="btn btn-outline-danger btn-sm w-100 d-flex align-items-center justify-content-center gap-2" onclick="confirmarCierreSesion()">
+        <i class="bi bi-box-arrow-right"></i>
+        <span>Cerrar Sesión</span>
+      </button>
+    </div>
+
+  </aside>
+
+  <!-- ========================================== -->
+  <!-- 3. ÁREA DE CONTENIDO: USUARIOS / EQUIPO   -->
+  <!-- ========================================== -->
+  <main class="main-content">
+
+    <!-- Encabezado de la Pantalla -->
+    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-start gap-3 mb-4">
+      <div>
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb mb-1 small text-muted">
+            <li class="breadcrumb-item text-muted">Vista Cliente</li>
+            <li class="breadcrumb-item active fw-medium" aria-current="page" style="color: var(--client-accent-hover);">Equipo y Roles</li>
+          </ol>
+        </nav>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <h1 class="page-title mb-0">Equipo de Desarrollo y Colaboradores</h1>
+          <span class="badge bg-primary-subtle text-primary border border-primary-subtle">HU-02</span>
+          <span class="badge bg-secondary-subtle text-secondary border"><i class="bi bi-eye me-1"></i>Consulta de Squad</span>
+        </div>
+        <p class="page-subtitle mb-0">Consulta los integrantes del squad asignados a Fintech Mobile App, sus roles SCRUM, capacidades semanales y tareas en curso.</p>
+      </div>
+
+      <!-- Selector de Vista (Administrativa | Cliente) -->
+      <div class="view-switch view-switch-client">
+        <a href="usuarios.html" class="view-switch-option">
+          <i class="bi bi-display"></i> Administrativa
+        </a>
+        <a href="usuarios-cliente.html" class="view-switch-option active">
+          <i class="bi bi-person"></i> Cliente
+        </a>
+      </div>
+    </div>
+
+    <!-- Tarjetas de Resumen del Squad -->
+    <div class="row g-3 mb-4">
+      <div class="col-6 col-lg-3">
+        <div class="metric-card d-flex align-items-center gap-3">
+          <div class="metric-card-icon metric-card-icon-teal"><i class="bi bi-people-fill"></i></div>
+          <div>
+            <div class="metric-card-label">Miembros del Squad</div>
+            <div class="metric-card-value">4 devs</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <div class="metric-card d-flex align-items-center gap-3">
+          <div class="metric-card-icon metric-card-icon-indigo"><i class="bi bi-clock-history"></i></div>
+          <div>
+            <div class="metric-card-label">Capacidad Semanal</div>
+            <div class="metric-card-value">160 hrs</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <div class="metric-card d-flex align-items-center gap-3">
+          <div class="metric-card-icon metric-card-icon-amber"><i class="bi bi-lightning-charge-fill"></i></div>
+          <div>
+            <div class="metric-card-label">Story Points Sprint 1</div>
+            <div class="metric-card-value">42 pts</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <div class="metric-card d-flex align-items-center gap-3">
+          <div class="metric-card-icon metric-card-icon-rose"><i class="bi bi-check2-circle"></i></div>
+          <div>
+            <div class="metric-card-label">Tareas Activas</div>
+            <div class="metric-card-value">8 tareas</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Layout: Mi Perfil + Lista de Miembros -->
+    <div class="row g-4 mb-4">
+      
+      <!-- Columna Izquierda: Mi Perfil de Integrante (Ana Gómez) -->
+      <div class="col-12 col-lg-4">
+        <div class="card-custom p-4 h-100 border-top border-4" style="border-top-color: var(--client-accent) !important;">
+          <div class="d-flex align-items-center gap-3 mb-3">
+            <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center fw-bold fs-4 shadow-sm" style="width: 56px; height: 56px;">
+              AG
+            </div>
+            <div>
+              <span class="badge bg-success-subtle text-success border border-success-subtle mb-1">Mi Sesión Activa</span>
+              <h5 class="fw-bold text-dark mb-0">Ana Gómez</h5>
+              <small class="text-muted">ana.gomez@devteam.io</small>
+            </div>
+          </div>
+
+          <div class="p-3 bg-light rounded-3 mb-3">
+            <div class="d-flex justify-content-between small mb-1">
+              <span class="text-muted">Rol en el Proyecto:</span>
+              <strong class="text-dark">Frontend Developer</strong>
+            </div>
+            <div class="d-flex justify-content-between small mb-1">
+              <span class="text-muted">Dedicación:</span>
+              <strong class="text-dark">40 hrs / semana</strong>
+            </div>
+            <div class="d-flex justify-content-between small">
+              <span class="text-muted">Sprint 1 Asignado:</span>
+              <strong class="text-primary">2 tareas (14 hrs)</strong>
+            </div>
+          </div>
+
+          <h6 class="fw-bold text-dark small mb-2"><i class="bi bi-tools me-1 text-muted"></i>Especialidades & Skills</h6>
+          <div class="d-flex flex-wrap gap-1 mb-3">
+            <span class="badge bg-secondary-subtle text-secondary border">HTML5 & CSS3</span>
+            <span class="badge bg-secondary-subtle text-secondary border">Bootstrap 5</span>
+            <span class="badge bg-secondary-subtle text-secondary border">JavaScript ES6</span>
+            <span class="badge bg-secondary-subtle text-secondary border">UI/UX Components</span>
+            <span class="badge bg-secondary-subtle text-secondary border">Git / Pull Requests</span>
+          </div>
+
+          <h6 class="fw-bold text-dark small mb-2"><i class="bi bi-check2-square me-1 text-muted"></i>Mis Tareas en Sprint 1</h6>
+          <ul class="list-group list-group-flush small mb-3">
+            <li class="list-group-item px-0 d-flex justify-content-between align-items-center">
+              <div>
+                <span class="fw-medium text-dark d-block">Diseño de pantallas login 2FA</span>
+                <small class="text-muted">HU-01 · Mockup & Maquetación</small>
+              </div>
+              <span class="status-badge-select status-finalizado"><span class="status-dot"></span>Finalizado</span>
+            </li>
+            <li class="list-group-item px-0 d-flex justify-content-between align-items-center">
+              <div>
+                <span class="fw-medium text-dark d-block">Formulario de cambio de contraseña</span>
+                <small class="text-muted">HU-02 · Perfiles</small>
+              </div>
+              <span class="status-badge-select status-progreso"><span class="status-dot"></span>En progreso</span>
+            </li>
+          </ul>
+
+          <div class="mt-auto pt-2">
+            <a href="tablero-cliente.html" class="btn btn-outline-secondary btn-sm w-100">
+              <i class="bi bi-kanban me-1"></i>Ver mis tareas en el Tablero
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Columna Derecha: Tarjetas de Miembros del Squad -->
+      <div class="col-12 col-lg-8">
+        <div class="card-custom overflow-hidden h-100">
+          <div class="p-3 border-bottom d-flex align-items-center justify-content-between bg-light bg-opacity-50">
+            <div>
+              <h5 class="mb-0 fw-bold fs-6 text-dark">Miembros del Squad Asignados al Proyecto</h5>
+              <small class="text-muted">Equipo interdisciplinario para Fintech Mobile App</small>
+            </div>
+            <span class="badge rounded-pill text-white" style="background-color: var(--client-accent);">4 Integrantes Técnicos</span>
+          </div>
+
+          <div class="p-3">
+            <div class="row g-3">
+              
+              <!-- Carlos Ruiz -->
+              <div class="col-12 col-md-6">
+                <div class="p-3 rounded-3 border h-100 d-flex flex-column bg-white shadow-xs">
+                  <div class="d-flex align-items-center justify-content-between mb-2">
+                    <div class="d-flex align-items-center gap-2">
+                      <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 38px; height: 38px; font-size: 0.85rem;">
+                        CR
+                      </div>
+                      <div>
+                        <div class="fw-bold text-dark">Carlos Ruiz</div>
+                        <small class="text-muted">carlos.ruiz@devteam.io</small>
+                      </div>
+                    </div>
+                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle">Backend Lead</span>
+                  </div>
+                  <p class="small text-muted mb-2">
+                    Arquitectura de APIs REST, autenticación 2FA JWT, cifrado de datos y base de datos relacional.
+                  </p>
+                  <div class="mt-auto pt-2 border-top d-flex justify-content-between align-items-center small">
+                    <span class="text-muted">Asignación Sprint 1:</span>
+                    <strong class="text-primary">3 tareas (34 hrs)</strong>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Ana Gómez -->
+              <div class="col-12 col-md-6">
+                <div class="p-3 rounded-3 border h-100 d-flex flex-column bg-white shadow-xs" style="border-color: var(--client-accent) !important;">
+                  <div class="d-flex align-items-center justify-content-between mb-2">
+                    <div class="d-flex align-items-center gap-2">
+                      <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 38px; height: 38px; font-size: 0.85rem;">
+                        AG
+                      </div>
+                      <div>
+                        <div class="fw-bold text-dark">Ana Gómez <span class="badge bg-success-subtle text-success ms-1 fs-8">Tú</span></div>
+                        <small class="text-muted">ana.gomez@devteam.io</small>
+                      </div>
+                    </div>
+                    <span class="badge bg-success-subtle text-success border border-success-subtle">Frontend Dev</span>
+                  </div>
+                  <p class="small text-muted mb-2">
+                    Interfaces de usuario responsivas, maquetación de flujos de onboarding y validaciones de cliente.
+                  </p>
+                  <div class="mt-auto pt-2 border-top d-flex justify-content-between align-items-center small">
+                    <span class="text-muted">Asignación Sprint 1:</span>
+                    <strong class="text-success">2 tareas (14 hrs)</strong>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Mateo Silva -->
+              <div class="col-12 col-md-6">
+                <div class="p-3 rounded-3 border h-100 d-flex flex-column bg-white shadow-xs">
+                  <div class="d-flex align-items-center justify-content-between mb-2">
+                    <div class="d-flex align-items-center gap-2">
+                      <div class="bg-warning text-dark rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 38px; height: 38px; font-size: 0.85rem;">
+                        MS
+                      </div>
+                      <div>
+                        <div class="fw-bold text-dark">Mateo Silva</div>
+                        <small class="text-muted">mateo.silva@devteam.io</small>
+                      </div>
+                    </div>
+                    <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle">QA Automation</span>
+                  </div>
+                  <p class="small text-muted mb-2">
+                    Pruebas unitarias de seguridad, cobertura de código, validación de endpoints y testing de regresión.
+                  </p>
+                  <div class="mt-auto pt-2 border-top d-flex justify-content-between align-items-center small">
+                    <span class="text-muted">Asignación Sprint 1:</span>
+                    <strong class="text-primary">2 tareas (10 hrs)</strong>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Lucía Morales -->
+              <div class="col-12 col-md-6">
+                <div class="p-3 rounded-3 border h-100 d-flex flex-column bg-white shadow-xs">
+                  <div class="d-flex align-items-center justify-content-between mb-2">
+                    <div class="d-flex align-items-center gap-2">
+                      <div class="bg-info text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 38px; height: 38px; font-size: 0.85rem;">
+                        LM
+                      </div>
+                      <div>
+                        <div class="fw-bold text-dark">Lucía Morales</div>
+                        <small class="text-muted">lucia.morales@devteam.io</small>
+                      </div>
+                    </div>
+                    <span class="badge bg-info-subtle text-info border border-info-subtle">UI/UX Designer</span>
+                  </div>
+                  <p class="small text-muted mb-2">
+                    Prototipado en alta fidelidad, guía de estilos, validación de accesibilidad WCAG y experiencia de usuario.
+                  </p>
+                  <div class="mt-auto pt-2 border-top d-flex justify-content-between align-items-center small">
+                    <span class="text-muted">Asignación Sprint 1:</span>
+                    <strong class="text-primary">1 tarea (5 hrs)</strong>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Rol de Facilitación y Gestión -->
+            <div class="mt-3 p-3 bg-light rounded-3 border d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2">
+              <div class="d-flex align-items-center gap-2">
+                <div class="bg-dark text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 34px; height: 34px; font-size: 0.8rem;">
+                  RM
+                </div>
+                <div>
+                  <span class="fw-bold text-dark small d-block">Rodrigo Morales</span>
+                  <small class="text-muted">Scrum Master / Facilitador del Squad</small>
+                </div>
+              </div>
+              <div class="d-flex align-items-center gap-2">
+                <span class="badge bg-secondary-subtle text-secondary border">Facilitación y Métricas</span>
+                <a href="sprint-backlog-cliente.html" class="btn btn-sm btn-outline-primary">
+                  <i class="bi bi-card-checklist me-1"></i>Ver Backlog
+                </a>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Sección Explicativa: Matriz de Roles y Responsabilidades SCRUM -->
+    <div class="card-custom p-4 mb-4">
+      <h5 class="fw-bold text-dark mb-3"><i class="bi bi-shield-check me-2 text-primary"></i>Roles y Responsabilidades en el Proyecto SCRUM</h5>
+      <div class="row g-3">
+        <div class="col-12 col-md-4">
+          <div class="p-3 bg-light rounded-3 h-100">
+            <div class="fw-bold text-dark mb-1 d-flex align-items-center gap-2">
+              <i class="bi bi-person-badge text-primary fs-5"></i> Product Owner / Cliente
+            </div>
+            <p class="small text-muted mb-0">
+              Define la visión de negocio, prioriza el Product Backlog y valida los criterios de aceptación en las entregas de cada Sprint Review.
+            </p>
+          </div>
+        </div>
+        <div class="col-12 col-md-4">
+          <div class="p-3 bg-light rounded-3 h-100">
+            <div class="fw-bold text-dark mb-1 d-flex align-items-center gap-2">
+              <i class="bi bi-award text-success fs-5"></i> Scrum Master
+            </div>
+            <p class="small text-muted mb-0">
+              Facilita las ceremonias ágiles (Planning, Daily, Review, Retrospectiva), monitorea el Burndown chart y elimina impedimentos del equipo.
+            </p>
+          </div>
+        </div>
+        <div class="col-12 col-md-4">
+          <div class="p-3 bg-light rounded-3 h-100">
+            <div class="fw-bold text-dark mb-1 d-flex align-items-center gap-2">
+              <i class="bi bi-code-slash text-info fs-5"></i> Development Squad
+            </div>
+            <p class="small text-muted mb-0">
+              Equipo multifuncional autoorganizado responsable de estimar Story Points, desglosar tareas técnicas y construir el incremento funcional.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
