@@ -39,6 +39,13 @@
                 <span>Editar</span>
             </a>
         }
+        @if (Model.PuedeGestionar)
+        {
+            <a asp-action="Cerrar" asp-route-id="@Model.IdProyecto" class="btn btn-outline-danger d-flex align-items-center gap-2">
+                <i class="bi bi-slash-circle"></i>
+                <span>Cerrar Proyecto</span>
+            </a>
+        }
         <a asp-action="Index" class="btn btn-outline-primary d-flex align-items-center gap-2">
             <i class="bi bi-arrow-left"></i>
             <span>Volver al listado</span>

@@ -308,6 +308,86 @@ public class ProyectosController : Controller
         return RedirectToAction(nameof(Detalle), new { id, tab = "miembros" });
     }
 
+    private static readonly string[] MotivosCierre =
+    {
+        "Proyecto completado",
+        "Cancelado por el cliente",
+        "Reemplazado por otro proyecto"
+    };
+
+    [HttpGet]
+    public async Task<IActionResult> Cerrar(int id)
+    {
+        if (!_usuarioActual.PuedeGestionarProyectos())
+        {
+            TempData["Error"] = "No tienes permisos para gestionar proyectos.";
+            return RedirectToAction(nameof(Detalle), new { id });
+        }
+
+        var modelo = await _proyectoRepositorio.ObtenerResumenCierreAsync(id);
+        if (modelo is null)
+        {
+            return NotFound();
+        }
+
+        if (modelo.Estado == "Cerrado")
+        {
+            TempData["Error"] = "Este proyecto ya está cerrado.";
+            return RedirectToAction(nameof(Detalle), new { id });
+        }
+
+        return View(modelo);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Cerrar(int id, ProyectoCerrarViewModel modelo)
+    {
+        if (!_usuarioActual.PuedeGestionarProyectos())
+        {
+            TempData["Error"] = "No tienes permisos para gestionar proyectos.";
+            return RedirectToAction(nameof(Detalle), new { id });
+        }
+
+        var resumen = await _proyectoRepositorio.ObtenerResumenCierreAsync(id);
+        if (resumen is null)
+        {
+            return NotFound();
+        }
+
+        if (resumen.Estado == "Cerrado")
+        {
+            TempData["Error"] = "Este proyecto ya está cerrado.";
+            return RedirectToAction(nameof(Detalle), new { id });
+        }
+
+        if (!string.IsNullOrEmpty(resumen.SprintActivoNombre))
+        {
+            ModelState.AddModelError(string.Empty,
+                $"No se puede cerrar el proyecto: el Sprint \"{resumen.SprintActivoNombre}\" está Activo.");
+        }
+
+        if (string.IsNullOrWhiteSpace(modelo.Motivo) || !MotivosCierre.Contains(modelo.Motivo))
+        {
+            ModelState.AddModelError(nameof(modelo.Motivo), "Debes seleccionar un motivo de cierre válido.");
+        }
+
+        if (!ModelState.IsValid)
+        {
+            resumen.Motivo = modelo.Motivo;
+            resumen.Observaciones = modelo.Observaciones;
+            return View(resumen);
+        }
+
+        var motivoCompleto = string.IsNullOrWhiteSpace(modelo.Observaciones)
+            ? modelo.Motivo!
+            : $"{modelo.Motivo}. {modelo.Observaciones.Trim()}";
+
+        await _proyectoRepositorio.CerrarAsync(id, motivoCompleto, _usuarioActual.IdUsuario);
+        TempData["Mensaje"] = $"Proyecto \"{resumen.Nombre}\" cerrado correctamente.";
+        return RedirectToAction(nameof(Detalle), new { id });
+    }
+
     private static bool EsUnicoResponsableCritico(IReadOnlyList<ProyectoMiembroItem> miembros, ProyectoMiembroItem miembro)
     {
         if (miembro.RolProyecto is not ("Product Owner" or "Scrum Master"))

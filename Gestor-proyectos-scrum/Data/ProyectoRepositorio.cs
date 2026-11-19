@@ -246,6 +246,91 @@ public class ProyectoRepositorio
         public int CantidadHistorias { get; set; }
     }
 
+    private class SprintsResumen
+    {
+        public int Total { get; set; }
+        public int Cerrados { get; set; }
+    }
+
+    public async Task<ProyectoCerrarViewModel?> ObtenerResumenCierreAsync(int idProyecto)
+    {
+        using var conexion = await _conexionDb.CrearConexionAbiertaAsync();
+
+        var proyecto = await conexion.QueryFirstOrDefaultAsync<Proyecto>(
+            @"select IdProyecto, Codigo, Nombre, Descripcion, FechaInicio, FechaFin, Estado
+              from Proyectos where IdProyecto = @IdProyecto;",
+            new { IdProyecto = idProyecto });
+
+        if (proyecto is null)
+        {
+            return null;
+        }
+
+        var sprints = await conexion.QuerySingleAsync<SprintsResumen>(
+            @"select count(*) as Total, coalesce(sum(case when Estado = 'Cerrado' then 1 else 0 end), 0) as Cerrados
+              from Sprints where IdProyecto = @IdProyecto;",
+            new { IdProyecto = idProyecto });
+
+        var sprintActivo = await conexion.QueryFirstOrDefaultAsync<string>(
+            "select Nombre from Sprints where IdProyecto = @IdProyecto and Estado = 'Activo' limit 1;",
+            new { IdProyecto = idProyecto });
+
+        var historiasPendientes = await conexion.ExecuteScalarAsync<int>(
+            "select count(*) from HistoriasUsuario where IdProyecto = @IdProyecto and Estado <> 'Terminada';",
+            new { IdProyecto = idProyecto });
+
+        var impedimentosAbiertos = await conexion.ExecuteScalarAsync<int>(
+            @"select count(*) from Impedimentos i
+              join Sprints s on s.IdSprint = i.IdSprint
+              where s.IdProyecto = @IdProyecto and i.Estado <> 'Resuelto';",
+            new { IdProyecto = idProyecto });
+
+        var cantidadMiembros = await conexion.ExecuteScalarAsync<int>(
+            "select count(*) from ProyectoMiembros where IdProyecto = @IdProyecto;",
+            new { IdProyecto = idProyecto });
+
+        return new ProyectoCerrarViewModel
+        {
+            IdProyecto = proyecto.IdProyecto,
+            Codigo = proyecto.Codigo,
+            Nombre = proyecto.Nombre,
+            Estado = proyecto.Estado,
+            FechaInicio = proyecto.FechaInicio,
+            FechaFin = proyecto.FechaFin,
+            CantidadSprints = sprints.Total,
+            SprintsCerrados = sprints.Cerrados,
+            SprintActivoNombre = sprintActivo,
+            HistoriasPendientes = historiasPendientes,
+            ImpedimentosAbiertos = impedimentosAbiertos,
+            CantidadMiembros = cantidadMiembros
+        };
+    }
+
+    public async Task CerrarAsync(int idProyecto, string motivoCierre, int idUsuarioActual)
+    {
+        using var conexion = await _conexionDb.CrearConexionAbiertaAsync();
+        using var transaccion = await conexion.BeginTransactionAsync();
+
+        try
+        {
+            await conexion.ExecuteAsync(
+                @"update Proyectos
+                  set Estado = 'Cerrado', FechaCierre = curdate(), MotivoCierre = @MotivoCierre
+                  where IdProyecto = @IdProyecto;",
+                new { MotivoCierre = motivoCierre, IdProyecto = idProyecto }, transaccion);
+
+            await RegistrarAuditoriaAsync(conexion, transaccion, idUsuarioActual, "Cerrar", "Proyectos", idProyecto,
+                $"Cerró el proyecto. Motivo: {motivoCierre}");
+
+            await transaccion.CommitAsync();
+        }
+        catch
+        {
+            await transaccion.RollbackAsync();
+            throw;
+        }
+    }
+
     public async Task<ProyectoFormViewModel?> ObtenerParaEditarAsync(int idProyecto)
     {
         using var conexion = await _conexionDb.CrearConexionAbiertaAsync();
