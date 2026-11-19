@@ -45,3 +45,14 @@ El proyecto sigue una arquitectura Cliente/Servidor[cite: 1].
 1. Clona este repositorio en tu máquina local:
    ```bash
    git clone [https://github.com/tu-usuario/scrum-manager.git](https://github.com/tu-usuario/scrum-manager.git)
+   ```
+
+### Para el Backend (Fase 2)
+La cadena de conexión a MySQL (`ConnectionStrings:ScrumDb`) **no se guarda con contraseña en el repositorio**. `appsettings.Development.json` trae la cadena con la contraseña vacía solo como plantilla; cada integrante guarda su propia contraseña local con **User Secrets** de .NET, que vive fuera del repo y nunca se sube a GitHub.
+
+La primera vez, desde la carpeta `Gestor-proyectos-scrum/`, configura tu contraseña local con:
+```bash
+dotnet user-secrets set "ConnectionStrings:ScrumDb" "Server=localhost;Port=3306;Database=BDScrumManager;User=root;Password=TU_CONTRASEÑA;"
+```
+
+Reemplaza `TU_CONTRASEÑA` por la contraseña de tu MySQL local. Esto sobreescribe (solo en tu máquina) la cadena de `appsettings.Development.json` al correr el proyecto en modo Development.
