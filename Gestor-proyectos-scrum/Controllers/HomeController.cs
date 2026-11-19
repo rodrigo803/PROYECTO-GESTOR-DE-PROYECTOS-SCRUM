@@ -11,7 +11,7 @@ namespace Gestor_proyectos_scrum.Controllers
             return View();
         }
 
-        public IActionResult Privacy()
+        public IActionResult InicioCliente()
         {
             return View();
         }
