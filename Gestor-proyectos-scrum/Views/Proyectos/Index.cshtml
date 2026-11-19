@@ -35,6 +35,14 @@
     </div>
 
     <div class="d-flex flex-column align-items-lg-end gap-2">
+        <div class="view-switch">
+            <a asp-action="Index" class="view-switch-option active">
+                <i class="bi bi-display"></i> Administrativa
+            </a>
+            <a asp-action="Cliente" class="view-switch-option">
+                <i class="bi bi-person"></i> Cliente
+            </a>
+        </div>
         <a asp-action="Crear" class="btn btn-primary d-flex align-items-center gap-2 py-2 px-3 shadow-sm">
             <i class="bi bi-plus-circle-fill fs-5"></i>
             <span class="fw-medium">Nuevo Proyecto</span>

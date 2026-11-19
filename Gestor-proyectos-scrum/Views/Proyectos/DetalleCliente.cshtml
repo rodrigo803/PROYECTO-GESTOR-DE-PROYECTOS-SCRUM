@@ -1,0 +1,157 @@
+@model Gestor_proyectos_scrum.Models.ProyectoClienteDetalleViewModel
+@{
+    ViewData["Title"] = $"{Model.Nombre} ({Model.Codigo})";
+    Layout = "_LayoutCliente";
+}
+
+@functions {
+    private static string ClaseEstado(string estado) => estado switch
+    {
+        "Activo" => "project-status-activo",
+        "Planificado" => "project-status-planificado",
+        "En pausa" => "project-status-pausa",
+        "Cerrado" => "project-status-cerrado",
+        _ => "project-status-planificado"
+    };
+
+    private static string Iniciales(string nombreCompleto)
+    {
+        var partes = nombreCompleto.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (partes.Length == 0)
+        {
+            return string.Empty;
+        }
+
+        var primera = char.ToUpperInvariant(partes[0][0]).ToString();
+        var ultima = partes.Length > 1 ? char.ToUpperInvariant(partes[^1][0]).ToString() : string.Empty;
+        return primera + ultima;
+    }
+}
+
+<!-- Encabezado de la Pantalla -->
+<div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-start gap-3 mb-4">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-1 small text-muted">
+                <li class="breadcrumb-item text-muted">Vista Cliente</li>
+                <li class="breadcrumb-item"><a asp-action="Cliente" class="text-decoration-none text-muted">Mis Proyectos</a></li>
+                <li class="breadcrumb-item active fw-medium" aria-current="page" style="color: var(--client-accent-hover);">@Model.Codigo</li>
+            </ol>
+        </nav>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+            <h1 class="page-title mb-0">@Model.Nombre</h1>
+            <span class="project-status-badge @ClaseEstado(Model.Estado)"><span class="status-dot"></span>@Model.Estado</span>
+        </div>
+        <p class="page-subtitle mb-0">@Model.Codigo &middot; Tu rol: @Model.MiRol</p>
+    </div>
+
+    <a asp-action="Cliente" class="btn btn-outline-primary d-flex align-items-center gap-2">
+        <i class="bi bi-arrow-left"></i>
+        <span>Volver a Mis Proyectos</span>
+    </a>
+</div>
+
+<div class="alert alert-light border d-flex align-items-start gap-2 mb-4 small">
+    <i class="bi bi-info-circle text-secondary fs-5"></i>
+    <div>
+        Esta vista es de solo consulta. Los cambios al proyecto los realiza el <strong>Product Owner</strong> o el <strong>Scrum Master</strong>
+        desde la vista administrativa.
+    </div>
+</div>
+
+<div class="card-custom overflow-hidden">
+    <div class="p-3 border-bottom bg-light bg-opacity-50 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
+        <div>
+            <h5 class="mb-0 fw-bold fs-6 text-dark">Detalle del Proyecto</h5>
+            <small class="text-muted">@Model.Codigo &middot; Información de solo lectura</small>
+        </div>
+        <span class="project-status-badge @ClaseEstado(Model.Estado)">
+            <span class="status-dot"></span>@Model.Estado
+            @if (Model.Avance.HasValue)
+            {
+                <text>&middot; @Model.Avance.Value.ToString("0")%</text>
+            }
+        </span>
+    </div>
+
+    <div class="p-4">
+        <p class="text-muted">@Model.Descripcion</p>
+
+        <div class="row g-4">
+
+            <!-- Datos generales -->
+            <div class="col-12 col-lg-4">
+                <h6 class="fw-bold text-dark mb-2">Datos Generales</h6>
+                <dl class="row small mb-0">
+                    <dt class="col-5 text-muted">Inicio</dt>
+                    <dd class="col-7 text-dark">@Model.FechaInicio.ToString("dd/MM/yyyy")</dd>
+                    <dt class="col-5 text-muted">Fin estimado</dt>
+                    <dd class="col-7 text-dark">@Model.FechaFin.ToString("dd/MM/yyyy")</dd>
+                    <dt class="col-5 text-muted">Product Owner</dt>
+                    <dd class="col-7 text-dark">@(Model.ProductOwner ?? "Sin asignar")</dd>
+                    <dt class="col-5 text-muted">Scrum Master</dt>
+                    <dd class="col-7 text-dark">@(Model.ScrumMaster ?? "Sin asignar")</dd>
+                    <dt class="col-5 text-muted">Avance</dt>
+                    <dd class="col-7 text-dark">@(Model.Avance.HasValue ? Model.Avance.Value.ToString("0") + "%" : "Sin historias")</dd>
+                </dl>
+            </div>
+
+            <!-- Sprints del proyecto -->
+            <div class="col-12 col-lg-4">
+                <h6 class="fw-bold text-dark mb-2">Sprints del Proyecto</h6>
+                @if (!Model.Sprints.Any())
+                {
+                    <p class="text-muted small mb-0">Este proyecto todavía no tiene sprints.</p>
+                }
+                else
+                {
+                    <ul class="list-unstyled small mb-0">
+                        @foreach (var sprint in Model.Sprints)
+                        {
+                            <li class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
+                                <div>
+                                    <div class="fw-semibold text-dark">@sprint.Nombre</div>
+                                    <div class="text-muted">@sprint.FechaInicio.ToString("dd/MM/yyyy") &mdash; @sprint.FechaFin.ToString("dd/MM/yyyy")</div>
+                                </div>
+                                <span class="project-status-badge @ClaseEstado(sprint.Estado)"><span class="status-dot"></span>@sprint.Estado</span>
+                            </li>
+                        }
+                    </ul>
+                }
+            </div>
+
+            <!-- Equipo del proyecto -->
+            <div class="col-12 col-lg-4">
+                <h6 class="fw-bold text-dark mb-2">Equipo del Proyecto</h6>
+                @if (!Model.Miembros.Any())
+                {
+                    <p class="text-muted small mb-0">Este proyecto todavía no tiene miembros.</p>
+                }
+                else
+                {
+                    <ul class="list-unstyled small mb-0">
+                        @foreach (var miembro in Model.Miembros)
+                        {
+                            <li class="d-flex align-items-center gap-2 mb-2">
+                                <div class="avatar-stack-item bg-primary" style="margin-left: 0;">
+                                    @Iniciales(miembro.NombreCompleto)
+                                </div>
+                                <div>
+                                    <div class="text-dark fw-medium">
+                                        @miembro.NombreCompleto
+                                        @if (miembro.IdUsuario == Model.IdUsuarioActual)
+                                        {
+                                            <span class="badge bg-success-subtle text-success border ms-1">Tú</span>
+                                        }
+                                    </div>
+                                    <div class="text-muted">@miembro.RolProyecto</div>
+                                </div>
+                            </li>
+                        }
+                    </ul>
+                }
+            </div>
+
+        </div>
+    </div>
+</div>

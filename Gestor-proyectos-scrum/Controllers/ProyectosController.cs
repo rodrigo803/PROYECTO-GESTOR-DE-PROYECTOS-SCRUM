@@ -388,6 +388,26 @@ public class ProyectosController : Controller
         return RedirectToAction(nameof(Detalle), new { id });
     }
 
+    [HttpGet]
+    public async Task<IActionResult> Cliente()
+    {
+        var proyectos = await _proyectoRepositorio.ListarDeMiembroAsync(_usuarioActual.IdUsuario);
+        return View(proyectos);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> DetalleCliente(int id)
+    {
+        var modelo = await _proyectoRepositorio.ObtenerDetalleClienteAsync(id, _usuarioActual.IdUsuario);
+        if (modelo is null)
+        {
+            TempData["Error"] = "No tienes acceso a ese proyecto.";
+            return RedirectToAction(nameof(Cliente));
+        }
+
+        return View(modelo);
+    }
+
     private static bool EsUnicoResponsableCritico(IReadOnlyList<ProyectoMiembroItem> miembros, ProyectoMiembroItem miembro)
     {
         if (miembro.RolProyecto is not ("Product Owner" or "Scrum Master"))

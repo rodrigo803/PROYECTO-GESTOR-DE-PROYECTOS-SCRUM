@@ -1,0 +1,120 @@
+@model IReadOnlyList<Gestor_proyectos_scrum.Models.ProyectoClienteItem>
+@{
+    ViewData["Title"] = "Mis Proyectos";
+    Layout = "_LayoutCliente";
+}
+
+@functions {
+    private static string ClaseEstado(string estado) => estado switch
+    {
+        "Activo" => "project-status-activo",
+        "Planificado" => "project-status-planificado",
+        "En pausa" => "project-status-pausa",
+        "Cerrado" => "project-status-cerrado",
+        _ => "project-status-planificado"
+    };
+}
+
+<!-- Encabezado de la Pantalla -->
+<div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-start gap-3 mb-4">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-1 small text-muted">
+                <li class="breadcrumb-item text-muted">Vista Cliente</li>
+                <li class="breadcrumb-item active fw-medium" aria-current="page" style="color: var(--client-accent-hover);">Mis Proyectos</li>
+            </ol>
+        </nav>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+            <h1 class="page-title mb-0">Mis Proyectos</h1>
+            <span class="badge bg-primary-subtle text-primary border border-primary-subtle">HU-03</span>
+            <span class="badge bg-secondary-subtle text-secondary border"><i class="bi bi-eye me-1"></i>Solo consulta</span>
+        </div>
+        <p class="page-subtitle mb-0">Proyectos donde participas actualmente y el rol que desempeñas en cada uno.</p>
+    </div>
+
+    <!-- Selector de Vista -->
+    <div class="view-switch view-switch-client">
+        <a asp-action="Index" class="view-switch-option">
+            <i class="bi bi-display"></i> Administrativa
+        </a>
+        <a asp-action="Cliente" class="view-switch-option active">
+            <i class="bi bi-person"></i> Cliente
+        </a>
+    </div>
+</div>
+
+<div class="alert alert-light border d-flex align-items-start gap-2 mb-4 small">
+    <i class="bi bi-info-circle text-secondary fs-5"></i>
+    <div>
+        Esta vista es de solo consulta. Los cambios al proyecto (editar datos, agregar o quitar miembros, cerrar el proyecto)
+        los realiza el <strong>Product Owner</strong> o el <strong>Scrum Master</strong> desde la vista administrativa.
+    </div>
+</div>
+
+@if (!Model.Any())
+{
+    <p class="text-muted">Todavía no participas en ningún proyecto activo.</p>
+}
+else
+{
+    <h5 class="fw-bold text-dark mb-3">Proyectos en los que participo (@Model.Count)</h5>
+    <div class="row g-3">
+        @foreach (var p in Model)
+        {
+            <div class="col-12 col-md-6">
+                <div class="card-custom p-4 h-100 d-flex flex-column justify-content-between">
+                    <div>
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <div>
+                                <div class="fw-bold text-dark fs-5">@p.Nombre</div>
+                                <small class="text-muted">@p.Codigo</small>
+                            </div>
+                            <span class="project-status-badge @ClaseEstado(p.Estado)"><span class="status-dot"></span>@p.Estado</span>
+                        </div>
+                        <p class="small text-muted mb-3">@p.Descripcion</p>
+                        <div class="small text-muted mb-1">
+                            <i class="bi bi-calendar-event me-1"></i>@p.FechaInicio.ToString("dd/MM/yyyy") &mdash; @p.FechaFin.ToString("dd/MM/yyyy")
+                        </div>
+                        <div class="small mb-1"><strong>Tu rol:</strong> @p.MiRol</div>
+                        <div class="small text-muted mb-2">
+                            PO: <strong>@(p.ProductOwner ?? "Sin asignar")</strong> &middot; SM: <strong>@(p.ScrumMaster ?? "Sin asignar")</strong>
+                        </div>
+                        @if (!string.IsNullOrEmpty(p.SprintActivoNombre))
+                        {
+                            <div class="small mb-2">
+                                <span class="project-status-badge project-status-activo"><span class="status-dot"></span>@p.SprintActivoNombre</span>
+                            </div>
+                        }
+                        <div class="d-flex justify-content-between small mb-1">
+                            <span class="text-muted">Avance</span>
+                            @if (p.Avance.HasValue)
+                            {
+                                <span class="fw-bold text-dark">@p.Avance.Value.ToString("0")%</span>
+                            }
+                            else
+                            {
+                                <span class="fw-bold text-muted">Sin historias</span>
+                            }
+                        </div>
+                        <div class="progress mb-3" style="height: 7px;">
+                            <div class="progress-bar bg-primary" style="width: @(p.Avance.HasValue ? p.Avance.Value.ToString("0") : "0")%;"></div>
+                        </div>
+                        @if (p.InicialesMiembros.Any())
+                        {
+                            <div class="d-flex mb-3">
+                                @foreach (var iniciales in p.InicialesMiembros)
+                                {
+                                    <div class="avatar-stack-item bg-primary">@iniciales</div>
+                                }
+                            </div>
+                        }
+                    </div>
+                    <a asp-action="DetalleCliente" asp-route-id="@p.IdProyecto" class="btn btn-outline-primary w-100 d-flex align-items-center justify-content-center gap-2">
+                        <span>Ver detalle del proyecto</span>
+                        <i class="bi bi-arrow-right-circle"></i>
+                    </a>
+                </div>
+            </div>
+        }
+    </div>
+}

@@ -539,4 +539,132 @@ public class ProyectoRepositorio
         public string? InicialesCsv { get; set; }
         public decimal Avance { get; set; }
     }
+
+    public async Task<IReadOnlyList<ProyectoClienteItem>> ListarDeMiembroAsync(int idUsuario)
+    {
+        const string sql = @"
+            select
+                p.IdProyecto,
+                p.Codigo,
+                p.Nombre,
+                p.Descripcion,
+                p.Estado,
+                p.FechaInicio,
+                p.FechaFin,
+                yo.RolProyecto as MiRol,
+                max(case when pm.RolProyecto = 'Product Owner' then concat(u.Nombre, ' ', u.Apellidos) end) as ProductOwner,
+                max(case when pm.RolProyecto = 'Scrum Master' then concat(u.Nombre, ' ', u.Apellidos) end) as ScrumMaster,
+                (select case when coalesce(sum(h.Estimacion), 0) = 0 then null
+                             else sum(case when h.Estado = 'Terminada' then h.Estimacion else 0 end) * 100.0 / sum(h.Estimacion)
+                        end
+                 from HistoriasUsuario h where h.IdProyecto = p.IdProyecto) as Avance,
+                (select s.Nombre from Sprints s where s.IdProyecto = p.IdProyecto and s.Estado = 'Activo' limit 1) as SprintActivoNombre,
+                group_concat(concat(upper(left(u.Nombre, 1)), upper(left(u.Apellidos, 1))) order by pm.FechaIngreso separator ',') as InicialesCsv
+            from Proyectos p
+            join ProyectoMiembros yo on yo.IdProyecto = p.IdProyecto and yo.IdUsuario = @IdUsuario
+            left join ProyectoMiembros pm on pm.IdProyecto = p.IdProyecto
+            left join Usuarios u on u.IdUsuario = pm.IdUsuario
+            where p.Estado <> 'Cerrado'
+            group by p.IdProyecto, p.Codigo, p.Nombre, p.Descripcion, p.Estado, p.FechaInicio, p.FechaFin, yo.RolProyecto
+            order by p.FechaInicio desc;";
+
+        using var conexion = await _conexionDb.CrearConexionAbiertaAsync();
+        var filas = await conexion.QueryAsync<ProyectoClienteItemFila>(sql, new { IdUsuario = idUsuario });
+
+        return filas.Select(fila => new ProyectoClienteItem
+        {
+            IdProyecto = fila.IdProyecto,
+            Codigo = fila.Codigo,
+            Nombre = fila.Nombre,
+            Descripcion = fila.Descripcion,
+            Estado = fila.Estado,
+            FechaInicio = fila.FechaInicio,
+            FechaFin = fila.FechaFin,
+            MiRol = fila.MiRol,
+            ProductOwner = fila.ProductOwner,
+            ScrumMaster = fila.ScrumMaster,
+            Avance = fila.Avance,
+            SprintActivoNombre = fila.SprintActivoNombre,
+            InicialesMiembros = string.IsNullOrWhiteSpace(fila.InicialesCsv)
+                ? new List<string>()
+                : fila.InicialesCsv.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList()
+        }).ToList();
+    }
+
+    public async Task<ProyectoClienteDetalleViewModel?> ObtenerDetalleClienteAsync(int idProyecto, int idUsuarioActual)
+    {
+        using var conexion = await _conexionDb.CrearConexionAbiertaAsync();
+
+        var miRol = await conexion.QueryFirstOrDefaultAsync<string>(
+            "select RolProyecto from ProyectoMiembros where IdProyecto = @IdProyecto and IdUsuario = @IdUsuarioActual;",
+            new { IdProyecto = idProyecto, IdUsuarioActual = idUsuarioActual });
+
+        if (miRol is null)
+        {
+            return null;
+        }
+
+        var proyecto = await conexion.QueryFirstOrDefaultAsync<Proyecto>(
+            @"select IdProyecto, Codigo, Nombre, Descripcion, FechaInicio, FechaFin, Estado
+              from Proyectos where IdProyecto = @IdProyecto;",
+            new { IdProyecto = idProyecto });
+
+        if (proyecto is null)
+        {
+            return null;
+        }
+
+        var miembros = (await conexion.QueryAsync<ProyectoMiembroItem>(SqlMiembrosProyecto, new { IdProyecto = idProyecto })).ToList();
+
+        var sprints = (await conexion.QueryAsync<SprintResumenItem>(
+            @"select IdSprint, Nombre, FechaInicio, FechaFin, Estado
+              from Sprints where IdProyecto = @IdProyecto order by FechaInicio;",
+            new { IdProyecto = idProyecto })).ToList();
+
+        var avanceInfo = await conexion.QuerySingleAsync<AvanceInfo>(
+            @"select
+                  case when coalesce(sum(Estimacion), 0) = 0 then null
+                       else sum(case when Estado = 'Terminada' then Estimacion else 0 end) * 100.0 / sum(Estimacion)
+                  end as Avance,
+                  count(*) as CantidadHistorias
+              from HistoriasUsuario
+              where IdProyecto = @IdProyecto;",
+            new { IdProyecto = idProyecto });
+
+        return new ProyectoClienteDetalleViewModel
+        {
+            IdProyecto = proyecto.IdProyecto,
+            Codigo = proyecto.Codigo,
+            Nombre = proyecto.Nombre,
+            Descripcion = proyecto.Descripcion,
+            FechaInicio = proyecto.FechaInicio,
+            FechaFin = proyecto.FechaFin,
+            Estado = proyecto.Estado,
+            ProductOwner = miembros.Where(m => m.RolProyecto == "Product Owner").Select(m => m.NombreCompleto).FirstOrDefault(),
+            ScrumMaster = miembros.Where(m => m.RolProyecto == "Scrum Master").Select(m => m.NombreCompleto).FirstOrDefault(),
+            Avance = avanceInfo.Avance,
+            MiRol = miRol,
+            IdUsuarioActual = idUsuarioActual,
+            Sprints = sprints,
+            Miembros = miembros
+        };
+    }
+
+    /// <summary>Fila cruda devuelta por Dapper para ListarDeMiembroAsync, antes de convertir InicialesCsv en una lista.</summary>
+    private class ProyectoClienteItemFila
+    {
+        public int IdProyecto { get; set; }
+        public string Codigo { get; set; } = string.Empty;
+        public string Nombre { get; set; } = string.Empty;
+        public string Descripcion { get; set; } = string.Empty;
+        public string Estado { get; set; } = string.Empty;
+        public DateTime FechaInicio { get; set; }
+        public DateTime FechaFin { get; set; }
+        public string MiRol { get; set; } = string.Empty;
+        public string? ProductOwner { get; set; }
+        public string? ScrumMaster { get; set; }
+        public decimal? Avance { get; set; }
+        public string? SprintActivoNombre { get; set; }
+        public string? InicialesCsv { get; set; }
+    }
 }
