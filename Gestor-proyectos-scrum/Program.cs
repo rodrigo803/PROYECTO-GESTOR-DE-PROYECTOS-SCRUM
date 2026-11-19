@@ -8,6 +8,7 @@ builder.Services.AddControllersWithViews();
 
 builder.Services.AddScoped<ConexionDb>();
 builder.Services.AddScoped<UsuarioActual>();
+builder.Services.AddScoped<ProyectoRepositorio>();
 
 var app = builder.Build();
 
