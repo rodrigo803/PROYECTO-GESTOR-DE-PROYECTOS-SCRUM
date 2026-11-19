@@ -1,7 +1,13 @@
+using Gestor_proyectos_scrum.Data;
+using Gestor_proyectos_scrum.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddScoped<ConexionDb>();
+builder.Services.AddScoped<UsuarioActual>();
 
 var app = builder.Build();
 

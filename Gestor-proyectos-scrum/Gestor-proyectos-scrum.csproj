@@ -7,4 +7,9 @@
     <RootNamespace>Gestor_proyectos_scrum</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Dapper" Version="2.1.89" />
+    <PackageReference Include="MySqlConnector" Version="3.0.0" />
+  </ItemGroup>
+
 </Project>
