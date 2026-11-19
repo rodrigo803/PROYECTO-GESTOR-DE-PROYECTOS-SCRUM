@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SCRUM Manager - Tablero Kanban (HU-08)</title>
+
+  <!-- Bootstrap 5 CSS CDN -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+
+  <!-- Bootstrap Icons CDN -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+  <!-- Google Fonts (Inter) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Estilos Personalizados Externos -->
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/modulos-sergio.css">
+  <link rel="stylesheet" href="css/modulos-jesus.css">
+</head>
+<body>
+
+  <!-- ========================================== -->
+  <!-- 1. NAVBAR SUPERIOR OSCURO                  -->
+  <!-- ========================================== -->
+  <nav class="navbar navbar-dark admin-navbar px-3 px-lg-4">
+    <div class="container-fluid p-0 d-flex align-items-center justify-content-between">
+
+      <!-- Brand & Mobile Toggle -->
+      <div class="d-flex align-items-center gap-3">
+        <button class="btn btn-outline-secondary btn-sm d-lg-none text-light border-0" type="button" id="sidebarToggle" aria-label="Abrir menú">
+          <i class="bi bi-list fs-4"></i>
+        </button>
+
+        <a class="navbar-brand d-flex align-items-center gap-2 m-0" href="dashboard.html">
+          <span class="brand-logo-badge">
+            <i class="bi bi-kanban-fill"></i>
+          </span>
+          <span class="fw-bold tracking-tight text-white fs-5">SCRUM <span class="fw-semibold" style="color: #818cf8 !important;">Manager</span></span>
+        </a>
+      </div>
+
+      <!-- Perfil Administrador -->
+      <div class="d-flex align-items-center gap-3">
+        <div class="d-none d-md-flex align-items-center gap-2 px-3 py-1 bg-dark-subtle rounded-pill border border-secondary border-opacity-25 text-light text-opacity-75 small">
+          <span class="status-dot bg-success"></span>
+          <span>Sprint 1 en curso</span>
+          <span class="text-secondary">|</span>
+          <span class="fw-medium text-info">Día 9 de 14</span>
+        </div>
+
+        <div class="dropdown">
+          <button class="btn btn-dark d-flex align-items-center gap-2 py-1 px-2 rounded-3 border border-secondary border-opacity-25" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 32px; height: 32px; font-size: 0.85rem;">RM</div>
+            <div class="text-start d-none d-sm-block pe-1">
+              <div class="text-white fw-semibold small lh-1">Rodrigo Morales</div>
+              <small class="text-light text-opacity-50" style="font-size: 0.72rem;">Scrum Master / Admin</small>
+            </div>
+            <i class="bi bi-chevron-down text-light text-opacity-50 small"></i>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end shadow-sm py-2">
+            <li><h6 class="dropdown-header">Cuenta Administrador</h6></li>
+            <li><a class="dropdown-item d-flex align-items-center gap-2" href="#"><i class="bi bi-person text-secondary"></i> Mi Perfil</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li>
+              <button class="dropdown-item d-flex align-items-center gap-2 text-danger" type="button" onclick="confirmarCierreSesion()">
+                <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+              </button>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </nav>
+
+  <!-- ========================================== -->
+  <!-- 2. SIDEBAR FIJO                            -->
+  <!-- ========================================== -->
+  <aside class="admin-sidebar" id="adminSidebar">
+
+    <div class="sidebar-heading">Navegación Principal</div>
+    <nav class="nav flex-column mb-3">
+      <a href="dashboard.html" class="sidebar-nav-link">
+        <i class="bi bi-grid-1x2"></i>
+        <span>Dashboard</span>
+      </a>
+      <a href="usuarios.html" class="sidebar-nav-link">
+        <i class="bi bi-people"></i>
+        <span>Gestión de Usuarios</span>
+      </a>
+      <a href="proyectos.html" class="sidebar-nav-link">
+        <i class="bi bi-kanban"></i>
+        <span>Gestión de Proyectos</span>
+      </a>
+      <a href="product-backlog.html" class="sidebar-nav-link">
+        <i class="bi bi-journal-text"></i>
+        <span>Product Backlog</span>
+      </a>
+      <a href="sprints.html" class="sidebar-nav-link">
+        <i class="bi bi-arrow-repeat"></i>
+        <span>Gestión de Sprints</span>
+      </a>
+      <a href="planificacion-sprint.html" class="sidebar-nav-link">
+        <i class="bi bi-calendar2-week"></i>
+        <span>Planificación del Sprint</span>
+      </a>
+      <a href="sprint-backlog.html" class="sidebar-nav-link">
+        <i class="bi bi-card-checklist"></i>
+        <span>Sprint Backlog</span>
+      </a>
+      <a href="tablero-kanban.html" class="sidebar-nav-link active">
+        <i class="bi bi-columns-gap"></i>
+        <span>Tablero Kanban</span>
+      </a>
+      <a href="impedimentos.html" class="sidebar-nav-link">
+        <i class="bi bi-cone-striped"></i>
+        <span>Impedimentos</span>
+      </a>
+      <a href="retrospectiva.html" class="sidebar-nav-link">
+        <i class="bi bi-chat-square-text"></i>
+        <span>Retrospectiva</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-heading">Calidad</div>
+    <nav class="nav flex-column mb-3">
+      <a href="responsividad.html" class="sidebar-nav-link">
+        <i class="bi bi-phone"></i>
+        <span>Responsividad</span>
+      </a>
+    </nav>
+
+    <!-- Botón Cerrar Sesión en pie del Sidebar -->
+    <div class="mt-auto px-3 pt-4">
+      <button class="btn btn-outline-danger btn-sm w-100 d-flex align-items-center justify-content-center gap-2" onclick="confirmarCierreSesion()">
+        <i class="bi bi-box-arrow-right"></i>
+        <span>Cerrar Sesión</span>
+      </button>
+    </div>
+
+  </aside>
+
+  <!-- ========================================== -->
+  <!-- 3. ÁREA DE CONTENIDO: TABLERO KANBAN        -->
+  <!-- ========================================== -->
+  <main class="main-content">
+
+    <!-- Encabezado de la Pantalla -->
+    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-start gap-3 mb-4">
+      <div>
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb mb-1 small text-muted">
+            <li class="breadcrumb-item"><a href="dashboard.html" class="text-decoration-none text-muted">Inicio</a></li>
+            <li class="breadcrumb-item active text-primary fw-medium" aria-current="page">Supervisión del Tablero Kanban</li>
+          </ol>
+        </nav>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <h1 class="page-title mb-0">Supervisión del Tablero Kanban</h1>
+          <span class="badge bg-primary-subtle text-primary border border-primary-subtle">HU-08</span>
+        </div>
+        <p class="page-subtitle mb-0">Consulta el flujo de tareas del Sprint 1 (Core Auth &amp; Onboarding).</p>
+      </div>
+
+      <!-- Selector de Vista -->
+      <div class="view-switch">
+        <a href="tablero-kanban.html" class="view-switch-option active">
+          <i class="bi bi-display"></i> Administrativa
+        </a>
+        <a href="tablero-cliente.html" class="view-switch-option">
+          <i class="bi bi-person"></i> Cliente
+        </a>
+      </div>
+    </div>
+
+    <div class="alert alert-primary small" role="alert">
+      <i class="bi bi-info-circle-fill me-2"></i>
+      <strong>Vista administrativa.</strong> Se muestra una distribución de tareas por estado para supervisar el flujo de trabajo. Los controles son ilustrativos.
+    </div>
+
+    <!-- Filtros -->
+    <div class="d-flex flex-wrap gap-2 mb-4">
+      <select class="form-select form-select-sm" style="max-width: 200px;" aria-label="Filtrar por Sprint">
+        <option selected>Sprint 1 · en curso</option>
+        <option>Sprint 0 · cerrado</option>
+      </select>
+      <select class="form-select form-select-sm" style="max-width: 200px;" aria-label="Filtrar por responsable">
+        <option selected>Responsable: Todos</option>
+        <option>Carlos Ruiz</option>
+        <option>Ana Gómez</option>
+        <option>Mateo Silva</option>
+        <option>Lucía Morales</option>
+        <option>Jesús De Lima</option>
+      </select>
+      <span class="badge bg-secondary-subtle text-secondary border align-self-center">Control visual de tareas</span>
+    </div>
+
+    <!-- Tablero Kanban -->
+    <div class="row g-3">
+
+      <!-- Columna: Pendiente -->
+      <div class="col-12 col-md-6 col-lg-3">
+        <div class="kanban-column">
+          <div class="kanban-column-head">
+            <span class="status-badge-select status-pendiente"><span class="status-dot"></span>Pendiente</span>
+            <span class="badge bg-white text-secondary border">1</span>
+          </div>
+
+          <div class="card-custom p-3 mb-2">
+            <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle mb-2">Media</span>
+            <h3 class="h6 fw-semibold mb-1">Validar backup codes de 2FA</h3>
+            <p class="small text-muted mb-2">Historia HU-01 · Autenticación</p>
+            <div class="d-flex justify-content-between align-items-center small text-muted border-top pt-2">
+              <span>3 puntos</span>
+              <span class="avatar-stack-item bg-info" style="margin-left:0;">MS</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Columna: En progreso -->
+      <div class="col-12 col-md-6 col-lg-3">
+        <div class="kanban-column">
+          <div class="kanban-column-head">
+            <span class="status-badge-select status-progreso"><span class="status-dot"></span>En progreso</span>
+            <span class="badge bg-white text-secondary border">2</span>
+          </div>
+
+          <div class="card-custom p-3 mb-2">
+            <span class="badge bg-danger-subtle text-danger border border-danger-subtle mb-2">Alta</span>
+            <h3 class="h6 fw-semibold mb-1">Implementar verificación por SMS/TOTP</h3>
+            <p class="small text-muted mb-2">Historia HU-01 · Autenticación</p>
+            <div class="d-flex justify-content-between align-items-center small text-muted border-top pt-2">
+              <span>5 puntos</span>
+              <span class="avatar-stack-item bg-primary" style="margin-left:0;">CR</span>
+            </div>
+          </div>
+
+          <div class="card-custom p-3 mb-2">
+            <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle mb-2">Media</span>
+            <h3 class="h6 fw-semibold mb-1">Formulario de cambio de contraseña</h3>
+            <p class="small text-muted mb-2">Historia HU-02 · Perfiles</p>
+            <div class="d-flex justify-content-between align-items-center small text-muted border-top pt-2">
+              <span>3 puntos</span>
+              <span class="avatar-stack-item bg-success" style="margin-left:0;">AG</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Columna: En revisión -->
+      <div class="col-12 col-md-6 col-lg-3">
+        <div class="kanban-column">
+          <div class="kanban-column-head">
+            <span class="status-badge-select status-revision"><span class="status-dot"></span>En revisión</span>
+            <span class="badge bg-white text-secondary border">1</span>
+          </div>
+
+          <div class="card-custom p-3 mb-2">
+            <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle mb-2">Media</span>
+            <h3 class="h6 fw-semibold mb-1">Revisar registro de auditoría de accesos</h3>
+            <p class="small text-muted mb-2">Historia HU-03 · Auditoría</p>
+            <div class="d-flex justify-content-between align-items-center small text-muted border-top pt-2">
+              <span>3 puntos</span>
+              <span class="avatar-stack-item bg-secondary" style="margin-left:0;">JD</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Columna: Finalizado -->
+      <div class="col-12 col-md-6 col-lg-3">
+        <div class="kanban-column">
+          <div class="kanban-column-head">
+            <span class="status-badge-select status-finalizado"><span class="status-dot"></span>Finalizado</span>
+            <span class="badge bg-white text-secondary border">2</span>
+          </div>
+
+          <div class="card-custom p-3 mb-2">
+            <span class="badge bg-danger-subtle text-danger border border-danger-subtle mb-2">Alta</span>
+            <h3 class="h6 fw-semibold mb-1">Diseño de pantallas de login con 2FA</h3>
+            <p class="small text-muted mb-2">Historia HU-01 · Mockup</p>
+            <div class="d-flex justify-content-between align-items-center small text-muted border-top pt-2">
+              <span>2 puntos</span>
+              <span class="avatar-stack-item bg-warning" style="margin-left:0;">LM</span>
+            </div>
+          </div>
+
+          <div class="card-custom p-3 mb-2">
+            <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle mb-2">Media</span>
+            <h3 class="h6 fw-semibold mb-1">Endpoint de actualización de perfil</h3>
+            <p class="small text-muted mb-2">Historia HU-02 · Perfiles</p>
+            <div class="d-flex justify-content-between align-items-center small text-muted border-top pt-2">
+              <span>3 puntos</span>
+              <span class="avatar-stack-item bg-primary" style="margin-left:0;">CR</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Resumen y acciones -->
+    <div class="row g-4 mt-1">
+      <div class="col-12 col-lg-6">
+        <div class="card-custom h-100 p-3">
+          <h2 class="h6 fw-bold text-dark mb-2">Resumen por estado</h2>
+          <p class="small text-muted mb-3">Cifras simuladas de las tarjetas</p>
+          <div class="d-flex flex-wrap gap-2">
+            <span class="status-badge-select status-pendiente"><span class="status-dot"></span>Pendiente: 1</span>
+            <span class="status-badge-select status-progreso"><span class="status-dot"></span>En progreso: 2</span>
+            <span class="status-badge-select status-revision"><span class="status-dot"></span>En revisión: 1</span>
+            <span class="status-badge-select status-finalizado"><span class="status-dot"></span>Finalizado: 2</span>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-lg-6">
+        <div class="card-custom h-100 p-3">
+          <h2 class="h6 fw-bold text-dark mb-2">Acciones administrativas</h2>
+          <p class="small text-muted mb-3">Controles representados sin lógica</p>
+          <div class="d-flex flex-wrap gap-2">
+            <button type="button" class="btn btn-outline-secondary btn-sm" disabled title="Prototipo sin funcionalidad">Cambiar estado</button>
+            <button type="button" class="btn btn-outline-secondary btn-sm" disabled title="Prototipo sin funcionalidad">Asignar responsable</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
