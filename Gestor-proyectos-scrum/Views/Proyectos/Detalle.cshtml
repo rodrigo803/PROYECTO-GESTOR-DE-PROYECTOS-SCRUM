@@ -1,0 +1,237 @@
+@model Gestor_proyectos_scrum.Models.ProyectoDetalleViewModel
+@{
+    ViewData["Title"] = $"{Model.Nombre} ({Model.Codigo})";
+}
+
+@functions {
+    private static string ClaseEstado(string estado) => estado switch
+    {
+        "Activo" => "project-status-activo",
+        "Planificado" => "project-status-planificado",
+        "En pausa" => "project-status-pausa",
+        "Cerrado" => "project-status-cerrado",
+        _ => "project-status-planificado"
+    };
+}
+
+<!-- Encabezado de la Pantalla -->
+<div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-start gap-3 mb-4">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-1 small text-muted">
+                <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-decoration-none text-muted">Inicio</a></li>
+                <li class="breadcrumb-item"><a asp-action="Index" class="text-decoration-none text-muted">Gestión de Proyectos</a></li>
+                <li class="breadcrumb-item active text-primary fw-medium" aria-current="page">@Model.Codigo</li>
+            </ol>
+        </nav>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+            <h1 class="page-title mb-0">@Model.Nombre</h1>
+            <span class="project-status-badge @ClaseEstado(Model.Estado)"><span class="status-dot"></span>@Model.Estado</span>
+        </div>
+        <p class="page-subtitle mb-0">@Model.Codigo</p>
+    </div>
+
+    <div class="d-flex gap-2">
+        @if (Model.Estado != "Cerrado")
+        {
+            <a asp-action="Editar" asp-route-id="@Model.IdProyecto" class="btn btn-outline-secondary d-flex align-items-center gap-2">
+                <i class="bi bi-pencil"></i>
+                <span>Editar</span>
+            </a>
+        }
+        <a asp-action="Index" class="btn btn-outline-primary d-flex align-items-center gap-2">
+            <i class="bi bi-arrow-left"></i>
+            <span>Volver al listado</span>
+        </a>
+    </div>
+</div>
+
+<div class="card-custom overflow-hidden">
+
+    <!-- Tabs de navegación del detalle -->
+    <ul class="nav nav-tabs px-3 pt-2" id="detalleProyectoTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="tab-resumen-btn" data-bs-toggle="tab" data-bs-target="#tab-resumen" type="button" role="tab">Resumen</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab-miembros-btn" data-bs-toggle="tab" data-bs-target="#tab-miembros" type="button" role="tab">Miembros</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab-historial-btn" data-bs-toggle="tab" data-bs-target="#tab-historial" type="button" role="tab">Historial</button>
+        </li>
+    </ul>
+
+    <div class="tab-content p-4">
+
+        <!-- Resumen -->
+        <div class="tab-pane fade show active" id="tab-resumen" role="tabpanel">
+            <p class="text-muted">@Model.Descripcion</p>
+
+            <div class="mb-3">
+                <div class="d-flex justify-content-between small mb-1">
+                    <span class="text-muted">Avance general</span>
+                    @if (Model.Avance.HasValue)
+                    {
+                        <span class="fw-bold text-dark">@Model.Avance.Value.ToString("0")%</span>
+                    }
+                    else
+                    {
+                        <span class="fw-bold text-muted">Sin historias</span>
+                    }
+                </div>
+                <div class="progress" style="height: 8px;">
+                    <div class="progress-bar bg-primary" style="width: @(Model.Avance.HasValue ? Model.Avance.Value.ToString("0") : "0")%;"></div>
+                </div>
+            </div>
+
+            <dl class="row small mb-4">
+                <dt class="col-5 col-sm-4 text-muted">Fecha de inicio</dt>
+                <dd class="col-7 col-sm-8 text-dark">@Model.FechaInicio.ToString("dd/MM/yyyy")</dd>
+                <dt class="col-5 col-sm-4 text-muted">Fecha de fin</dt>
+                <dd class="col-7 col-sm-8 text-dark">@Model.FechaFin.ToString("dd/MM/yyyy")</dd>
+                <dt class="col-5 col-sm-4 text-muted">Sprints</dt>
+                <dd class="col-7 col-sm-8 text-dark">@Model.CantidadSprints</dd>
+                <dt class="col-5 col-sm-4 text-muted">Historias</dt>
+                <dd class="col-7 col-sm-8 text-dark">@Model.CantidadHistorias</dd>
+                <dt class="col-5 col-sm-4 text-muted">Miembros</dt>
+                <dd class="col-7 col-sm-8 text-dark">@Model.CantidadMiembros</dd>
+            </dl>
+
+            <h6 class="fw-bold text-dark mb-2">Sprints del Proyecto</h6>
+            @if (!Model.Sprints.Any())
+            {
+                <p class="text-muted small">Este proyecto todavía no tiene sprints.</p>
+            }
+            else
+            {
+                <ul class="list-group list-group-flush mb-0">
+                    @foreach (var sprint in Model.Sprints)
+                    {
+                        <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                            <div>
+                                <div class="fw-semibold small text-dark">@sprint.Nombre</div>
+                                <small class="text-muted">@sprint.FechaInicio.ToString("dd/MM/yyyy") &mdash; @sprint.FechaFin.ToString("dd/MM/yyyy")</small>
+                            </div>
+                            <span class="project-status-badge @ClaseEstado(sprint.Estado)"><span class="status-dot"></span>@sprint.Estado</span>
+                        </li>
+                    }
+                </ul>
+            }
+        </div>
+
+        <!-- Miembros -->
+        <div class="tab-pane fade" id="tab-miembros" role="tabpanel">
+
+            @if (!Model.Miembros.Any())
+            {
+                <p class="text-muted small">Este proyecto todavía no tiene miembros.</p>
+            }
+            else
+            {
+                <ul class="list-group list-group-flush mb-3">
+                    @foreach (var miembro in Model.Miembros)
+                    {
+                        <li class="list-group-item d-flex align-items-center justify-content-between px-0 flex-wrap gap-2">
+                            <div>
+                                <div class="fw-semibold small text-dark">@miembro.NombreCompleto</div>
+                                <small class="text-muted">@miembro.RolProyecto &middot; desde @miembro.FechaIngreso.ToString("dd/MM/yyyy")</small>
+                            </div>
+
+                            @if (Model.PuedeGestionar)
+                            {
+                                <div class="d-flex align-items-center gap-2">
+                                    <form asp-action="CambiarRolMiembro" asp-route-id="@Model.IdProyecto" method="post" class="d-flex align-items-center gap-1 mb-0">
+                                        <input type="hidden" name="idUsuario" value="@miembro.IdUsuario" />
+                                        <select name="nuevoRol" class="form-select form-select-sm" style="width:auto;" onchange="this.form.submit()" aria-label="Cambiar rol">
+                                            <option value="Product Owner" selected="@(miembro.RolProyecto == "Product Owner")">Product Owner</option>
+                                            <option value="Scrum Master" selected="@(miembro.RolProyecto == "Scrum Master")">Scrum Master</option>
+                                            <option value="Developer" selected="@(miembro.RolProyecto == "Developer")">Developer</option>
+                                            <option value="Stakeholder" selected="@(miembro.RolProyecto == "Stakeholder")">Stakeholder</option>
+                                        </select>
+                                    </form>
+                                    <form asp-action="QuitarMiembro" asp-route-id="@Model.IdProyecto" method="post" class="mb-0"
+                                          onsubmit="return confirm('¿Quitar a este miembro del proyecto?');">
+                                        <input type="hidden" name="idUsuario" value="@miembro.IdUsuario" />
+                                        <button type="submit" class="btn btn-sm btn-outline-secondary border-0" title="Quitar del proyecto" aria-label="Quitar del proyecto">
+                                            <i class="bi bi-x-lg"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary-subtle text-secondary">@miembro.RolProyecto</span>
+                            }
+                        </li>
+                    }
+                </ul>
+            }
+
+            @if (Model.PuedeGestionar)
+            {
+                <form asp-action="AgregarMiembro" asp-route-id="@Model.IdProyecto" method="post" class="d-flex gap-2 flex-wrap">
+                    <select name="idUsuario" class="form-select form-select-sm flex-grow-1" style="min-width: 180px;" required>
+                        <option value="" selected disabled>Agregar miembro...</option>
+                        @foreach (var usuario in Model.UsuariosDisponibles)
+                        {
+                            <option value="@usuario.IdUsuario">@usuario.NombreCompleto</option>
+                        }
+                    </select>
+                    <select name="rolProyecto" class="form-select form-select-sm" style="max-width: 170px;" aria-label="Rol del nuevo miembro">
+                        <option value="Developer">Developer</option>
+                        <option value="Product Owner">Product Owner</option>
+                        <option value="Scrum Master">Scrum Master</option>
+                        <option value="Stakeholder">Stakeholder</option>
+                    </select>
+                    <button type="submit" class="btn btn-sm btn-primary text-nowrap">
+                        <i class="bi bi-plus-lg"></i> Agregar
+                    </button>
+                </form>
+            }
+            else if (Model.Estado == "Cerrado")
+            {
+                <p class="text-muted small mb-0"><i class="bi bi-lock-fill me-1"></i>Este proyecto está cerrado: no se pueden modificar sus miembros.</p>
+            }
+
+        </div>
+
+        <!-- Historial -->
+        <div class="tab-pane fade" id="tab-historial" role="tabpanel">
+            @if (!Model.Historial.Any())
+            {
+                <p class="text-muted small mb-0">Todavía no hay cambios registrados para este proyecto.</p>
+            }
+            else
+            {
+                <ul class="list-unstyled small mb-0">
+                    @foreach (var item in Model.Historial)
+                    {
+                        <li class="d-flex gap-2 mb-3">
+                            <i class="bi bi-clock-history text-secondary"></i>
+                            <div>
+                                <div class="text-dark"><strong>@item.Usuario</strong> &mdash; @item.Accion. @item.Detalle</div>
+                                <small class="text-muted">@item.Fecha.ToString("dd/MM/yyyy HH:mm")</small>
+                            </div>
+                        </li>
+                    }
+                </ul>
+            }
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var parametros = new URLSearchParams(window.location.search);
+            var pestana = parametros.get('tab');
+            if (pestana) {
+                var boton = document.getElementById('tab-' + pestana + '-btn');
+                if (boton) {
+                    new bootstrap.Tab(boton).show();
+                }
+            }
+        });
+    </script>
+}

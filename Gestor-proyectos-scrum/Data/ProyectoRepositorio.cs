@@ -89,6 +89,163 @@ public class ProyectoRepositorio
             new { IdProyecto = idProyecto });
     }
 
+    private const string SqlMiembrosProyecto = @"
+        select pm.IdUsuario, concat(u.Nombre, ' ', u.Apellidos) as NombreCompleto, pm.RolProyecto, pm.FechaIngreso
+        from ProyectoMiembros pm
+        join Usuarios u on u.IdUsuario = pm.IdUsuario
+        where pm.IdProyecto = @IdProyecto
+        order by case pm.RolProyecto
+                     when 'Product Owner' then 1
+                     when 'Scrum Master' then 2
+                     when 'Developer' then 3
+                     else 4
+                 end, u.Nombre;";
+
+    public async Task<IReadOnlyList<ProyectoMiembroItem>> ObtenerMiembrosAsync(int idProyecto)
+    {
+        using var conexion = await _conexionDb.CrearConexionAbiertaAsync();
+        var filas = await conexion.QueryAsync<ProyectoMiembroItem>(SqlMiembrosProyecto, new { IdProyecto = idProyecto });
+        return filas.ToList();
+    }
+
+    public async Task<ProyectoDetalleViewModel?> ObtenerDetalleAsync(int idProyecto)
+    {
+        using var conexion = await _conexionDb.CrearConexionAbiertaAsync();
+
+        var proyecto = await conexion.QueryFirstOrDefaultAsync<Proyecto>(
+            @"select IdProyecto, Codigo, Nombre, Descripcion, FechaInicio, FechaFin, Estado
+              from Proyectos where IdProyecto = @IdProyecto;",
+            new { IdProyecto = idProyecto });
+
+        if (proyecto is null)
+        {
+            return null;
+        }
+
+        var miembros = (await conexion.QueryAsync<ProyectoMiembroItem>(SqlMiembrosProyecto, new { IdProyecto = idProyecto })).ToList();
+
+        var sprints = (await conexion.QueryAsync<SprintResumenItem>(
+            @"select IdSprint, Nombre, FechaInicio, FechaFin, Estado
+              from Sprints where IdProyecto = @IdProyecto order by FechaInicio;",
+            new { IdProyecto = idProyecto })).ToList();
+
+        var avanceInfo = await conexion.QuerySingleAsync<AvanceInfo>(
+            @"select
+                  case when coalesce(sum(Estimacion), 0) = 0 then null
+                       else sum(case when Estado = 'Terminada' then Estimacion else 0 end) * 100.0 / sum(Estimacion)
+                  end as Avance,
+                  count(*) as CantidadHistorias
+              from HistoriasUsuario
+              where IdProyecto = @IdProyecto;",
+            new { IdProyecto = idProyecto });
+
+        var historial = (await conexion.QueryAsync<AuditoriaItem>(
+            @"select concat(u.Nombre, ' ', u.Apellidos) as Usuario, a.Accion, a.Detalle, a.Fecha
+              from Auditoria a
+              join Usuarios u on u.IdUsuario = a.IdUsuario
+              where a.Entidad = 'Proyectos' and a.IdRegistro = @IdProyecto
+              order by a.Fecha desc;",
+            new { IdProyecto = idProyecto })).ToList();
+
+        var usuariosActivos = await ListarUsuariosActivosAsync();
+        var idsMiembros = miembros.Select(m => m.IdUsuario).ToHashSet();
+        var disponibles = usuariosActivos.Where(u => !idsMiembros.Contains(u.IdUsuario)).ToList();
+
+        return new ProyectoDetalleViewModel
+        {
+            IdProyecto = proyecto.IdProyecto,
+            Codigo = proyecto.Codigo,
+            Nombre = proyecto.Nombre,
+            Descripcion = proyecto.Descripcion,
+            FechaInicio = proyecto.FechaInicio,
+            FechaFin = proyecto.FechaFin,
+            Estado = proyecto.Estado,
+            Avance = avanceInfo.Avance,
+            CantidadHistorias = avanceInfo.CantidadHistorias,
+            CantidadSprints = sprints.Count,
+            CantidadMiembros = miembros.Count,
+            Sprints = sprints,
+            Miembros = miembros,
+            Historial = historial,
+            UsuariosDisponibles = disponibles
+        };
+    }
+
+    public async Task AgregarMiembroAsync(int idProyecto, int idUsuario, string rolProyecto, int idUsuarioActual, string nombreUsuario)
+    {
+        using var conexion = await _conexionDb.CrearConexionAbiertaAsync();
+        using var transaccion = await conexion.BeginTransactionAsync();
+
+        try
+        {
+            await conexion.ExecuteAsync(
+                "insert into ProyectoMiembros (IdProyecto, IdUsuario, RolProyecto) values (@IdProyecto, @IdUsuario, @RolProyecto);",
+                new { IdProyecto = idProyecto, IdUsuario = idUsuario, RolProyecto = rolProyecto }, transaccion);
+
+            await RegistrarAuditoriaAsync(conexion, transaccion, idUsuarioActual, "Agregar Miembro", "Proyectos", idProyecto,
+                $"Agregó a {nombreUsuario} como {rolProyecto}.");
+
+            await transaccion.CommitAsync();
+        }
+        catch
+        {
+            await transaccion.RollbackAsync();
+            throw;
+        }
+    }
+
+    public async Task CambiarRolMiembroAsync(int idProyecto, int idUsuario, string nuevoRol, int idUsuarioActual, string nombreUsuario, string rolAnterior)
+    {
+        using var conexion = await _conexionDb.CrearConexionAbiertaAsync();
+        using var transaccion = await conexion.BeginTransactionAsync();
+
+        try
+        {
+            await conexion.ExecuteAsync(
+                "update ProyectoMiembros set RolProyecto = @RolProyecto where IdProyecto = @IdProyecto and IdUsuario = @IdUsuario;",
+                new { RolProyecto = nuevoRol, IdProyecto = idProyecto, IdUsuario = idUsuario }, transaccion);
+
+            await RegistrarAuditoriaAsync(conexion, transaccion, idUsuarioActual, "Cambiar Rol Miembro", "Proyectos", idProyecto,
+                $"Cambió el rol de {nombreUsuario} de {rolAnterior} a {nuevoRol}.");
+
+            await transaccion.CommitAsync();
+        }
+        catch
+        {
+            await transaccion.RollbackAsync();
+            throw;
+        }
+    }
+
+    public async Task QuitarMiembroAsync(int idProyecto, int idUsuario, int idUsuarioActual, string nombreUsuario)
+    {
+        using var conexion = await _conexionDb.CrearConexionAbiertaAsync();
+        using var transaccion = await conexion.BeginTransactionAsync();
+
+        try
+        {
+            await conexion.ExecuteAsync(
+                "delete from ProyectoMiembros where IdProyecto = @IdProyecto and IdUsuario = @IdUsuario;",
+                new { IdProyecto = idProyecto, IdUsuario = idUsuario }, transaccion);
+
+            await RegistrarAuditoriaAsync(conexion, transaccion, idUsuarioActual, "Quitar Miembro", "Proyectos", idProyecto,
+                $"Quitó a {nombreUsuario} del proyecto.");
+
+            await transaccion.CommitAsync();
+        }
+        catch
+        {
+            await transaccion.RollbackAsync();
+            throw;
+        }
+    }
+
+    private class AvanceInfo
+    {
+        public decimal? Avance { get; set; }
+        public int CantidadHistorias { get; set; }
+    }
+
     public async Task<ProyectoFormViewModel?> ObtenerParaEditarAsync(int idProyecto)
     {
         using var conexion = await _conexionDb.CrearConexionAbiertaAsync();

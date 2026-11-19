@@ -61,7 +61,7 @@
                     if (string.IsNullOrEmpty(p.ProductOwner)) { falta.Add("Product Owner"); }
                     if (string.IsNullOrEmpty(p.ScrumMaster)) { falta.Add("Scrum Master"); }
 
-                    <li><a href="#fila-@p.Codigo" class="text-decoration-none"><strong>@p.Nombre</strong> (@p.Codigo)</a> &mdash; sin @string.Join(" y ", falta)</li>
+                    <li><a asp-action="Detalle" asp-route-id="@p.IdProyecto" asp-route-tab="miembros" class="text-decoration-none"><strong>@p.Nombre</strong> (@p.Codigo)</a> &mdash; sin @string.Join(" y ", falta)</li>
                 }
             </ul>
         </div>

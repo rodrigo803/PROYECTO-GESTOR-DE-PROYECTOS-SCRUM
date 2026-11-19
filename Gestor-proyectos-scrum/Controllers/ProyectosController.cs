@@ -157,6 +157,167 @@ public class ProyectosController : Controller
         }
     }
 
+    [HttpGet]
+    public async Task<IActionResult> Detalle(int id)
+    {
+        var modelo = await _proyectoRepositorio.ObtenerDetalleAsync(id);
+        if (modelo is null)
+        {
+            return NotFound();
+        }
+
+        modelo.PuedeGestionar = _usuarioActual.PuedeGestionarProyectos() && modelo.Estado != "Cerrado";
+        return View(modelo);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> AgregarMiembro(int id, int idUsuario, string rolProyecto)
+    {
+        var estado = await _proyectoRepositorio.ObtenerEstadoAsync(id);
+        if (estado is null)
+        {
+            return NotFound();
+        }
+
+        if (!_usuarioActual.PuedeGestionarProyectos())
+        {
+            TempData["Error"] = "No tienes permisos para gestionar proyectos.";
+            return RedirectToAction(nameof(Detalle), new { id, tab = "miembros" });
+        }
+
+        if (estado == "Cerrado")
+        {
+            TempData["Error"] = "No se puede modificar un proyecto cerrado.";
+            return RedirectToAction(nameof(Detalle), new { id, tab = "miembros" });
+        }
+
+        var rolesPermitidos = new[] { "Product Owner", "Scrum Master", "Developer", "Stakeholder" };
+        if (!rolesPermitidos.Contains(rolProyecto))
+        {
+            TempData["Error"] = "Rol no válido.";
+            return RedirectToAction(nameof(Detalle), new { id, tab = "miembros" });
+        }
+
+        var miembros = await _proyectoRepositorio.ObtenerMiembrosAsync(id);
+        if (miembros.Any(m => m.IdUsuario == idUsuario))
+        {
+            TempData["Error"] = "El usuario ya es miembro del proyecto.";
+            return RedirectToAction(nameof(Detalle), new { id, tab = "miembros" });
+        }
+
+        var usuariosActivos = await _proyectoRepositorio.ListarUsuariosActivosAsync();
+        var usuarioAgregado = usuariosActivos.FirstOrDefault(u => u.IdUsuario == idUsuario);
+        if (usuarioAgregado is null)
+        {
+            TempData["Error"] = "El usuario seleccionado no es válido.";
+            return RedirectToAction(nameof(Detalle), new { id, tab = "miembros" });
+        }
+
+        await _proyectoRepositorio.AgregarMiembroAsync(id, idUsuario, rolProyecto, _usuarioActual.IdUsuario, usuarioAgregado.NombreCompleto);
+        TempData["Mensaje"] = "Miembro agregado correctamente.";
+        return RedirectToAction(nameof(Detalle), new { id, tab = "miembros" });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> CambiarRolMiembro(int id, int idUsuario, string nuevoRol)
+    {
+        var estado = await _proyectoRepositorio.ObtenerEstadoAsync(id);
+        if (estado is null)
+        {
+            return NotFound();
+        }
+
+        if (!_usuarioActual.PuedeGestionarProyectos())
+        {
+            TempData["Error"] = "No tienes permisos para gestionar proyectos.";
+            return RedirectToAction(nameof(Detalle), new { id, tab = "miembros" });
+        }
+
+        if (estado == "Cerrado")
+        {
+            TempData["Error"] = "No se puede modificar un proyecto cerrado.";
+            return RedirectToAction(nameof(Detalle), new { id, tab = "miembros" });
+        }
+
+        var rolesPermitidos = new[] { "Product Owner", "Scrum Master", "Developer", "Stakeholder" };
+        if (!rolesPermitidos.Contains(nuevoRol))
+        {
+            TempData["Error"] = "Rol no válido.";
+            return RedirectToAction(nameof(Detalle), new { id, tab = "miembros" });
+        }
+
+        var miembros = await _proyectoRepositorio.ObtenerMiembrosAsync(id);
+        var miembro = miembros.FirstOrDefault(m => m.IdUsuario == idUsuario);
+        if (miembro is null)
+        {
+            TempData["Error"] = "El usuario no pertenece al proyecto.";
+            return RedirectToAction(nameof(Detalle), new { id, tab = "miembros" });
+        }
+
+        if (nuevoRol != miembro.RolProyecto && EsUnicoResponsableCritico(miembros, miembro) && estado is "Activo" or "En pausa")
+        {
+            TempData["Error"] = $"No se puede cambiar de rol al único {miembro.RolProyecto} mientras el proyecto está {estado}.";
+            return RedirectToAction(nameof(Detalle), new { id, tab = "miembros" });
+        }
+
+        await _proyectoRepositorio.CambiarRolMiembroAsync(id, idUsuario, nuevoRol, _usuarioActual.IdUsuario, miembro.NombreCompleto, miembro.RolProyecto);
+        TempData["Mensaje"] = "Rol actualizado correctamente.";
+        return RedirectToAction(nameof(Detalle), new { id, tab = "miembros" });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> QuitarMiembro(int id, int idUsuario)
+    {
+        var estado = await _proyectoRepositorio.ObtenerEstadoAsync(id);
+        if (estado is null)
+        {
+            return NotFound();
+        }
+
+        if (!_usuarioActual.PuedeGestionarProyectos())
+        {
+            TempData["Error"] = "No tienes permisos para gestionar proyectos.";
+            return RedirectToAction(nameof(Detalle), new { id, tab = "miembros" });
+        }
+
+        if (estado == "Cerrado")
+        {
+            TempData["Error"] = "No se puede modificar un proyecto cerrado.";
+            return RedirectToAction(nameof(Detalle), new { id, tab = "miembros" });
+        }
+
+        var miembros = await _proyectoRepositorio.ObtenerMiembrosAsync(id);
+        var miembro = miembros.FirstOrDefault(m => m.IdUsuario == idUsuario);
+        if (miembro is null)
+        {
+            TempData["Error"] = "El usuario no pertenece al proyecto.";
+            return RedirectToAction(nameof(Detalle), new { id, tab = "miembros" });
+        }
+
+        if (EsUnicoResponsableCritico(miembros, miembro) && estado is "Activo" or "En pausa")
+        {
+            TempData["Error"] = $"No se puede quitar al único {miembro.RolProyecto} mientras el proyecto está {estado}.";
+            return RedirectToAction(nameof(Detalle), new { id, tab = "miembros" });
+        }
+
+        await _proyectoRepositorio.QuitarMiembroAsync(id, idUsuario, _usuarioActual.IdUsuario, miembro.NombreCompleto);
+        TempData["Mensaje"] = "Miembro eliminado del proyecto.";
+        return RedirectToAction(nameof(Detalle), new { id, tab = "miembros" });
+    }
+
+    private static bool EsUnicoResponsableCritico(IReadOnlyList<ProyectoMiembroItem> miembros, ProyectoMiembroItem miembro)
+    {
+        if (miembro.RolProyecto is not ("Product Owner" or "Scrum Master"))
+        {
+            return false;
+        }
+
+        return miembros.Count(m => m.RolProyecto == miembro.RolProyecto) == 1;
+    }
+
     private void ValidarReglasNegocio(ProyectoFormViewModel modelo, bool esEdicion)
     {
         if (modelo.FechaFin <= modelo.FechaInicio)
