@@ -26,14 +26,14 @@ public class ProyectoRepositorio
                 max(case when pm.RolProyecto = 'Product Owner' then concat(u.Nombre, ' ', u.Apellidos) end) as ProductOwner,
                 max(case when pm.RolProyecto = 'Scrum Master' then concat(u.Nombre, ' ', u.Apellidos) end) as ScrumMaster,
                 count(pm.IdProyectoMiembro) as CantidadMiembros,
-                group_concat(concat(upper(left(u.Nombre, 1)), upper(left(u.Apellidos, 1))) order by pm.FechaIngreso separator ',') as InicialesCsv,
-                coalesce(av.Avance, 0) as Avance
+                group_concat(concat(u.Nombre, ' ', u.Apellidos, ':', upper(left(u.Nombre, 1)), upper(left(u.Apellidos, 1))) order by pm.FechaIngreso separator '|') as MiembrosCsv,
+                av.Avance as Avance
             from Proyectos p
             left join ProyectoMiembros pm on pm.IdProyecto = p.IdProyecto
             left join Usuarios u on u.IdUsuario = pm.IdUsuario
             left join (
                 select IdProyecto,
-                       case when sum(Estimacion) is null or sum(Estimacion) = 0 then 0
+                       case when coalesce(sum(Estimacion), 0) = 0 then null
                             else sum(case when Estado = 'Terminada' then Estimacion else 0 end) * 100.0 / sum(Estimacion)
                        end as Avance
                 from HistoriasUsuario
@@ -517,14 +517,34 @@ public class ProyectoRepositorio
             ProductOwner = fila.ProductOwner,
             ScrumMaster = fila.ScrumMaster,
             CantidadMiembros = fila.CantidadMiembros,
-            InicialesMiembros = string.IsNullOrWhiteSpace(fila.InicialesCsv)
-                ? new List<string>()
-                : fila.InicialesCsv.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList(),
+            Miembros = MapearMiembrosCsv(fila.MiembrosCsv),
             Avance = fila.Avance
         };
     }
 
-    /// <summary>Fila cruda devuelta por Dapper para ListarAsync, antes de convertir InicialesCsv en una lista.</summary>
+    /// <summary>Convierte el "Nombre Apellido:AB|Nombre Apellido:CD" de group_concat en una lista de MiembroAvatar.</summary>
+    private static List<MiembroAvatar> MapearMiembrosCsv(string? miembrosCsv)
+    {
+        if (string.IsNullOrWhiteSpace(miembrosCsv))
+        {
+            return new List<MiembroAvatar>();
+        }
+
+        return miembrosCsv
+            .Split('|', StringSplitOptions.RemoveEmptyEntries)
+            .Select(entrada =>
+            {
+                var partes = entrada.Split(':', 2);
+                return new MiembroAvatar
+                {
+                    NombreCompleto = partes[0],
+                    Iniciales = partes.Length > 1 ? partes[1] : string.Empty
+                };
+            })
+            .ToList();
+    }
+
+    /// <summary>Fila cruda devuelta por Dapper para ListarAsync, antes de convertir MiembrosCsv en una lista.</summary>
     private class ProyectoListaItemFila
     {
         public int IdProyecto { get; set; }
@@ -536,8 +556,8 @@ public class ProyectoRepositorio
         public string? ProductOwner { get; set; }
         public string? ScrumMaster { get; set; }
         public int CantidadMiembros { get; set; }
-        public string? InicialesCsv { get; set; }
-        public decimal Avance { get; set; }
+        public string? MiembrosCsv { get; set; }
+        public decimal? Avance { get; set; }
     }
 
     public async Task<IReadOnlyList<ProyectoClienteItem>> ListarDeMiembroAsync(int idUsuario)
@@ -559,7 +579,7 @@ public class ProyectoRepositorio
                         end
                  from HistoriasUsuario h where h.IdProyecto = p.IdProyecto) as Avance,
                 (select s.Nombre from Sprints s where s.IdProyecto = p.IdProyecto and s.Estado = 'Activo' limit 1) as SprintActivoNombre,
-                group_concat(concat(upper(left(u.Nombre, 1)), upper(left(u.Apellidos, 1))) order by pm.FechaIngreso separator ',') as InicialesCsv
+                group_concat(concat(u.Nombre, ' ', u.Apellidos, ':', upper(left(u.Nombre, 1)), upper(left(u.Apellidos, 1))) order by pm.FechaIngreso separator '|') as MiembrosCsv
             from Proyectos p
             join ProyectoMiembros yo on yo.IdProyecto = p.IdProyecto and yo.IdUsuario = @IdUsuario
             left join ProyectoMiembros pm on pm.IdProyecto = p.IdProyecto
@@ -585,9 +605,7 @@ public class ProyectoRepositorio
             ScrumMaster = fila.ScrumMaster,
             Avance = fila.Avance,
             SprintActivoNombre = fila.SprintActivoNombre,
-            InicialesMiembros = string.IsNullOrWhiteSpace(fila.InicialesCsv)
-                ? new List<string>()
-                : fila.InicialesCsv.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList()
+            Miembros = MapearMiembrosCsv(fila.MiembrosCsv)
         }).ToList();
     }
 
@@ -650,7 +668,7 @@ public class ProyectoRepositorio
         };
     }
 
-    /// <summary>Fila cruda devuelta por Dapper para ListarDeMiembroAsync, antes de convertir InicialesCsv en una lista.</summary>
+    /// <summary>Fila cruda devuelta por Dapper para ListarDeMiembroAsync, antes de convertir MiembrosCsv en una lista.</summary>
     private class ProyectoClienteItemFila
     {
         public int IdProyecto { get; set; }
@@ -665,6 +683,6 @@ public class ProyectoRepositorio
         public string? ScrumMaster { get; set; }
         public decimal? Avance { get; set; }
         public string? SprintActivoNombre { get; set; }
-        public string? InicialesCsv { get; set; }
+        public string? MiembrosCsv { get; set; }
     }
 }

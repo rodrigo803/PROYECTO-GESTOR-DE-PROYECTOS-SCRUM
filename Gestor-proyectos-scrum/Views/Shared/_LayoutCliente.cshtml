@@ -1,3 +1,10 @@
+@inject Gestor_proyectos_scrum.Services.UsuarioActual UsuarioActual
+@{
+    var inicialesUsuario = UsuarioActual.Nombre.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+    var inicialesNavbar = inicialesUsuario.Length == 0
+        ? string.Empty
+        : char.ToUpperInvariant(inicialesUsuario[0][0]).ToString() + (inicialesUsuario.Length > 1 ? char.ToUpperInvariant(inicialesUsuario[^1][0]).ToString() : string.Empty);
+}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -57,10 +64,10 @@
                 <!-- Perfil Cliente -->
                 <div class="dropdown">
                     <button class="btn btn-dark d-flex align-items-center gap-2 py-1 px-2 rounded-3 border border-secondary border-opacity-25" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 32px; height: 32px; font-size: 0.85rem;">AG</div>
+                        <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 32px; height: 32px; font-size: 0.85rem;">@inicialesNavbar</div>
                         <div class="text-start d-none d-sm-block pe-1">
-                            <div class="text-white fw-semibold small lh-1">Ana Gómez</div>
-                            <small class="text-light text-opacity-50" style="font-size: 0.72rem;">Developer</small>
+                            <div class="text-white fw-semibold small lh-1">@UsuarioActual.Nombre</div>
+                            <small class="text-light text-opacity-50" style="font-size: 0.72rem;">@UsuarioActual.Rol</small>
                         </div>
                         <i class="bi bi-chevron-down text-light text-opacity-50 small"></i>
                     </button>

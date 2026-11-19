@@ -12,6 +12,8 @@ public class ProyectoListaItem
     public string? ProductOwner { get; set; }
     public string? ScrumMaster { get; set; }
     public int CantidadMiembros { get; set; }
-    public List<string> InicialesMiembros { get; set; } = new();
-    public decimal Avance { get; set; }
+    public List<MiembroAvatar> Miembros { get; set; } = new();
+
+    /// <summary>Null cuando no hay puntos estimados de los que calcular el avance ("Sin historias").</summary>
+    public decimal? Avance { get; set; }
 }

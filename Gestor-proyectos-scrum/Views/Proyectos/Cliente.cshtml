@@ -99,12 +99,16 @@ else
                         <div class="progress mb-3" style="height: 7px;">
                             <div class="progress-bar bg-primary" style="width: @(p.Avance.HasValue ? p.Avance.Value.ToString("0") : "0")%;"></div>
                         </div>
-                        @if (p.InicialesMiembros.Any())
+                        @if (p.Miembros.Any())
                         {
-                            <div class="d-flex mb-3">
-                                @foreach (var iniciales in p.InicialesMiembros)
+                            <div class="avatar-stack mb-3" title="@p.Miembros.Count miembro(s)">
+                                @foreach (var miembro in p.Miembros.Take(4))
                                 {
-                                    <div class="avatar-stack-item bg-primary">@iniciales</div>
+                                    <div class="avatar-stack-item bg-primary" title="@miembro.NombreCompleto">@miembro.Iniciales</div>
+                                }
+                                @if (p.Miembros.Count > 4)
+                                {
+                                    <div class="avatar-stack-item avatar-stack-more" title="@(p.Miembros.Count - 4) miembro(s) más">+@(p.Miembros.Count - 4)</div>
                                 }
                             </div>
                         }

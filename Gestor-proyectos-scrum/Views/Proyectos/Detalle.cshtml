@@ -12,6 +12,19 @@
         "Cerrado" => "project-status-cerrado",
         _ => "project-status-planificado"
     };
+
+    private static string Iniciales(string nombreCompleto)
+    {
+        var partes = nombreCompleto.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (partes.Length == 0)
+        {
+            return string.Empty;
+        }
+
+        var primera = char.ToUpperInvariant(partes[0][0]).ToString();
+        var ultima = partes.Length > 1 ? char.ToUpperInvariant(partes[^1][0]).ToString() : string.Empty;
+        return primera + ultima;
+    }
 }
 
 <!-- Encabezado de la Pantalla -->
@@ -103,6 +116,20 @@
                 <dt class="col-5 col-sm-4 text-muted">Miembros</dt>
                 <dd class="col-7 col-sm-8 text-dark">@Model.CantidadMiembros</dd>
             </dl>
+
+            @if (Model.Miembros.Any())
+            {
+                <div class="avatar-stack avatar-stack-sm mb-4" title="@Model.CantidadMiembros miembro(s)">
+                    @foreach (var miembro in Model.Miembros.Take(4))
+                    {
+                        <div class="avatar-stack-item bg-primary" title="@miembro.NombreCompleto">@Iniciales(miembro.NombreCompleto)</div>
+                    }
+                    @if (Model.Miembros.Count > 4)
+                    {
+                        <div class="avatar-stack-item avatar-stack-more" title="@(Model.Miembros.Count - 4) miembro(s) más">+@(Model.Miembros.Count - 4)</div>
+                    }
+                </div>
+            }
 
             <h6 class="fw-bold text-dark mb-2">Sprints del Proyecto</h6>
             @if (!Model.Sprints.Any())

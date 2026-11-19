@@ -129,8 +129,8 @@
             <h5 class="mb-0 fw-bold fs-6 text-dark">Listado de Proyectos</h5>
             <span class="badge bg-secondary-subtle text-secondary rounded-pill">@Model.Proyectos.Count registrados</span>
         </div>
-        <form method="get" asp-action="Index" class="d-flex align-items-center gap-2 flex-wrap">
-            <div class="input-group input-group-sm" style="max-width: 240px;">
+        <form method="get" asp-action="Index" class="d-flex align-items-center gap-2 flex-wrap flex-md-nowrap">
+            <div class="input-group input-group-sm flex-grow-1" style="min-width: 160px; max-width: 240px;">
                 <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
                 <input type="text" name="buscar" value="@Model.Buscar" class="form-control border-start-0" placeholder="Buscar proyecto..." aria-label="Buscar proyecto">
             </div>
@@ -147,7 +147,7 @@
                 <option value="avance" selected="@(Model.Orden == "avance")">Ordenar: Avance</option>
                 <option value="estado" selected="@(Model.Orden == "estado")">Ordenar: Estado</option>
             </select>
-            <button type="submit" class="btn btn-sm btn-outline-secondary" title="Filtrar" aria-label="Filtrar">
+            <button type="submit" class="btn btn-sm btn-outline-secondary flex-shrink-0" title="Filtrar" aria-label="Filtrar">
                 <i class="bi bi-funnel"></i>
             </button>
         </form>
@@ -216,9 +216,13 @@
                             @if (p.CantidadMiembros > 0)
                             {
                                 <div class="avatar-stack avatar-stack-sm" title="@p.CantidadMiembros miembro(s)">
-                                    @foreach (var inicial in p.InicialesMiembros)
+                                    @foreach (var miembro in p.Miembros.Take(4))
                                     {
-                                        <div class="avatar-stack-item bg-primary">@inicial</div>
+                                        <div class="avatar-stack-item bg-primary" title="@miembro.NombreCompleto">@miembro.Iniciales</div>
+                                    }
+                                    @if (p.Miembros.Count > 4)
+                                    {
+                                        <div class="avatar-stack-item avatar-stack-more" title="@(p.Miembros.Count - 4) miembro(s) más">+@(p.Miembros.Count - 4)</div>
                                     }
                                 </div>
                             }
@@ -228,10 +232,17 @@
                             }
                         </td>
                         <td>
-                            <div class="small fw-semibold text-dark mb-1">@p.Avance.ToString("0")%</div>
-                            <div class="progress" style="height: 6px;">
-                                <div class="progress-bar @(p.Avance >= 100 ? "bg-success" : "bg-primary")" role="progressbar" style="width: @(p.Avance.ToString("0"))%;" aria-valuenow="@p.Avance.ToString("0")" aria-valuemin="0" aria-valuemax="100"></div>
-                            </div>
+                            @if (p.Avance.HasValue)
+                            {
+                                <div class="small fw-semibold text-dark mb-1">@p.Avance.Value.ToString("0")%</div>
+                                <div class="progress" style="height: 6px;">
+                                    <div class="progress-bar @(p.Avance >= 100 ? "bg-success" : "bg-primary")" role="progressbar" style="width: @(p.Avance.Value.ToString("0"))%;" aria-valuenow="@p.Avance.Value.ToString("0")" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                            }
+                            else
+                            {
+                                <span class="small text-muted">Sin historias</span>
+                            }
                         </td>
                         <td>
                             <span class="project-status-badge @ClaseEstado(p.Estado)"><span class="status-dot"></span>@p.Estado</span>
@@ -241,11 +252,11 @@
                                 <a asp-action="Detalle" asp-route-id="@p.IdProyecto" class="btn btn-outline-primary" title="Ver detalle" aria-label="Ver detalle del proyecto">
                                     <i class="bi bi-eye"></i>
                                 </a>
-                                <a asp-action="Editar" asp-route-id="@p.IdProyecto" class="btn btn-outline-secondary" title="Editar proyecto" aria-label="Editar proyecto">
-                                    <i class="bi bi-pencil"></i>
-                                </a>
                                 @if (p.Estado != "Cerrado")
                                 {
+                                    <a asp-action="Editar" asp-route-id="@p.IdProyecto" class="btn btn-outline-secondary" title="Editar proyecto" aria-label="Editar proyecto">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
                                     <a asp-action="Cerrar" asp-route-id="@p.IdProyecto" class="btn btn-outline-danger" title="Cerrar proyecto" aria-label="Cerrar proyecto">
                                         <i class="bi bi-slash-circle"></i>
                                     </a>
@@ -282,23 +293,32 @@
                 </div>
                 @if (p.CantidadMiembros > 0)
                 {
-                    <div class="avatar-stack avatar-stack-sm mb-2">
-                        @foreach (var inicial in p.InicialesMiembros)
+                    <div class="avatar-stack avatar-stack-sm mb-2" title="@p.CantidadMiembros miembro(s)">
+                        @foreach (var miembro in p.Miembros.Take(4))
                         {
-                            <div class="avatar-stack-item bg-primary">@inicial</div>
+                            <div class="avatar-stack-item bg-primary" title="@miembro.NombreCompleto">@miembro.Iniciales</div>
+                        }
+                        @if (p.Miembros.Count > 4)
+                        {
+                            <div class="avatar-stack-item avatar-stack-more" title="@(p.Miembros.Count - 4) miembro(s) más">+@(p.Miembros.Count - 4)</div>
                         }
                     </div>
                 }
-                <div class="progress mb-1" style="height: 6px;">
-                    <div class="progress-bar @(p.Avance >= 100 ? "bg-success" : "bg-primary")" style="width: @(p.Avance.ToString("0"))%;"></div>
-                </div>
+                @if (p.Avance.HasValue)
+                {
+                    <div class="progress mb-1" style="height: 6px;">
+                        <div class="progress-bar @(p.Avance >= 100 ? "bg-success" : "bg-primary")" style="width: @(p.Avance.Value.ToString("0"))%;"></div>
+                    </div>
+                }
                 <div class="d-flex justify-content-between align-items-center">
-                    <small class="text-muted">Avance: @p.Avance.ToString("0")%</small>
+                    <small class="text-muted">
+                        Avance: @(p.Avance.HasValue ? p.Avance.Value.ToString("0") + "%" : "Sin historias")
+                    </small>
                     <div class="btn-group btn-group-sm">
                         <a asp-action="Detalle" asp-route-id="@p.IdProyecto" class="btn btn-outline-primary" aria-label="Ver detalle del proyecto"><i class="bi bi-eye"></i></a>
-                        <a asp-action="Editar" asp-route-id="@p.IdProyecto" class="btn btn-outline-secondary" aria-label="Editar proyecto"><i class="bi bi-pencil"></i></a>
                         @if (p.Estado != "Cerrado")
                         {
+                            <a asp-action="Editar" asp-route-id="@p.IdProyecto" class="btn btn-outline-secondary" aria-label="Editar proyecto"><i class="bi bi-pencil"></i></a>
                             <a asp-action="Cerrar" asp-route-id="@p.IdProyecto" class="btn btn-outline-danger" aria-label="Cerrar proyecto"><i class="bi bi-slash-circle"></i></a>
                         }
                     </div>

@@ -23,5 +23,5 @@ public class ProyectoClienteItem
     /// <summary>Nombre del sprint Activo del proyecto, o null si no tiene ninguno.</summary>
     public string? SprintActivoNombre { get; set; }
 
-    public List<string> InicialesMiembros { get; set; } = new();
+    public List<MiembroAvatar> Miembros { get; set; } = new();
 }
