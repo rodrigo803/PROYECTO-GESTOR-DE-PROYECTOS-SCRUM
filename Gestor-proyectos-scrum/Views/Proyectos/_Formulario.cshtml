@@ -1,0 +1,135 @@
+@model Gestor_proyectos_scrum.Models.ProyectoFormViewModel
+
+<input type="hidden" asp-for="IdProyecto" />
+<input type="hidden" asp-for="Codigo" />
+
+<div asp-validation-summary="ModelOnly" class="alert alert-danger" style="display:@(ViewData.ModelState.IsValid ? "none" : "block")"></div>
+
+<div class="row g-3">
+
+    @if (!string.IsNullOrEmpty(Model.Codigo))
+    {
+        <div class="col-12">
+            <span class="badge bg-secondary-subtle text-secondary">Código: @Model.Codigo</span>
+        </div>
+    }
+
+    <!-- Nombre -->
+    <div class="col-12 col-md-7">
+        <label asp-for="Nombre" class="form-label fw-semibold text-dark">
+            Nombre del Proyecto <span class="text-danger">*</span>
+        </label>
+        <div class="input-group">
+            <span class="input-group-text bg-light"><i class="bi bi-kanban text-muted"></i></span>
+            <input asp-for="Nombre" class="form-control" placeholder="ej. Plataforma de Pagos B2B" />
+        </div>
+        <span asp-validation-for="Nombre" class="text-danger small"></span>
+    </div>
+
+    <!-- Estado -->
+    <div class="col-12 col-md-5">
+        <label asp-for="Estado" class="form-label fw-semibold text-dark">Estado</label>
+        <select asp-for="Estado" class="form-select">
+            <option value="Planificado">Planificado (Recomendado)</option>
+            <option value="Activo">Activo Inmediatamente</option>
+            @if (Model.IdProyecto.HasValue)
+            {
+                <option value="En pausa">En pausa</option>
+            }
+        </select>
+        <span asp-validation-for="Estado" class="text-danger small"></span>
+    </div>
+
+    <!-- Descripción -->
+    <div class="col-12">
+        <label asp-for="Descripcion" class="form-label fw-semibold text-dark">
+            Descripción <span class="text-danger">*</span>
+        </label>
+        <textarea asp-for="Descripcion" class="form-control" rows="2" placeholder="Describe el alcance y objetivo general del proyecto..."></textarea>
+        <span asp-validation-for="Descripcion" class="text-danger small"></span>
+    </div>
+
+    <!-- Fecha inicio -->
+    <div class="col-12 col-md-6">
+        <label asp-for="FechaInicio" class="form-label fw-semibold text-dark">
+            Fecha de Inicio <span class="text-danger">*</span>
+        </label>
+        <div class="input-group">
+            <span class="input-group-text bg-light"><i class="bi bi-calendar-check text-muted"></i></span>
+            <input asp-for="FechaInicio" type="date" class="form-control" />
+        </div>
+        <span asp-validation-for="FechaInicio" class="text-danger small"></span>
+    </div>
+
+    <!-- Fecha fin -->
+    <div class="col-12 col-md-6">
+        <label asp-for="FechaFin" class="form-label fw-semibold text-dark">
+            Fecha de Finalización <span class="text-danger">*</span>
+        </label>
+        <div class="input-group">
+            <span class="input-group-text bg-light"><i class="bi bi-calendar-x text-muted"></i></span>
+            <input asp-for="FechaFin" type="date" class="form-control" />
+        </div>
+        <span asp-validation-for="FechaFin" class="text-danger small"></span>
+    </div>
+
+    <!-- Product Owner -->
+    <div class="col-12 col-md-6">
+        <label asp-for="IdProductOwner" class="form-label fw-semibold text-dark">
+            Product Owner <span class="text-danger">*</span>
+        </label>
+        <select asp-for="IdProductOwner" class="form-select">
+            <option value="">Selecciona un Product Owner</option>
+            @foreach (var usuario in Model.Usuarios)
+            {
+                <option value="@usuario.IdUsuario">@usuario.NombreCompleto</option>
+            }
+        </select>
+        <span asp-validation-for="IdProductOwner" class="text-danger small"></span>
+        <div class="form-text">Obligatorio según la regla de negocio del proyecto.</div>
+    </div>
+
+    <!-- Scrum Master -->
+    <div class="col-12 col-md-6">
+        <label asp-for="IdScrumMaster" class="form-label fw-semibold text-dark">Scrum Master</label>
+        <select asp-for="IdScrumMaster" class="form-select">
+            <option value="">Selecciona un Scrum Master (opcional)</option>
+            @foreach (var usuario in Model.Usuarios)
+            {
+                <option value="@usuario.IdUsuario">@usuario.NombreCompleto</option>
+            }
+        </select>
+        <span asp-validation-for="IdScrumMaster" class="text-danger small"></span>
+        <div class="form-text">Obligatorio antes de pasar el proyecto a "Activo".</div>
+    </div>
+
+    <!-- Miembros del equipo -->
+    <div class="col-12 mt-2">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+            <label class="form-label fw-semibold text-dark mb-0">
+                <i class="bi bi-people text-primary me-1"></i> Miembros del Equipo (Developers)
+            </label>
+        </div>
+        <div class="p-3 bg-light rounded-3 border" style="max-height: 200px; overflow-y: auto;">
+            @foreach (var usuario in Model.Usuarios)
+            {
+                <div class="form-check hu-select-item d-flex align-items-center justify-content-between">
+                    <div>
+                        <input class="form-check-input me-2" type="checkbox" name="IdsDevelopers" value="@usuario.IdUsuario"
+                               id="checkDev@(usuario.IdUsuario)" checked="@(Model.IdsDevelopers.Contains(usuario.IdUsuario))" />
+                        <label class="form-check-label" for="checkDev@(usuario.IdUsuario)">@usuario.NombreCompleto</label>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+</div>
+
+<div class="d-flex justify-content-end gap-2 mt-4">
+    <a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a>
+    <button type="submit" class="btn btn-primary d-flex align-items-center gap-2">
+        <i class="bi bi-save"></i>
+        <span>Guardar Proyecto</span>
+    </button>
+</div>
