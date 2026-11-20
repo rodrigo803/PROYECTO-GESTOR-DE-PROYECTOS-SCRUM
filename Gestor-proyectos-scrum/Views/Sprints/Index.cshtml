@@ -1,0 +1,767 @@
+@model Gestor_proyectos_scrum.Models.SprintsIndexViewModel
+@{
+    ViewData["Title"] = "Gestión de Sprints";
+    var puedeGestionar = Model.PerfilActual.PuedeGestionarSprints;
+    var proyectosAbiertos = Model.Proyectos.Where(p => !string.Equals(p.Estado, "Cerrado", StringComparison.OrdinalIgnoreCase)).ToList();
+    var returnUrl = Context.Request.Path + Context.Request.QueryString;
+    var hayFiltros = Model.IdProyectoFiltro.HasValue || !string.IsNullOrWhiteSpace(Model.EstadoFiltro) || !string.IsNullOrWhiteSpace(Model.Buscar);
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/modulos-rodrigo.css" asp-append-version="true" />
+}
+
+@await Html.PartialAsync("_BarraPerfilPruebas")
+
+<!-- Encabezado de la Pantalla (prototipo/sprints.html) -->
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-1 small text-muted">
+                <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-decoration-none text-muted">Inicio</a></li>
+                <li class="breadcrumb-item active text-primary fw-medium" aria-current="page">Gestión de Sprints</li>
+            </ol>
+        </nav>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+            <h1 class="page-title mb-0">Gestión de Sprints</h1>
+            <span class="badge bg-primary-subtle text-primary border border-primary-subtle">HU-05</span>
+        </div>
+        <p class="page-subtitle mb-0">Planifica, administra y supervisa los ciclos de iteración del equipo de desarrollo.</p>
+    </div>
+
+    @if (puedeGestionar)
+    {
+        <div>
+            <button type="button" class="btn btn-primary d-flex align-items-center gap-2 py-2 px-3 shadow-sm" data-bs-toggle="modal" data-bs-target="#modalCrearSprint">
+                <i class="bi bi-plus-circle-fill fs-5"></i>
+                <span class="fw-medium">Crear Nuevo Sprint</span>
+            </button>
+        </div>
+    }
+</div>
+
+<!-- 4 Tarjetas de Resumen / Métricas Rápidas (prototipo/sprints.html) -->
+<div class="row g-3 mb-4">
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card-custom p-3">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <span class="text-muted small fw-medium">Sprints Totales</span>
+                    <h3 class="fw-bold text-dark mt-1 mb-0">@Model.TotalSprints</h3>
+                </div>
+                <div class="p-3 bg-primary-subtle text-primary rounded-3">
+                    <i class="bi bi-calendar3-range fs-4"></i>
+                </div>
+            </div>
+            <div class="mt-2 small text-muted">
+                <i class="bi bi-check2 text-success me-1"></i> @Model.SprintsActivosCount activo(s) actualmente
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card-custom p-3">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <span class="text-muted small fw-medium">Sprint Activo</span>
+                    <h3 class="fw-bold text-success mt-1 mb-0">@Model.NombreSprintActivoDestacado</h3>
+                </div>
+                <div class="p-3 bg-success-subtle text-success rounded-3">
+                    <i class="bi bi-play-circle-fill fs-4"></i>
+                </div>
+            </div>
+            <div class="mt-2 small text-muted">
+                @Model.SubtituloSprintActivo
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card-custom p-3">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <span class="text-muted small fw-medium">Puntos Comprometidos</span>
+                    <h3 class="fw-bold text-dark mt-1 mb-0">@Model.TotalPuntosComprometidos pts</h3>
+                </div>
+                <div class="p-3 bg-info-subtle text-info rounded-3">
+                    <i class="bi bi-lightning-charge-fill fs-4"></i>
+                </div>
+            </div>
+            <div class="mt-2 small text-muted">
+                Capacidad: <strong>@Model.TotalHorasEstimadas.ToString("0.#") hrs estimadas</strong>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card-custom p-3">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <span class="text-muted small fw-medium">Avance Ponderado</span>
+                    <h3 class="fw-bold text-dark mt-1 mb-0">@Model.AvancePonderadoPromedio.ToString("0.#")%</h3>
+                </div>
+                <div class="p-3 bg-warning-subtle text-warning rounded-3">
+                    <i class="bi bi-speedometer2 fs-4"></i>
+                </div>
+            </div>
+            <div class="mt-2 small text-muted">
+                Calculado por peso de tareas
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Panel Principal: Tabla de Sprints Existentes (prototipo/sprints.html) -->
+<div class="card-custom overflow-hidden">
+    <!-- Barra de Filtros y Búsqueda -->
+    <div class="p-3 border-bottom d-flex flex-column flex-xl-row align-items-xl-center justify-content-between gap-3 bg-light bg-opacity-50">
+        <div class="d-flex align-items-center gap-2">
+            <h5 class="mb-0 fw-bold fs-6 text-dark">Listado de Sprints</h5>
+            <span class="badge bg-secondary-subtle text-secondary rounded-pill">@Model.Sprints.Count registrados</span>
+        </div>
+
+        <form asp-action="Index" method="get" class="d-flex flex-wrap align-items-center gap-2 m-0" novalidate>
+            <div class="input-group input-group-sm filter-input-scrum" style="max-width: 220px;">
+                <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+                <input type="text" name="buscar" value="@Model.Buscar" class="form-control border-start-0" placeholder="Filtrar sprints..." aria-label="Buscar sprint" />
+            </div>
+
+            <select name="idProyecto" class="form-select form-select-sm filter-select-scrum" style="width: auto;" onchange="this.form.submit()">
+                <option value="">Todos los proyectos</option>
+                @foreach (var p in Model.Proyectos)
+                {
+                    <option value="@p.IdProyecto" selected="@(Model.IdProyectoFiltro == p.IdProyecto ? "selected" : null)">
+                        @p.Codigo — @p.Nombre
+                    </option>
+                }
+            </select>
+
+            <select name="estado" class="form-select form-select-sm filter-select-scrum" style="width: auto;" onchange="this.form.submit()">
+                <option value="">Todos los estados</option>
+                <option value="Activo" selected="@(Model.EstadoFiltro == "Activo" ? "selected" : null)">Activo</option>
+                <option value="Planificado" selected="@(Model.EstadoFiltro == "Planificado" ? "selected" : null)">Planificado</option>
+                <option value="Cerrado" selected="@(Model.EstadoFiltro == "Cerrado" ? "selected" : null)">Cerrado</option>
+            </select>
+
+            <button type="submit" class="btn btn-sm btn-primary px-3">Filtrar</button>
+            @if (hayFiltros)
+            {
+                <a asp-action="Index" class="btn btn-sm btn-outline-secondary">Limpiar</a>
+            }
+        </form>
+    </div>
+
+    <!-- Tabla Responsive con las 6 columnas exactas del prototipo -->
+    <div class="table-responsive">
+        <table class="table table-custom table-hover">
+            <thead>
+                <tr>
+                    <th scope="col" style="min-width: 180px;">Nombre del Sprint</th>
+                    <th scope="col" style="min-width: 190px;">Fechas (Inicio a Fin)</th>
+                    <th scope="col" style="min-width: 280px;">Objetivo del Sprint</th>
+                    <th scope="col" style="min-width: 165px;">Capacidad</th>
+                    <th scope="col" style="min-width: 120px;">Estado</th>
+                    <th scope="col" class="text-end" style="min-width: 150px;">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Sprints.Count == 0)
+                {
+                    <tr>
+                        <td colspan="6" class="text-center py-5 text-muted">
+                            <i class="bi bi-inbox fs-2 d-block mb-2"></i>
+                            <div class="fw-semibold text-dark mb-1">No se encontraron Sprints</div>
+                            <p class="small mb-2">No existen iteraciones que coincidan con los filtros seleccionados.</p>
+                            @if (hayFiltros)
+                            {
+                                <a asp-action="Index" class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-arrow-counterclockwise me-1"></i>Limpiar filtros
+                                </a>
+                            }
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var s in Model.Sprints)
+                    {
+                        var pct = (int)Math.Clamp(Math.Round(s.AvancePonderado), 0, 100);
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    @if (s.Estado == "Activo")
+                                    {
+                                        <div class="p-2 rounded bg-primary-subtle text-primary">
+                                            <i class="bi bi-play-fill fs-5"></i>
+                                        </div>
+                                    }
+                                    else if (s.Estado == "Planificado")
+                                    {
+                                        <div class="p-2 rounded bg-warning-subtle text-warning">
+                                            <i class="bi bi-clock-history fs-5"></i>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="p-2 rounded bg-secondary-subtle text-secondary">
+                                            <i class="bi bi-check2-all fs-5"></i>
+                                        </div>
+                                    }
+                                    <div>
+                                        <a asp-action="Details" asp-route-id="@s.IdSprint" class="fw-bold text-dark text-decoration-none">
+                                            @s.Nombre
+                                        </a>
+                                        <div class="small text-muted">@s.ProyectoCodigo · @s.ProyectoNombre</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="d-flex flex-column small">
+                                    <span class="text-dark fw-medium">
+                                        <i class="bi bi-calendar-event me-1 text-muted"></i>
+                                        @s.FechaInicio.ToString("dd MMM yyyy") &mdash; @s.FechaFin.ToString("dd MMM yyyy")
+                                    </span>
+                                    <span class="text-muted">Duración: @s.DuracionDias días (@s.TotalHistorias HUs)</span>
+                                </div>
+                            </td>
+                            <td>
+                                <p class="small text-muted mb-0" style="max-width: 320px;">
+                                    @s.Objetivo
+                                </p>
+                            </td>
+                            <td>
+                                <div class="small">
+                                    <div class="fw-semibold text-dark">@s.PuntosComprometidos / @s.CapacidadPuntos Story Points</div>
+                                    <span class="text-muted">@s.HorasReales.ToString("0.#") / @s.HorasEstimadas.ToString("0.#") horas</span>
+                                    <div class="d-flex align-items-center gap-2 mt-1">
+                                        <div class="progress-thin flex-grow-1">
+                                            <div class="progress-bar @(pct == 100 ? "bg-success" : "bg-primary")" role="progressbar" style="width: @(pct)%; height: 100%;"></div>
+                                        </div>
+                                        <span class="fw-bold text-primary" style="font-size: 0.75rem;">@s.AvancePonderado.ToString("0.#")%</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                @if (s.Estado == "Activo")
+                                {
+                                    <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1 fs-7">
+                                        <i class="bi bi-record-fill me-1"></i> Activo
+                                    </span>
+                                }
+                                else if (s.Estado == "Planificado")
+                                {
+                                    <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle px-2 py-1 fs-7">
+                                        <i class="bi bi-hourglass-split me-1"></i> Planificado
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle px-2 py-1 fs-7">
+                                        <i class="bi bi-archive-fill me-1"></i> Cerrado
+                                    </span>
+                                }
+                            </td>
+                            <td class="text-end">
+                                <div class="btn-group btn-group-sm">
+                                    <a asp-controller="Tareas" asp-action="Index" asp-route-idSprint="@s.IdSprint" class="btn btn-outline-primary" title="Ver Sprint Backlog">
+                                        <i class="bi bi-card-checklist me-1"></i> Backlog
+                                    </a>
+                                    <button type="button" class="btn btn-outline-secondary" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="bi bi-three-dots-vertical"></i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                                        <li>
+                                            <a class="dropdown-item small" asp-action="Details" asp-route-id="@s.IdSprint">
+                                                <i class="bi bi-eye me-2 text-muted"></i>Ver Detalle del Sprint
+                                            </a>
+                                        </li>
+                                        @if (puedeGestionar && s.Estado != "Cerrado")
+                                        {
+                                            <li>
+                                                <button type="button"
+                                                        class="dropdown-item small"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#modalEditarSprint"
+                                                        data-id="@s.IdSprint"
+                                                        data-proyecto="@s.ProyectoCodigo — @s.ProyectoNombre (Vigencia: @s.ProyectoFechaInicio.ToString("dd/MM/yyyy") al @s.ProyectoFechaFin.ToString("dd/MM/yyyy"))"
+                                                        data-proy-inicio="@s.ProyectoFechaInicio.ToString("yyyy-MM-dd")"
+                                                        data-proy-fin="@s.ProyectoFechaFin.ToString("yyyy-MM-dd")"
+                                                        data-nombre="@s.Nombre"
+                                                        data-objetivo="@s.Objetivo"
+                                                        data-inicio="@s.FechaInicio.ToString("yyyy-MM-dd")"
+                                                        data-fin="@s.FechaFin.ToString("yyyy-MM-dd")"
+                                                        data-capacidad="@s.CapacidadPuntos"
+                                                        onclick="precargarModalEditarSprint(this)">
+                                                    <i class="bi bi-pencil me-2 text-muted"></i>Editar Sprint
+                                                </button>
+                                            </li>
+                                        }
+                                        @if (puedeGestionar && s.Estado == "Planificado")
+                                        {
+                                            <li>
+                                                <form asp-action="Iniciar" method="post" novalidate>
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="id" value="@s.IdSprint" />
+                                                    <input type="hidden" name="returnUrl" value="@returnUrl" />
+                                                    <button type="submit" class="dropdown-item small text-success">
+                                                        <i class="bi bi-play-circle me-2"></i>Iniciar Sprint
+                                                    </button>
+                                                </form>
+                                            </li>
+                                        }
+                                        @if (puedeGestionar && s.Estado == "Activo")
+                                        {
+                                            <li><hr class="dropdown-divider"></li>
+                                            <li>
+                                                <button type="button"
+                                                        class="dropdown-item small text-danger"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#modalCerrarSprint"
+                                                        data-id="@s.IdSprint"
+                                                        data-nombre="@s.Nombre (@s.ProyectoCodigo)"
+                                                        onclick="precargarModalCerrarSprint(this)">
+                                                    <i class="bi bi-slash-circle me-2"></i>Cerrar Sprint
+                                                </button>
+                                            </li>
+                                        }
+                                        @if (puedeGestionar && s.Estado == "Planificado" && s.TotalHistorias == 0)
+                                        {
+                                            <li><hr class="dropdown-divider"></li>
+                                            <li>
+                                                <button type="button"
+                                                        class="dropdown-item small text-danger"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#modalConfirmarEliminarSprint"
+                                                        data-id="@s.IdSprint"
+                                                        data-nombre="@s.Nombre (@s.ProyectoCodigo)"
+                                                        onclick="prepararModalEliminarSprint(this)">
+                                                    <i class="bi bi-trash me-2"></i>Eliminar Sprint
+                                                </button>
+                                            </li>
+                                        }
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="p-3 border-top d-flex align-items-center justify-content-between small text-muted">
+        <span>Mostrando @Model.Sprints.Count de @Model.TotalSprints Sprints registrados</span>
+    </div>
+</div>
+
+@if (puedeGestionar)
+{
+    <!-- ========================================================= -->
+    <!-- MODAL OSCURO: CREAR NUEVO SPRINT (prototipo/sprints.html) -->
+    <!-- ========================================================= -->
+    <div class="modal fade" id="modalCrearSprint" tabindex="-1" aria-labelledby="modalCrearSprintLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header bg-dark text-white px-4 py-3">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="bg-primary p-2 rounded text-white">
+                            <i class="bi bi-plus-circle fs-5"></i>
+                        </div>
+                        <div>
+                            <h5 class="modal-title fw-bold fs-5 mb-0" id="modalCrearSprintLabel">Crear Nuevo Sprint</h5>
+                            <small class="text-light text-opacity-75">Configura el ciclo de iteración dentro de la vigencia del proyecto</small>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+
+                <form asp-action="Create" method="post" class="form-validar-scrum" data-scrum-form="sprint" novalidate>
+                    @Html.AntiForgeryToken()
+                    <div class="modal-body p-4">
+                        <div class="row g-3">
+                            <!-- Proyecto -->
+                            <div class="col-12">
+                                <label class="form-label fw-semibold text-dark">Proyecto <span class="text-danger">*</span></label>
+                                <select name="IdProyecto"
+                                        id="crearSprintIdProyecto"
+                                        class="form-select"
+                                        required
+                                        data-msg-required="Seleccione el proyecto al que pertenece el Sprint."
+                                        onchange="ajustarFechasProyectoModal()">
+                                    @foreach (var p in proyectosAbiertos)
+                                    {
+                                        <option value="@p.IdProyecto"
+                                                data-inicio="@p.FechaInicio.ToString("yyyy-MM-dd")"
+                                                data-fin="@p.FechaFin.ToString("yyyy-MM-dd")"
+                                                selected="@(Model.IdProyectoFiltro == p.IdProyecto ? "selected" : null)">
+                                            @p.Codigo — @p.Nombre (Vigencia: @p.FechaInicio.ToString("dd/MM/yyyy") al @p.FechaFin.ToString("dd/MM/yyyy"))
+                                        </option>
+                                    }
+                                </select>
+                            </div>
+
+                            <!-- 1. Nombre del Sprint -->
+                            <div class="col-12">
+                                <label for="sprintNombre" class="form-label fw-semibold text-dark">
+                                    Nombre del Sprint <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light"><i class="bi bi-tag text-muted"></i></span>
+                                    <input type="text"
+                                           class="form-control"
+                                           id="sprintNombre"
+                                           name="Nombre"
+                                           maxlength="60"
+                                           placeholder="ej. Sprint 3 - Pasarela de Pagos Stripe"
+                                           required
+                                           data-msg-required="El nombre del Sprint es obligatorio." />
+                                </div>
+                            </div>
+
+                            <!-- 2. Fechas de Inicio y Finalización -->
+                            <div class="col-12 col-md-6">
+                                <label for="sprintFechaInicio" class="form-label fw-semibold text-dark">
+                                    Fecha de Inicio <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light"><i class="bi bi-calendar-check text-muted"></i></span>
+                                    <input type="date"
+                                           class="form-control"
+                                           id="sprintFechaInicio"
+                                           name="FechaInicio"
+                                           value="@DateTime.Today.ToString("yyyy-MM-dd")"
+                                           required
+                                           data-msg-required="La fecha de inicio del Sprint es obligatoria." />
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                <label for="sprintFechaFin" class="form-label fw-semibold text-dark">
+                                    Fecha de Finalización <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light"><i class="bi bi-calendar-x text-muted"></i></span>
+                                    <input type="date"
+                                           class="form-control"
+                                           id="sprintFechaFin"
+                                           name="FechaFin"
+                                           value="@DateTime.Today.AddDays(14).ToString("yyyy-MM-dd")"
+                                           required
+                                           data-msg-required="La fecha de finalización del Sprint es obligatoria." />
+                                </div>
+                            </div>
+
+                            <!-- 3. Capacidad en Puntos de Historia -->
+                            <div class="col-12 col-md-6">
+                                <label for="sprintCapacidad" class="form-label fw-semibold text-dark">
+                                    Capacidad Estimada (Story Points) <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light"><i class="bi bi-speedometer text-muted"></i></span>
+                                    <input type="number"
+                                           class="form-control"
+                                           id="sprintCapacidad"
+                                           name="CapacidadPuntos"
+                                           value="35"
+                                           min="1"
+                                           max="500"
+                                           required
+                                           data-msg-required="La capacidad en puntos es obligatoria."
+                                           data-msg-min="La capacidad estimada debe ser mayor a 0." />
+                                    <span class="input-group-text bg-light text-muted small">Puntos</span>
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                <label class="form-label fw-semibold text-dark">Estado Inicial</label>
+                                <input type="text" class="form-control bg-light" value="Planificado (estado inicial)" readonly />
+                            </div>
+
+                            <!-- 4. Objetivo del Sprint -->
+                            <div class="col-12">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <label for="sprintObjetivo" class="form-label fw-semibold text-dark mb-1">
+                                        Objetivo del Sprint (Sprint Goal) <span class="text-danger">*</span>
+                                    </label>
+                                    <span id="contadorCrearObjetivo" class="char-counter">0 / 300</span>
+                                </div>
+                                <textarea class="form-control"
+                                          id="sprintObjetivo"
+                                          name="Objetivo"
+                                          rows="2"
+                                          maxlength="300"
+                                          data-char-counter="#contadorCrearObjetivo"
+                                          placeholder="Describe claramente el valor de negocio o incremento que entregará este sprint..."
+                                          required
+                                          data-msg-required="El objetivo del Sprint es obligatorio."></textarea>
+                                <div class="form-text">Define una meta clara acordada con el Product Owner y el equipo.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer bg-light px-4 py-3">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary d-flex align-items-center gap-2">
+                            <i class="bi bi-save"></i>
+                            <span>Guardar Sprint</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODAL OSCURO: EDITAR SPRINT                               -->
+    <!-- ========================================================= -->
+    <div class="modal fade" id="modalEditarSprint" tabindex="-1" aria-labelledby="modalEditarSprintLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header bg-dark text-white px-4 py-3">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="bg-primary p-2 rounded text-white">
+                            <i class="bi bi-pencil-square fs-5"></i>
+                        </div>
+                        <div>
+                            <h5 class="modal-title fw-bold fs-5 mb-0" id="modalEditarSprintLabel">Editar Sprint</h5>
+                            <small class="text-light text-opacity-75" id="editSprintProyectoSubtitulo">Proyecto</small>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+
+                <form asp-action="Edit" method="post" id="formModalEditarSprint" class="form-validar-scrum" data-scrum-form="sprint" novalidate>
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="IdSprint" id="editIdSprint" />
+
+                    <div class="modal-body p-4">
+                        <div class="row g-3">
+                            <div class="col-12 col-md-8">
+                                <label class="form-label fw-semibold text-dark">Nombre del Sprint <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light"><i class="bi bi-tag text-muted"></i></span>
+                                    <input type="text"
+                                           name="Nombre"
+                                           id="editSprintNombre"
+                                           class="form-control"
+                                           maxlength="60"
+                                           required
+                                           data-msg-required="El nombre del Sprint es obligatorio." />
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-md-4">
+                                <label class="form-label fw-semibold text-dark">Capacidad (Story Points) <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light"><i class="bi bi-speedometer text-muted"></i></span>
+                                    <input type="number"
+                                           name="CapacidadPuntos"
+                                           id="editSprintCapacidad"
+                                           class="form-control"
+                                           min="1"
+                                           max="500"
+                                           required
+                                           data-msg-required="La capacidad en puntos es obligatoria."
+                                           data-msg-min="La capacidad estimada debe ser mayor a 0." />
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                <label class="form-label fw-semibold text-dark">Fecha de Inicio <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light"><i class="bi bi-calendar-check text-muted"></i></span>
+                                    <input type="date"
+                                           name="FechaInicio"
+                                           id="editSprintFechaInicio"
+                                           class="form-control"
+                                           required
+                                           data-msg-required="La fecha de inicio es obligatoria." />
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                <label class="form-label fw-semibold text-dark">Fecha de Finalización <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light"><i class="bi bi-calendar-x text-muted"></i></span>
+                                    <input type="date"
+                                           name="FechaFin"
+                                           id="editSprintFechaFin"
+                                           class="form-control"
+                                           required
+                                           data-msg-required="La fecha de finalización es obligatoria." />
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <label class="form-label fw-semibold text-dark mb-1">Objetivo del Sprint <span class="text-danger">*</span></label>
+                                    <span id="contadorEditarObjetivo" class="char-counter">0 / 300</span>
+                                </div>
+                                <textarea name="Objetivo"
+                                          id="editSprintObjetivo"
+                                          rows="2"
+                                          maxlength="300"
+                                          data-char-counter="#contadorEditarObjetivo"
+                                          class="form-control"
+                                          required
+                                          data-msg-required="El objetivo del Sprint es obligatorio."></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer bg-light px-4 py-3">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary d-flex align-items-center gap-2">
+                            <i class="bi bi-save"></i>
+                            <span>Guardar Cambios</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODAL OSCURO: CERRAR SPRINT                               -->
+    <!-- ========================================================= -->
+    <div class="modal fade" id="modalCerrarSprint" tabindex="-1" aria-labelledby="modalCerrarSprintLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header bg-dark text-white px-4 py-3">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="bg-danger p-2 rounded text-white">
+                            <i class="bi bi-slash-circle fs-5"></i>
+                        </div>
+                        <div>
+                            <h5 class="modal-title fw-bold fs-5 mb-0" id="modalCerrarSprintLabel">Cerrar Sprint</h5>
+                            <small class="text-light text-opacity-75" id="cerrarSprintNombreSubtitulo">Cierre formal de iteración</small>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+
+                <form asp-action="Cerrar" method="post" novalidate>
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" id="cerrarIdSprint" />
+                    <input type="hidden" name="returnUrl" value="@returnUrl" />
+
+                    <div class="modal-body p-4">
+                        <p class="small text-muted mb-3">
+                            Las historias cuyas tareas estén 100% en estado <strong>Finalizado</strong> se marcarán automáticamente como <strong>Terminada</strong>.
+                            Las historias incompletas regresarán al Product Backlog en estado <strong>Lista</strong> con el resultado seleccionado:
+                        </p>
+                        <div class="mb-2">
+                            <label class="form-label fw-semibold text-dark small">Destino para historias incompletas <span class="text-danger">*</span></label>
+                            <select name="destinoIncompletas" class="form-select">
+                                <option value="Devuelta">Devuelta al Product Backlog (Estado = Lista)</option>
+                                <option value="Replanificada">Replanificada para siguiente Sprint (Estado = Lista)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer bg-light px-4 py-3">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-danger d-flex align-items-center gap-2">
+                            <i class="bi bi-check2-circle"></i>
+                            <span>Confirmar Cierre del Sprint</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODAL OSCURO: CONFIRMAR ELIMINAR SPRINT PLANIFICADO       -->
+    <!-- ========================================================= -->
+    <div class="modal fade" id="modalConfirmarEliminarSprint" tabindex="-1" aria-labelledby="modalConfirmarEliminarSprintLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header bg-dark text-white px-4 py-3">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="bg-danger p-2 rounded text-white">
+                            <i class="bi bi-trash fs-5"></i>
+                        </div>
+                        <div>
+                            <h5 class="modal-title fw-bold fs-5 mb-0" id="modalConfirmarEliminarSprintLabel">Eliminar Sprint Planificado</h5>
+                            <small class="text-light text-opacity-75">Esta acción quedará registrada en la auditoría</small>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+
+                <form asp-action="Eliminar" method="post" novalidate>
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" id="eliminarIdSprint" />
+
+                    <div class="modal-body p-4">
+                        <p class="mb-0 text-dark" id="eliminarSprintTexto">
+                            ¿Confirmas la eliminación de este Sprint Planificado?
+                        </p>
+                    </div>
+
+                    <div class="modal-footer bg-light px-4 py-3">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-danger d-flex align-items-center gap-2">
+                            <i class="bi bi-trash"></i>
+                            <span>Eliminar Definitivamente</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script src="~/js/modulos-rodrigo.js" asp-append-version="true"></script>
+    <script>
+        function precargarModalEditarSprint(btn) {
+            const form = document.getElementById('formModalEditarSprint');
+            if (form) {
+                form.setAttribute('data-proyecto-inicio', btn.getAttribute('data-proy-inicio') || '');
+                form.setAttribute('data-proyecto-fin', btn.getAttribute('data-proy-fin') || '');
+            }
+            document.getElementById('editIdSprint').value = btn.getAttribute('data-id') || '';
+            document.getElementById('editSprintProyectoSubtitulo').textContent = btn.getAttribute('data-proyecto') || '';
+            document.getElementById('editSprintNombre').value = btn.getAttribute('data-nombre') || '';
+            document.getElementById('editSprintObjetivo').value = btn.getAttribute('data-objetivo') || '';
+            document.getElementById('editSprintFechaInicio').value = btn.getAttribute('data-inicio') || '';
+            document.getElementById('editSprintFechaFin').value = btn.getAttribute('data-fin') || '';
+            document.getElementById('editSprintCapacidad').value = btn.getAttribute('data-capacidad') || '30';
+        }
+
+        function precargarModalCerrarSprint(btn) {
+            document.getElementById('cerrarIdSprint').value = btn.getAttribute('data-id') || '';
+            document.getElementById('cerrarSprintNombreSubtitulo').textContent = btn.getAttribute('data-nombre') || '';
+        }
+
+        function prepararModalEliminarSprint(btn) {
+            const id = btn.getAttribute('data-id') || '';
+            const nombre = btn.getAttribute('data-nombre') || '';
+            document.getElementById('eliminarIdSprint').value = id;
+            document.getElementById('eliminarSprintTexto').innerHTML =
+                '¿Estás seguro de que deseas eliminar el Sprint Planificado <strong>' + nombre + '</strong>?';
+        }
+
+        function ajustarFechasProyectoModal() {
+            const sel = document.getElementById('crearSprintIdProyecto');
+            if (!sel || sel.selectedIndex < 0) return;
+            const opt = sel.options[sel.selectedIndex];
+            const minDate = opt.getAttribute('data-inicio');
+            const maxDate = opt.getAttribute('data-fin');
+            const inputInicio = document.getElementById('sprintFechaInicio');
+            const inputFin = document.getElementById('sprintFechaFin');
+            if (minDate && maxDate && inputInicio && inputFin) {
+                if (inputInicio.value < minDate || inputInicio.value >= maxDate) {
+                    inputInicio.value = minDate;
+                }
+                if (inputFin.value <= inputInicio.value || inputFin.value > maxDate) {
+                    inputFin.value = maxDate;
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', ajustarFechasProyectoModal);
+    </script>
+}

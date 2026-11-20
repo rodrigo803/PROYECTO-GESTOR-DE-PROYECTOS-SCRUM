@@ -1,0 +1,633 @@
+@model Gestor_proyectos_scrum.Models.UsuariosIndexViewModel
+@{
+    ViewData["Title"] = "Gestión de Usuarios";
+    var esAdmin = Model.PerfilActual.EsAdministrador;
+    var hayFiltros = !string.IsNullOrWhiteSpace(Model.Buscar) || Model.IdRolFiltro.HasValue || Model.ActivoFiltro.HasValue;
+
+    string ObtenerColorAvatarPrototipo(int idUsuario) => (idUsuario % 4) switch
+    {
+        1 => "bg-primary text-white",
+        2 => "bg-success text-white",
+        3 => "bg-warning text-dark",
+        _ => "bg-info text-white"
+    };
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/modulos-rodrigo.css" asp-append-version="true" />
+}
+
+@await Html.PartialAsync("_BarraPerfilPruebas")
+
+<!-- Encabezado de la Pantalla (prototipo/usuarios.html) -->
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-1 small text-muted">
+                <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-decoration-none text-muted">Inicio</a></li>
+                <li class="breadcrumb-item active text-primary fw-medium" aria-current="page">Gestión de Usuarios</li>
+            </ol>
+        </nav>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+            <h1 class="page-title mb-0">Gestión de Usuarios y Roles</h1>
+            <span class="badge bg-primary-subtle text-primary border border-primary-subtle">HU-02</span>
+        </div>
+        <p class="page-subtitle mb-0">Administración de miembros, asignación de roles SCRUM y control de acceso al sistema.</p>
+    </div>
+
+    @if (esAdmin)
+    {
+        <div>
+            <button type="button" class="btn btn-primary d-flex align-items-center gap-2 py-2 px-3 shadow-sm" data-bs-toggle="modal" data-bs-target="#modalCrearUsuario">
+                <i class="bi bi-person-plus-fill fs-5"></i>
+                <span class="fw-medium">Nuevo Usuario</span>
+            </button>
+        </div>
+    }
+</div>
+
+<!-- 4 Tarjetas KPI -->
+<div class="row g-3 mb-4">
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card-custom p-3">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <span class="text-muted small fw-medium">Total Usuarios</span>
+                    <h3 class="fw-bold text-dark mt-1 mb-0">@Model.TotalUsuarios</h3>
+                </div>
+                <div class="p-3 bg-primary-subtle text-primary rounded-3">
+                    <i class="bi bi-people-fill fs-4"></i>
+                </div>
+            </div>
+            <div class="mt-2 small text-muted">
+                <i class="bi bi-check2 text-success me-1"></i> @Model.UsuariosActivos activos en el sistema
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card-custom p-3">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <span class="text-muted small fw-medium">Activos</span>
+                    <h3 class="fw-bold text-success mt-1 mb-0">@Model.UsuariosActivos</h3>
+                </div>
+                <div class="p-3 bg-success-subtle text-success rounded-3">
+                    <i class="bi bi-person-check-fill fs-4"></i>
+                </div>
+            </div>
+            <div class="mt-2 small text-muted">
+                Disponibles para Sprints
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card-custom p-3">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <span class="text-muted small fw-medium">Administradores</span>
+                    <h3 class="fw-bold text-dark mt-1 mb-0">@Model.TotalAdministradores</h3>
+                </div>
+                <div class="p-3 bg-info-subtle text-info rounded-3">
+                    <i class="bi bi-shield-lock-fill fs-4"></i>
+                </div>
+            </div>
+            <div class="mt-2 small text-muted">
+                Con control de permisos del sistema
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card-custom p-3">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <span class="text-muted small fw-medium">Inactivos</span>
+                    <h3 class="fw-bold text-dark mt-1 mb-0">@Model.UsuariosInactivos</h3>
+                </div>
+                <div class="p-3 bg-warning-subtle text-warning rounded-3">
+                    <i class="bi bi-person-dash-fill fs-4"></i>
+                </div>
+            </div>
+            <div class="mt-2 small text-muted">
+                Cuentas deshabilitadas
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tabla de Integrantes del Equipo (prototipo/usuarios.html) -->
+<div class="card-custom overflow-hidden">
+    <div class="p-3 border-bottom d-flex flex-column flex-xl-row align-items-xl-center justify-content-between gap-3 bg-light bg-opacity-50">
+        <div class="d-flex align-items-center gap-2">
+            <h5 class="mb-0 fw-bold fs-6 text-dark">Miembros del Equipo</h5>
+            <span class="badge bg-primary-subtle text-primary rounded-pill">@Model.Usuarios.Count(u => u.Activo) activos</span>
+        </div>
+
+        <form asp-action="Index" method="get" class="d-flex flex-wrap align-items-center gap-2 m-0" novalidate>
+            <div class="input-group input-group-sm filter-input-scrum" style="max-width: 240px;">
+                <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+                <input type="text" name="buscar" value="@Model.Buscar" class="form-control border-start-0" placeholder="Buscar miembro..." aria-label="Buscar miembro" />
+            </div>
+
+            <select name="idRol" class="form-select form-select-sm filter-select-scrum" style="width: auto;" onchange="this.form.submit()">
+                <option value="">Todos los roles</option>
+                @foreach (var rol in Model.Roles)
+                {
+                    <option value="@rol.IdRol" selected="@(Model.IdRolFiltro == rol.IdRol ? "selected" : null)">@rol.Nombre</option>
+                }
+            </select>
+
+            <select name="activo" class="form-select form-select-sm filter-select-scrum" style="width: auto;" onchange="this.form.submit()">
+                <option value="">Todos los estados</option>
+                <option value="true" selected="@(Model.ActivoFiltro == true ? "selected" : null)">Solo Activos</option>
+                <option value="false" selected="@(Model.ActivoFiltro == false ? "selected" : null)">Solo Inactivos</option>
+            </select>
+
+            <button type="submit" class="btn btn-sm btn-primary px-3">Filtrar</button>
+            @if (hayFiltros)
+            {
+                <a asp-action="Index" class="btn btn-sm btn-outline-secondary">Limpiar</a>
+            }
+        </form>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-custom table-hover">
+            <thead>
+                <tr>
+                    <th>Miembro</th>
+                    <th>Rol SCRUM</th>
+                    <th>Tareas Asignadas</th>
+                    <th>Registro</th>
+                    <th>Estado</th>
+                    @if (esAdmin)
+                    {
+                        <th class="text-end">Acciones</th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Usuarios.Count == 0)
+                {
+                    <tr>
+                        <td colspan="@(esAdmin ? 6 : 5)" class="text-center py-5 text-muted">
+                            <i class="bi bi-inbox fs-2 d-block mb-2"></i>
+                            <div class="fw-semibold text-dark mb-1">No se encontraron usuarios registrados</div>
+                            <p class="small mb-2">No hay coincidencias para los filtros de búsqueda seleccionados.</p>
+                            @if (hayFiltros)
+                            {
+                                <a asp-action="Index" class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-arrow-counterclockwise me-1"></i>Limpiar filtros
+                                </a>
+                            }
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var u in Model.Usuarios)
+                    {
+                        var horasMostrar = u.HorasAsignadas > 0 ? u.HorasAsignadas : u.HorasEstimadasAsignadas;
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="@ObtenerColorAvatarPrototipo(u.IdUsuario) rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 32px; height: 32px; font-size: 0.8rem;">
+                                        @u.Iniciales
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold text-dark">@u.NombreCompleto</div>
+                                        <small class="text-muted">@u.Correo</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                @if (esAdmin)
+                                {
+                                    <div class="dropdown">
+                                        <button class="badge bg-light text-dark border dropdown-toggle py-2 px-2" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                            @u.RolNombre
+                                        </button>
+                                        <ul class="dropdown-menu shadow-sm">
+                                            @foreach (var rol in Model.Roles)
+                                            {
+                                                <li>
+                                                    <form asp-action="CambiarRol" method="post" novalidate>
+                                                        @Html.AntiForgeryToken()
+                                                        <input type="hidden" name="id" value="@u.IdUsuario" />
+                                                        <input type="hidden" name="idRol" value="@rol.IdRol" />
+                                                        <button type="submit" class="dropdown-item small d-flex align-items-center justify-content-between @(u.IdRol == rol.IdRol ? "active fw-semibold" : "")">
+                                                            <span>@rol.Nombre</span>
+                                                            @if (u.IdRol == rol.IdRol)
+                                                            {
+                                                                <i class="bi bi-check2 ms-2"></i>
+                                                            }
+                                                        </button>
+                                                    </form>
+                                                </li>
+                                            }
+                                        </ul>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-light text-dark border">@u.RolNombre</span>
+                                }
+                            </td>
+                            <td>
+                                <span class="fw-semibold text-primary">@u.TareasAsignadas tareas</span> (@horasMostrar.ToString("0.#") hrs)
+                            </td>
+                            <td>
+                                <span class="text-muted small">@u.FechaRegistro.ToString("dd/MM/yyyy")</span>
+                            </td>
+                            <td>
+                                @if (u.Activo)
+                                {
+                                    <span class="badge bg-success-subtle text-success">Activo</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger-subtle text-danger">Inactivo</span>
+                                }
+                            </td>
+                            @if (esAdmin)
+                            {
+                                <td class="text-end">
+                                    <div class="btn-group btn-group-sm">
+                                        <button type="button"
+                                                class="btn btn-outline-primary"
+                                                title="Editar usuario"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#modalEditarUsuario"
+                                                data-id="@u.IdUsuario"
+                                                data-nombre="@u.Nombre"
+                                                data-apellidos="@u.Apellidos"
+                                                data-correo="@u.Correo"
+                                                data-idrol="@u.IdRol"
+                                                data-activo="@u.Activo.ToString().ToLowerInvariant()"
+                                                onclick="precargarModalEditarUsuario(this)">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+
+                                        @if (u.Activo)
+                                        {
+                                            <button type="button"
+                                                    class="btn btn-outline-danger"
+                                                    title="Desactivar usuario"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#modalConfirmarEstadoUsuario"
+                                                    data-id="@u.IdUsuario"
+                                                    data-nombre="@u.NombreCompleto"
+                                                    data-nuevoestado="false"
+                                                    onclick="prepararModalEstadoUsuario(this)">
+                                                <i class="bi bi-person-slash"></i>
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <button type="button"
+                                                    class="btn btn-outline-success"
+                                                    title="Activar usuario"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#modalConfirmarEstadoUsuario"
+                                                    data-id="@u.IdUsuario"
+                                                    data-nombre="@u.NombreCompleto"
+                                                    data-nuevoestado="true"
+                                                    onclick="prepararModalEstadoUsuario(this)">
+                                                <i class="bi bi-person-check"></i>
+                                            </button>
+                                        }
+                                    </div>
+                                </td>
+                            }
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@if (esAdmin)
+{
+    <!-- ========================================================= -->
+    <!-- MODAL OSCURO: CREAR NUEVO USUARIO (HU-02)                 -->
+    <!-- ========================================================= -->
+    <div class="modal fade" id="modalCrearUsuario" tabindex="-1" aria-labelledby="modalCrearUsuarioLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header bg-dark text-white px-4 py-3">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="bg-primary p-2 rounded text-white">
+                            <i class="bi bi-person-plus fs-5"></i>
+                        </div>
+                        <div>
+                            <h5 class="modal-title fw-bold fs-5 mb-0" id="modalCrearUsuarioLabel">Registrar Nuevo Usuario</h5>
+                            <small class="text-light text-opacity-75">Asigna credenciales seguras con BCrypt y rol dentro del equipo SCRUM</small>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+
+                <form asp-action="Create" method="post" class="form-validar-scrum" novalidate>
+                    @Html.AntiForgeryToken()
+                    <div class="modal-body p-4">
+                        <div class="row g-3">
+                            <div class="col-12 col-md-6">
+                                <label class="form-label fw-semibold text-dark">Nombre <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light"><i class="bi bi-person text-muted"></i></span>
+                                    <input type="text"
+                                           name="Nombre"
+                                           class="form-control"
+                                           maxlength="50"
+                                           placeholder="ej. Carlos"
+                                           required
+                                           data-msg-required="El nombre del usuario es obligatorio." />
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                <label class="form-label fw-semibold text-dark">Apellidos <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light"><i class="bi bi-person-vcard text-muted"></i></span>
+                                    <input type="text"
+                                           name="Apellidos"
+                                           class="form-control"
+                                           maxlength="80"
+                                           placeholder="ej. Ruiz Mora"
+                                           required
+                                           data-msg-required="Los apellidos del usuario son obligatorios." />
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                <label class="form-label fw-semibold text-dark">Correo Electrónico <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light"><i class="bi bi-envelope text-muted"></i></span>
+                                    <input type="email"
+                                           name="Correo"
+                                           class="form-control"
+                                           maxlength="120"
+                                           placeholder="usuario@scrummanager.test"
+                                           required
+                                           data-msg-required="El correo electrónico es obligatorio."
+                                           data-msg-email="Ingrese un correo electrónico válido (ej. nombre@dominio.com)." />
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                <label class="form-label fw-semibold text-dark">Rol SCRUM <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light"><i class="bi bi-shield-lock text-muted"></i></span>
+                                    <select name="IdRol" class="form-select" required data-msg-required="Seleccione un rol SCRUM para el usuario.">
+                                        @foreach (var rol in Model.Roles)
+                                        {
+                                            <option value="@rol.IdRol" selected="@(rol.Nombre == "Miembro del Equipo" ? "selected" : null)">@rol.Nombre</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                <label class="form-label fw-semibold text-dark">Contraseña Inicial <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light"><i class="bi bi-key text-muted"></i></span>
+                                    <input type="password"
+                                           name="Contrasena"
+                                           id="crearUsuarioContrasena"
+                                           class="form-control"
+                                           minlength="8"
+                                           maxlength="100"
+                                           placeholder="Mínimo 8 caracteres"
+                                           required
+                                           data-msg-required="La contraseña inicial es obligatoria."
+                                           data-msg-minlength="La contraseña debe tener al menos 8 caracteres." />
+                                    <button type="button" class="btn btn-outline-secondary btn-toggle-password" data-target="crearUsuarioContrasena" title="Mostrar u ocultar contraseña">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </div>
+                                <div class="form-text">Se almacenará cifrada de forma segura con BCrypt.</div>
+                            </div>
+
+                            <div class="col-12 col-md-6 d-flex align-items-center">
+                                <div class="form-check form-switch mt-3">
+                                    <input class="form-check-input" type="checkbox" name="Activo" id="crearUsuarioActivo" value="true" checked />
+                                    <label class="form-check-label fw-semibold text-dark" for="crearUsuarioActivo">Usuario activo</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer bg-light px-4 py-3">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary d-flex align-items-center gap-2">
+                            <i class="bi bi-save"></i>
+                            <span>Guardar Usuario</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODAL OSCURO: EDITAR USUARIO (HU-02)                      -->
+    <!-- ========================================================= -->
+    <div class="modal fade" id="modalEditarUsuario" tabindex="-1" aria-labelledby="modalEditarUsuarioLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header bg-dark text-white px-4 py-3">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="bg-primary p-2 rounded text-white">
+                            <i class="bi bi-pencil-square fs-5"></i>
+                        </div>
+                        <div>
+                            <h5 class="modal-title fw-bold fs-5 mb-0" id="modalEditarUsuarioLabel">Editar Usuario</h5>
+                            <small class="text-light text-opacity-75">Actualiza datos personales, rol SCRUM, contraseña o estado</small>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+
+                <form asp-action="Edit" method="post" id="formEditarUsuarioModal" class="form-validar-scrum" novalidate>
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="IdUsuario" id="editIdUsuario" />
+
+                    <div class="modal-body p-4">
+                        <div class="row g-3">
+                            <div class="col-12 col-md-6">
+                                <label class="form-label fw-semibold text-dark">Nombre <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light"><i class="bi bi-person text-muted"></i></span>
+                                    <input type="text"
+                                           name="Nombre"
+                                           id="editNombre"
+                                           class="form-control"
+                                           maxlength="50"
+                                           required
+                                           data-msg-required="El nombre del usuario es obligatorio." />
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                <label class="form-label fw-semibold text-dark">Apellidos <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light"><i class="bi bi-person-vcard text-muted"></i></span>
+                                    <input type="text"
+                                           name="Apellidos"
+                                           id="editApellidos"
+                                           class="form-control"
+                                           maxlength="80"
+                                           required
+                                           data-msg-required="Los apellidos del usuario son obligatorios." />
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                <label class="form-label fw-semibold text-dark">Correo Electrónico <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light"><i class="bi bi-envelope text-muted"></i></span>
+                                    <input type="email"
+                                           name="Correo"
+                                           id="editCorreo"
+                                           class="form-control"
+                                           maxlength="120"
+                                           required
+                                           data-msg-required="El correo electrónico es obligatorio."
+                                           data-msg-email="Ingrese un correo electrónico válido." />
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                <label class="form-label fw-semibold text-dark">Rol SCRUM <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light"><i class="bi bi-shield-lock text-muted"></i></span>
+                                    <select name="IdRol" id="editIdRol" class="form-select" required data-msg-required="Seleccione un rol SCRUM válido.">
+                                        @foreach (var rol in Model.Roles)
+                                        {
+                                            <option value="@rol.IdRol">@rol.Nombre</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                <label class="form-label fw-semibold text-dark">Nueva Contraseña (opcional)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light"><i class="bi bi-key text-muted"></i></span>
+                                    <input type="password"
+                                           name="NuevaContrasena"
+                                           id="editNuevaContrasena"
+                                           class="form-control"
+                                           minlength="8"
+                                           maxlength="100"
+                                           placeholder="Dejar vacío para mantener la actual"
+                                           data-msg-minlength="Si escribe una nueva contraseña, debe tener al menos 8 caracteres." />
+                                    <button type="button" class="btn btn-outline-secondary btn-toggle-password" data-target="editNuevaContrasena" title="Mostrar u ocultar contraseña">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-md-6 d-flex align-items-center">
+                                <div class="form-check form-switch mt-3">
+                                    <input class="form-check-input" type="checkbox" name="Activo" id="editActivo" value="true" />
+                                    <label class="form-check-label fw-semibold text-dark" for="editActivo">Usuario activo</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer bg-light px-4 py-3">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary d-flex align-items-center gap-2">
+                            <i class="bi bi-save"></i>
+                            <span>Guardar Cambios</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODAL OSCURO: CONFIRMAR ACTIVAR / DESACTIVAR USUARIO      -->
+    <!-- ========================================================= -->
+    <div class="modal fade" id="modalConfirmarEstadoUsuario" tabindex="-1" aria-labelledby="modalConfirmarEstadoUsuarioLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header bg-dark text-white px-4 py-3">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="bg-warning text-dark p-2 rounded">
+                            <i class="bi bi-shield-exclamation fs-5"></i>
+                        </div>
+                        <div>
+                            <h5 class="modal-title fw-bold fs-5 mb-0" id="modalConfirmarEstadoUsuarioLabel">Confirmar Cambio de Estado</h5>
+                            <small class="text-light text-opacity-75">Control de acceso al sistema</small>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+
+                <form asp-action="ToggleEstado" method="post" novalidate>
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" id="confirmEstadoIdUsuario" />
+                    <input type="hidden" name="activo" id="confirmEstadoValor" />
+
+                    <div class="modal-body p-4">
+                        <p class="mb-0 text-dark" id="confirmEstadoTexto">
+                            ¿Confirmas cambiar el estado de acceso de este usuario?
+                        </p>
+                    </div>
+
+                    <div class="modal-footer bg-light px-4 py-3">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary d-flex align-items-center gap-2" id="confirmEstadoBoton">
+                            <i class="bi bi-check2-circle"></i>
+                            <span>Confirmar</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script src="~/js/modulos-rodrigo.js" asp-append-version="true"></script>
+    <script>
+        function precargarModalEditarUsuario(btn) {
+            document.getElementById('editIdUsuario').value = btn.getAttribute('data-id') || '';
+            document.getElementById('editNombre').value = btn.getAttribute('data-nombre') || '';
+            document.getElementById('editApellidos').value = btn.getAttribute('data-apellidos') || '';
+            document.getElementById('editCorreo').value = btn.getAttribute('data-correo') || '';
+            document.getElementById('editIdRol').value = btn.getAttribute('data-idrol') || '4';
+            document.getElementById('editNuevaContrasena').value = '';
+            document.getElementById('editActivo').checked = btn.getAttribute('data-activo') === 'true';
+        }
+
+        function prepararModalEstadoUsuario(btn) {
+            const id = btn.getAttribute('data-id') || '';
+            const nombre = btn.getAttribute('data-nombre') || '';
+            const activar = btn.getAttribute('data-nuevoestado') === 'true';
+
+            document.getElementById('confirmEstadoIdUsuario').value = id;
+            document.getElementById('confirmEstadoValor').value = activar ? 'true' : 'false';
+
+            const texto = document.getElementById('confirmEstadoTexto');
+            const boton = document.getElementById('confirmEstadoBoton');
+
+            if (activar) {
+                texto.innerHTML = '¿Deseas <strong>reactivar</strong> la cuenta de <strong>' + nombre + '</strong> para que pueda operar nuevamente en los Sprints?';
+                boton.className = 'btn btn-success d-flex align-items-center gap-2';
+                boton.innerHTML = '<i class="bi bi-person-check"></i><span>Activar Cuenta</span>';
+            } else {
+                texto.innerHTML = '¿Deseas <strong>desactivar</strong> la cuenta de <strong>' + nombre + '</strong>? El sistema verificará que no sea el último Administrador activo.';
+                boton.className = 'btn btn-danger d-flex align-items-center gap-2';
+                boton.innerHTML = '<i class="bi bi-person-slash"></i><span>Desactivar Cuenta</span>';
+            }
+        }
+    </script>
+}

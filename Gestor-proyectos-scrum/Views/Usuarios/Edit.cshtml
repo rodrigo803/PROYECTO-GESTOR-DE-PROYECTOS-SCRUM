@@ -1,0 +1,149 @@
+@model Gestor_proyectos_scrum.Models.EditarUsuarioViewModel
+@{
+    ViewData["Title"] = "Editar Usuario";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/modulos-rodrigo.css" asp-append-version="true" />
+}
+
+@await Html.PartialAsync("_BarraPerfilPruebas")
+
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-1 small text-muted">
+                <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-decoration-none text-muted">Inicio</a></li>
+                <li class="breadcrumb-item"><a asp-controller="Usuarios" asp-action="Index" class="text-decoration-none text-muted">Gestión de Usuarios</a></li>
+                <li class="breadcrumb-item active text-primary fw-medium" aria-current="page">Editar Usuario #@Model.IdUsuario</li>
+            </ol>
+        </nav>
+        <div class="d-flex align-items-center gap-2">
+            <h1 class="page-title mb-0">Editar Usuario: @Model.Nombre @Model.Apellidos</h1>
+            <span class="badge bg-primary-subtle text-primary border border-primary-subtle">HU-02</span>
+        </div>
+        <p class="page-subtitle mb-0">Actualiza los datos personales, rol SCRUM, estado o contraseña del usuario.</p>
+    </div>
+
+    <div>
+        <a asp-action="Index" class="btn btn-outline-secondary d-inline-flex align-items-center gap-2">
+            <i class="bi bi-arrow-left"></i>
+            <span>Volver al listado</span>
+        </a>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-12 col-lg-8">
+        <div class="card-custom p-4">
+            <form asp-action="Edit" asp-route-id="@Model.IdUsuario" method="post" class="form-validar-scrum" novalidate>
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="IdUsuario" />
+
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger rounded-3 small" role="alert"></div>
+
+                <div class="row g-3">
+                    <div class="col-12 col-md-6">
+                        <label asp-for="Nombre" class="form-label fw-semibold text-dark"></label>
+                        <span class="text-danger">*</span>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="bi bi-person text-muted"></i></span>
+                            <input asp-for="Nombre"
+                                   class="form-control"
+                                   maxlength="50"
+                                   required
+                                   data-msg-required="El nombre del usuario es obligatorio." />
+                        </div>
+                        <span asp-validation-for="Nombre" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        <label asp-for="Apellidos" class="form-label fw-semibold text-dark"></label>
+                        <span class="text-danger">*</span>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="bi bi-person-vcard text-muted"></i></span>
+                            <input asp-for="Apellidos"
+                                   class="form-control"
+                                   maxlength="80"
+                                   required
+                                   data-msg-required="Los apellidos del usuario son obligatorios." />
+                        </div>
+                        <span asp-validation-for="Apellidos" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        <label asp-for="Correo" class="form-label fw-semibold text-dark"></label>
+                        <span class="text-danger">*</span>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="bi bi-envelope text-muted"></i></span>
+                            <input asp-for="Correo"
+                                   type="email"
+                                   class="form-control"
+                                   maxlength="120"
+                                   required
+                                   data-msg-required="El correo electrónico es obligatorio."
+                                   data-msg-email="Ingrese un correo electrónico con formato válido." />
+                        </div>
+                        <span asp-validation-for="Correo" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        <label asp-for="IdRol" class="form-label fw-semibold text-dark"></label>
+                        <span class="text-danger">*</span>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="bi bi-shield-lock text-muted"></i></span>
+                            <select asp-for="IdRol" class="form-select" required data-msg-required="Seleccione un rol SCRUM válido.">
+                                @foreach (var rol in Model.RolesDisponibles)
+                                {
+                                    <option value="@rol.IdRol">@rol.Nombre</option>
+                                }
+                            </select>
+                        </div>
+                        <span asp-validation-for="IdRol" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        <label asp-for="NuevaContrasena" class="form-label fw-semibold text-dark"></label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="bi bi-key text-muted"></i></span>
+                            <input asp-for="NuevaContrasena"
+                                   type="password"
+                                   id="inputNuevaContrasenaEdit"
+                                   class="form-control"
+                                   minlength="8"
+                                   maxlength="100"
+                                   placeholder="Dejar en blanco para conservar la actual"
+                                   data-msg-minlength="Si ingresa una nueva contraseña, debe tener al menos 8 caracteres." />
+                            <button type="button" class="btn btn-outline-secondary btn-toggle-password" data-target="inputNuevaContrasenaEdit" title="Mostrar u ocultar contraseña">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </div>
+                        <div class="form-text">Si se especifica, debe tener al menos 8 caracteres.</div>
+                        <span asp-validation-for="NuevaContrasena" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-12 col-md-6 d-flex align-items-center">
+                        <div class="form-check form-switch mt-3">
+                            <input asp-for="Activo" class="form-check-input" type="checkbox" role="switch" />
+                            <label asp-for="Activo" class="form-check-label fw-semibold text-dark">Usuario Activo</label>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="my-4" />
+
+                <div class="d-flex justify-content-end gap-2">
+                    <a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a>
+                    <button type="submit" class="btn btn-primary d-inline-flex align-items-center gap-2 px-4">
+                        <i class="bi bi-save"></i>
+                        <span>Guardar Cambios</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/modulos-rodrigo.js" asp-append-version="true"></script>
+}
