@@ -1,0 +1,51 @@
+/* =============================================================
+   MODULOS-JESUS.CSS
+   Estilos propios de Jesus De Lima (HU-01, HU-04, HU-08, HU-11).
+   Se enlaza siempre despues de styles.css y modulos-sergio.css.
+   Reemplaza a css/estudiante1.css: solo contiene las reglas que
+   seguian haciendo falta tras adoptar la plantilla comun.
+   ============================================================= */
+
+/* =============================================================
+   TABLERO KANBAN (HU-08)
+   ============================================================= */
+.kanban-column {
+  background-color: #f8fafc;
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  padding: 0.85rem;
+  min-height: 360px;
+}
+
+.kanban-column-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+/* =============================================================
+   TICKETS DECORATIVOS DEL HERO DE INICIO DE SESION (HU-01)
+   ============================================================= */
+.auth-visual-ticket {
+  height: 38px;
+  border-radius: 8px;
+  background-color: rgba(255, 255, 255, 0.92);
+}
+
+.auth-visual-ticket.auth-visual-ticket-sm {
+  width: 70%;
+  height: 26px;
+}
+
+/* Incremento 2 (HU-08): mismos colores y formas del prototipo */
+.km-status {display:inline-flex;align-items:center;gap:.3rem;padding:.3rem .7rem;border-radius:30px;font-size:.76rem;font-weight:700;border:1px solid transparent;}
+.km-warning {background:#fff7cd;color:#92400e;border-color:#fde68a;}
+.km-info {background:#e0f2fe;color:#0369a1;border-color:#bae6fd;}
+.km-purple {background:#f3e8ff;color:#7e22ce;border-color:#e9d5ff;}
+.km-success {background:#dcfce7;color:#166534;border-color:#bbf7d0;}
+.kanban-task {cursor:grab;transition:box-shadow .18s;user-select:none;}
+.kanban-task:hover,.kanban-task:focus {box-shadow:0 4px 12px #b7c2d5!important;}
+.kanban-task:active {cursor:grabbing;}
+.kanban-dropzone {min-height:260px;}
+.kanban-dropzone.kanban-hover {outline:2px dashed #818cf8;outline-offset:3px;border-radius:8px;background:#eef2ff;}

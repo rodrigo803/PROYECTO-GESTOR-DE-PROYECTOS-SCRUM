@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SCRUM Manager - Product Backlog (HU-04)</title>
+
+  <!-- Bootstrap 5 CSS CDN -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+
+  <!-- Bootstrap Icons CDN -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+  <!-- Google Fonts (Inter) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Estilos Personalizados Externos -->
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/modulos-sergio.css">
+  <link rel="stylesheet" href="css/modulos-jesus.css">
+</head>
+<body>
+
+  <!-- ========================================== -->
+  <!-- 1. NAVBAR SUPERIOR OSCURO                  -->
+  <!-- ========================================== -->
+  <nav class="navbar navbar-dark admin-navbar px-3 px-lg-4">
+    <div class="container-fluid p-0 d-flex align-items-center justify-content-between">
+
+      <!-- Brand & Mobile Toggle -->
+      <div class="d-flex align-items-center gap-3">
+        <button class="btn btn-outline-secondary btn-sm d-lg-none text-light border-0" type="button" id="sidebarToggle" aria-label="Abrir menú">
+          <i class="bi bi-list fs-4"></i>
+        </button>
+
+        <a class="navbar-brand d-flex align-items-center gap-2 m-0" href="dashboard.html">
+          <span class="brand-logo-badge">
+            <i class="bi bi-kanban-fill"></i>
+          </span>
+          <span class="fw-bold tracking-tight text-white fs-5">SCRUM <span class="fw-semibold" style="color: #818cf8 !important;">Manager</span></span>
+        </a>
+      </div>
+
+      <!-- Perfil Administrador -->
+      <div class="d-flex align-items-center gap-3">
+        <div class="d-none d-md-flex align-items-center gap-2 px-3 py-1 bg-dark-subtle rounded-pill border border-secondary border-opacity-25 text-light text-opacity-75 small">
+          <span class="status-dot bg-success"></span>
+          <span>Sprint 1 en curso</span>
+          <span class="text-secondary">|</span>
+          <span class="fw-medium text-info">Día 9 de 14</span>
+        </div>
+
+        <div class="dropdown">
+          <button class="btn btn-dark d-flex align-items-center gap-2 py-1 px-2 rounded-3 border border-secondary border-opacity-25" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 32px; height: 32px; font-size: 0.85rem;">RM</div>
+            <div class="text-start d-none d-sm-block pe-1">
+              <div class="text-white fw-semibold small lh-1">Rodrigo Morales</div>
+              <small class="text-light text-opacity-50" style="font-size: 0.72rem;">Scrum Master / Admin</small>
+            </div>
+            <i class="bi bi-chevron-down text-light text-opacity-50 small"></i>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end shadow-sm py-2">
+            <li><h6 class="dropdown-header">Cuenta Administrador</h6></li>
+            <li><a class="dropdown-item d-flex align-items-center gap-2" href="#"><i class="bi bi-person text-secondary"></i> Mi Perfil</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li>
+              <button class="dropdown-item d-flex align-items-center gap-2 text-danger" type="button" onclick="confirmarCierreSesion()">
+                <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+              </button>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </nav>
+
+  <!-- ========================================== -->
+  <!-- 2. SIDEBAR FIJO                            -->
+  <!-- ========================================== -->
+  <aside class="admin-sidebar" id="adminSidebar">
+
+    <div class="sidebar-heading">Navegación Principal</div>
+    <nav class="nav flex-column mb-3">
+      <a href="dashboard.html" class="sidebar-nav-link">
+        <i class="bi bi-grid-1x2"></i>
+        <span>Dashboard</span>
+      </a>
+      <a href="usuarios.html" class="sidebar-nav-link">
+        <i class="bi bi-people"></i>
+        <span>Gestión de Usuarios</span>
+      </a>
+      <a href="proyectos.html" class="sidebar-nav-link">
+        <i class="bi bi-kanban"></i>
+        <span>Gestión de Proyectos</span>
+      </a>
+      <a href="product-backlog.html" class="sidebar-nav-link active">
+        <i class="bi bi-journal-text"></i>
+        <span>Product Backlog</span>
+      </a>
+      <a href="sprints.html" class="sidebar-nav-link">
+        <i class="bi bi-arrow-repeat"></i>
+        <span>Gestión de Sprints</span>
+      </a>
+      <a href="planificacion-sprint.html" class="sidebar-nav-link">
+        <i class="bi bi-calendar2-week"></i>
+        <span>Planificación del Sprint</span>
+      </a>
+      <a href="sprint-backlog.html" class="sidebar-nav-link">
+        <i class="bi bi-card-checklist"></i>
+        <span>Sprint Backlog</span>
+      </a>
+      <a href="tablero-kanban.html" class="sidebar-nav-link">
+        <i class="bi bi-columns-gap"></i>
+        <span>Tablero Kanban</span>
+      </a>
+      <a href="impedimentos.html" class="sidebar-nav-link">
+        <i class="bi bi-cone-striped"></i>
+        <span>Impedimentos</span>
+      </a>
+      <a href="retrospectiva.html" class="sidebar-nav-link">
+        <i class="bi bi-chat-square-text"></i>
+        <span>Retrospectiva</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-heading">Calidad</div>
+    <nav class="nav flex-column mb-3">
+      <a href="responsividad.html" class="sidebar-nav-link">
+        <i class="bi bi-phone"></i>
+        <span>Responsividad</span>
+      </a>
+    </nav>
+
+    <!-- Botón Cerrar Sesión en pie del Sidebar -->
+    <div class="mt-auto px-3 pt-4">
+      <button class="btn btn-outline-danger btn-sm w-100 d-flex align-items-center justify-content-center gap-2" onclick="confirmarCierreSesion()">
+        <i class="bi bi-box-arrow-right"></i>
+        <span>Cerrar Sesión</span>
+      </button>
+    </div>
+
+  </aside>
+
+  <!-- ========================================== -->
+  <!-- 3. ÁREA DE CONTENIDO: PRODUCT BACKLOG       -->
+  <!-- ========================================== -->
+  <main class="main-content">
+
+    <!-- Encabezado de la Pantalla -->
+    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-start gap-3 mb-4">
+      <div>
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb mb-1 small text-muted">
+            <li class="breadcrumb-item"><a href="dashboard.html" class="text-decoration-none text-muted">Inicio</a></li>
+            <li class="breadcrumb-item active text-primary fw-medium" aria-current="page">Gestión del Product Backlog</li>
+          </ol>
+        </nav>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <h1 class="page-title mb-0">Gestión del Product Backlog</h1>
+          <span class="badge bg-primary-subtle text-primary border border-primary-subtle">HU-04</span>
+        </div>
+        <p class="page-subtitle mb-0">Registra, prioriza y consulta las historias candidatas del proyecto Fintech Mobile App.</p>
+      </div>
+
+      <!-- Selector de Vista + Acción Principal -->
+      <div class="d-flex flex-column align-items-lg-end gap-2">
+        <div class="view-switch">
+          <a href="product-backlog.html" class="view-switch-option active">
+            <i class="bi bi-display"></i> Administrativa
+          </a>
+          <a href="backlog-cliente.html" class="view-switch-option">
+            <i class="bi bi-person"></i> Cliente
+          </a>
+        </div>
+        <a href="historia-usuario.html" class="btn btn-primary d-flex align-items-center gap-2 py-2 px-3 shadow-sm">
+          <i class="bi bi-plus-circle-fill fs-5"></i>
+          <span class="fw-medium">Nueva historia</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="alert alert-primary small" role="alert">
+      <i class="bi bi-info-circle-fill me-2"></i>
+      <strong>Vista administrativa.</strong> Esta pantalla representa el registro, consulta, edición y priorización de historias candidatas para el Sprint 2 (Billing &amp; Subscriptions), sin conexión con datos reales.
+    </div>
+
+    <div class="card-custom">
+      <div class="p-3 border-bottom d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2">
+        <div>
+          <h2 class="h6 fw-bold text-dark mb-0">Mantenimiento de historias</h2>
+          <p class="small text-muted mb-0">Candidatas al Sprint 2 · Proyecto Fintech Mobile App</p>
+        </div>
+        <input type="search" class="form-control form-control-sm" style="max-width: 260px;" placeholder="Buscar historia de usuario" aria-label="Buscar historia de usuario">
+      </div>
+
+      <!-- Tabla (escritorio/tablet) -->
+      <div class="table-responsive d-none d-md-block">
+        <table class="table table-custom align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Código</th>
+              <th>Historia de usuario</th>
+              <th>Prioridad</th>
+              <th>Estimación</th>
+              <th>Estado</th>
+              <th>Acción</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>HU-04</strong></td>
+              <td style="min-width: 280px;">Integración de checkout con tarjetas de crédito y débito</td>
+              <td><span class="badge bg-danger-subtle text-danger border border-danger-subtle">Alta</span></td>
+              <td>13 pts</td>
+              <td><span class="badge bg-info-subtle text-info border border-info-subtle">Preparada</span></td>
+              <td><a href="historia-usuario.html" class="text-decoration-none fw-semibold">Editar</a></td>
+            </tr>
+            <tr>
+              <td><strong>HU-05</strong></td>
+              <td style="min-width: 280px;">Emisión automática de facturas y recibos tributarios electrónicos</td>
+              <td><span class="badge bg-danger-subtle text-danger border border-danger-subtle">Alta</span></td>
+              <td>8 pts</td>
+              <td><span class="badge bg-info-subtle text-info border border-info-subtle">Preparada</span></td>
+              <td><a href="historia-usuario.html" class="text-decoration-none fw-semibold">Editar</a></td>
+            </tr>
+            <tr>
+              <td><strong>HU-06</strong></td>
+              <td style="min-width: 280px;">Exportación de balances contables en formato Excel y CSV</td>
+              <td><span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle">Media</span></td>
+              <td>5 pts</td>
+              <td><span class="badge bg-info-subtle text-info border border-info-subtle">Preparada</span></td>
+              <td><a href="historia-usuario.html" class="text-decoration-none fw-semibold">Editar</a></td>
+            </tr>
+            <tr>
+              <td><strong>HU-07</strong></td>
+              <td style="min-width: 280px;">Notificaciones push ante fallos o reintentos de cobro recurrentes</td>
+              <td><span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle">Media</span></td>
+              <td>3 pts</td>
+              <td><span class="badge bg-info-subtle text-info border border-info-subtle">Preparada</span></td>
+              <td><a href="historia-usuario.html" class="text-decoration-none fw-semibold">Editar</a></td>
+            </tr>
+            <tr>
+              <td><strong>HU-08</strong></td>
+              <td style="min-width: 280px;">Panel de control para configuración de descuentos promocionales</td>
+              <td><span class="badge bg-secondary-subtle text-secondary border">Baja</span></td>
+              <td>5 pts</td>
+              <td><span class="badge bg-info-subtle text-info border border-info-subtle">Preparada</span></td>
+              <td><a href="historia-usuario.html" class="text-decoration-none fw-semibold">Editar</a></td>
+            </tr>
+            <tr class="opacity-75" style="background-color: #f8fafc;">
+              <td><strong>HU-09</strong></td>
+              <td style="min-width: 280px;">Conciliación automática de pagos fallidos con el banco</td>
+              <td><span class="badge bg-secondary-subtle text-secondary border">—</span></td>
+              <td>? pts</td>
+              <td><span class="badge bg-danger-subtle text-danger border border-danger-subtle">Sin criterios</span></td>
+              <td><a href="historia-usuario.html" class="text-decoration-none fw-semibold">Editar</a></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Tarjetas (móvil) -->
+      <div class="d-md-none p-3 d-flex flex-column gap-2">
+        <div class="hu-select-item">
+          <div class="d-flex justify-content-between align-items-start mb-1">
+            <strong>HU-04</strong>
+            <span class="badge bg-info-subtle text-info border border-info-subtle">Preparada</span>
+          </div>
+          <p class="small text-muted mb-1">Integración de checkout con tarjetas de crédito y débito</p>
+          <div class="d-flex justify-content-between align-items-center small">
+            <span class="badge bg-danger-subtle text-danger border border-danger-subtle">Alta · 13 pts</span>
+            <a href="historia-usuario.html" class="fw-semibold text-decoration-none">Editar</a>
+          </div>
+        </div>
+        <div class="hu-select-item">
+          <div class="d-flex justify-content-between align-items-start mb-1">
+            <strong>HU-05</strong>
+            <span class="badge bg-info-subtle text-info border border-info-subtle">Preparada</span>
+          </div>
+          <p class="small text-muted mb-1">Emisión automática de facturas y recibos tributarios electrónicos</p>
+          <div class="d-flex justify-content-between align-items-center small">
+            <span class="badge bg-danger-subtle text-danger border border-danger-subtle">Alta · 8 pts</span>
+            <a href="historia-usuario.html" class="fw-semibold text-decoration-none">Editar</a>
+          </div>
+        </div>
+        <div class="hu-select-item">
+          <div class="d-flex justify-content-between align-items-start mb-1">
+            <strong>HU-06</strong>
+            <span class="badge bg-info-subtle text-info border border-info-subtle">Preparada</span>
+          </div>
+          <p class="small text-muted mb-1">Exportación de balances contables en formato Excel y CSV</p>
+          <div class="d-flex justify-content-between align-items-center small">
+            <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle">Media · 5 pts</span>
+            <a href="historia-usuario.html" class="fw-semibold text-decoration-none">Editar</a>
+          </div>
+        </div>
+        <div class="hu-select-item">
+          <div class="d-flex justify-content-between align-items-start mb-1">
+            <strong>HU-07</strong>
+            <span class="badge bg-info-subtle text-info border border-info-subtle">Preparada</span>
+          </div>
+          <p class="small text-muted mb-1">Notificaciones push ante fallos o reintentos de cobro recurrentes</p>
+          <div class="d-flex justify-content-between align-items-center small">
+            <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle">Media · 3 pts</span>
+            <a href="historia-usuario.html" class="fw-semibold text-decoration-none">Editar</a>
+          </div>
+        </div>
+        <div class="hu-select-item">
+          <div class="d-flex justify-content-between align-items-start mb-1">
+            <strong>HU-08</strong>
+            <span class="badge bg-info-subtle text-info border border-info-subtle">Preparada</span>
+          </div>
+          <p class="small text-muted mb-1">Panel de control para configuración de descuentos promocionales</p>
+          <div class="d-flex justify-content-between align-items-center small">
+            <span class="badge bg-secondary-subtle text-secondary border">Baja · 5 pts</span>
+            <a href="historia-usuario.html" class="fw-semibold text-decoration-none">Editar</a>
+          </div>
+        </div>
+        <div class="hu-select-item" style="background-color: #f8fafc;">
+          <div class="d-flex justify-content-between align-items-start mb-1">
+            <strong>HU-09</strong>
+            <span class="badge bg-danger-subtle text-danger border border-danger-subtle">Sin criterios</span>
+          </div>
+          <p class="small text-muted mb-1">Conciliación automática de pagos fallidos con el banco</p>
+          <div class="d-flex justify-content-between align-items-center small">
+            <span class="badge bg-secondary-subtle text-secondary border">— · ? pts</span>
+            <a href="historia-usuario.html" class="fw-semibold text-decoration-none">Editar</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p class="small text-muted mt-3">Las acciones muestran el formulario de ejemplo. No hay registros persistidos ni operaciones de base de datos.</p>
+
+  </main>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
