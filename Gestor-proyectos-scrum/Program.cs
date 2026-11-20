@@ -9,6 +9,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<ConexionDb>();
 builder.Services.AddScoped<UsuarioActual>();
 builder.Services.AddScoped<ProyectoRepositorio>();
+builder.Services.AddScoped<PlanificacionRepositorio>();
 
 var app = builder.Build();
 

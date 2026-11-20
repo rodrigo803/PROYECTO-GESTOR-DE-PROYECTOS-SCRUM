@@ -1,0 +1,261 @@
+@model Gestor_proyectos_scrum.Models.PlanificacionIndexViewModel
+@{
+    ViewData["Title"] = "Planificación del Sprint";
+    var sprint = Model.Sprint;
+}
+
+@functions {
+    private static string ClaseEstadoSprint(string estado) => estado switch
+    {
+        "Activo" => "project-status-activo",
+        "Planificado" => "project-status-planificado",
+        "Cerrado" => "project-status-cerrado",
+        _ => "project-status-planificado"
+    };
+
+    private static string ClasePrioridad(string prioridad) => prioridad switch
+    {
+        "Alta" => "bg-danger-subtle text-danger border border-danger-subtle",
+        "Media" => "bg-warning-subtle text-warning border border-warning-subtle",
+        _ => "bg-secondary-subtle text-secondary border"
+    };
+
+    private static string ClaseCapacidad(int puntos, int capacidad)
+    {
+        if (capacidad <= 0)
+        {
+            return "capacity-ok";
+        }
+
+        var porcentaje = puntos * 100.0 / capacidad;
+        if (porcentaje > 100)
+        {
+            return "capacity-over";
+        }
+
+        return porcentaje >= 80 ? "capacity-warning" : "capacity-ok";
+    }
+}
+
+<!-- Encabezado de la Pantalla -->
+<div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-start gap-3 mb-4">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-1 small text-muted">
+                <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-decoration-none text-muted">Inicio</a></li>
+                <li class="breadcrumb-item active text-primary fw-medium" aria-current="page">Planificación del Sprint</li>
+            </ol>
+        </nav>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+            <h1 class="page-title mb-0">Planificación del Sprint</h1>
+            <span class="badge bg-primary-subtle text-primary border border-primary-subtle">HU-06</span>
+        </div>
+        <p class="page-subtitle mb-0">Selecciona las historias priorizadas del Product Backlog y conforma el trabajo comprometido del Sprint.</p>
+    </div>
+</div>
+
+@if (!Model.Proyectos.Any())
+{
+    <div class="card-custom p-4 text-center text-muted">
+        <i class="bi bi-kanban fs-1 d-block mb-2"></i>
+        No hay proyectos disponibles para planificar: todos los proyectos están Cerrados.
+    </div>
+}
+else
+{
+    <!-- Selector de Proyecto y Sprint -->
+    <div class="card-custom p-3 mb-4">
+        <form method="get" asp-action="Index" class="d-flex align-items-center gap-2 flex-wrap">
+            <label class="small text-muted mb-0" for="selectProyecto">Proyecto</label>
+            <select id="selectProyecto" name="idProyecto" class="form-select form-select-sm" style="max-width: 280px;" onchange="this.form.submit()" aria-label="Proyecto">
+                @foreach (var p in Model.Proyectos)
+                {
+                    <option value="@p.IdProyecto" selected="@(p.IdProyecto == Model.IdProyecto)">@p.Codigo &mdash; @p.Nombre</option>
+                }
+            </select>
+
+            <label class="small text-muted mb-0 ms-md-2" for="selectSprint">Sprint</label>
+            @if (Model.Sprints.Any())
+            {
+                <select id="selectSprint" name="idSprint" class="form-select form-select-sm" style="max-width: 220px;" onchange="this.form.submit()" aria-label="Sprint">
+                    @foreach (var s in Model.Sprints)
+                    {
+                        <option value="@s.IdSprint" selected="@(s.IdSprint == Model.IdSprint)">@s.Nombre (@s.Estado)</option>
+                    }
+                </select>
+            }
+            else
+            {
+                <select id="selectSprint" class="form-select form-select-sm" style="max-width: 220px;" disabled aria-label="Sprint">
+                    <option>Sin Sprints disponibles</option>
+                </select>
+            }
+        </form>
+    </div>
+
+    @if (sprint is null)
+    {
+        <div class="card-custom p-4 text-center text-muted">
+            <i class="bi bi-calendar-x fs-1 d-block mb-2"></i>
+            Este proyecto no tiene Sprints en estado Planificado ni Activo. Crea o activa un Sprint para poder planificarlo.
+        </div>
+    }
+    else
+    {
+        <!-- Tarjeta Resumen del Sprint -->
+        <div class="card-custom p-4 mb-4 border-top border-4 border-primary">
+            <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
+                <div>
+                    <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
+                        <h4 class="fw-bold text-dark mb-0">@sprint.Nombre</h4>
+                        <span class="project-status-badge @ClaseEstadoSprint(sprint.Estado)"><span class="status-dot"></span>@sprint.Estado</span>
+                    </div>
+                    <p class="text-muted small mb-0" style="max-width: 560px;">
+                        <strong>Objetivo:</strong> @sprint.Objetivo
+                    </p>
+                </div>
+                <div class="d-flex gap-4 flex-wrap">
+                    <div>
+                        <div class="metric-card-label">Fechas</div>
+                        <div class="fw-bold text-dark small"><i class="bi bi-calendar-event me-1 text-muted"></i>@sprint.FechaInicio.ToString("dd/MM/yyyy") &mdash; @sprint.FechaFin.ToString("dd/MM/yyyy")</div>
+                    </div>
+                    <div>
+                        <div class="metric-card-label">Capacidad</div>
+                        <div class="fw-bold text-dark small">@sprint.CapacidadPuntos Story Points</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Layout Principal: Product Backlog + Panel de Compromiso -->
+        <div class="row g-4">
+
+            <!-- Columna Izquierda: Product Backlog -->
+            <div class="col-12 col-lg-7">
+                <div class="card-custom overflow-hidden h-100">
+                    <div class="p-3 border-bottom bg-light bg-opacity-50 d-flex align-items-center justify-content-between">
+                        <h5 class="mb-0 fw-bold fs-6 text-dark">Product Backlog</h5>
+                        <span class="badge bg-secondary-subtle text-secondary rounded-pill">@Model.Candidatas.Count historia(s)</span>
+                    </div>
+
+                    <div class="p-3 d-flex flex-column gap-2">
+                        @if (!Model.Candidatas.Any())
+                        {
+                            <p class="text-muted small mb-0">Este proyecto no tiene historias disponibles para el Sprint Backlog.</p>
+                        }
+
+                        @foreach (var h in Model.Candidatas.Where(c => c.EsElegible))
+                        {
+                            <div class="form-check hu-select-item d-flex align-items-start justify-content-between">
+                                <div>
+                                    <input class="form-check-input me-2" type="checkbox" id="check-@h.Codigo" checked="@h.YaComprometida" disabled>
+                                    <label class="form-check-label" for="check-@h.Codigo">
+                                        <strong>@h.Codigo:</strong> @h.Quiero
+                                    </label>
+                                    <div class="ms-4 mt-1 d-flex gap-2 flex-wrap">
+                                        <span class="badge @ClasePrioridad(h.Prioridad)">@h.Prioridad</span>
+                                        <span class="badge bg-success-subtle text-success border border-success-subtle">
+                                            <i class="bi bi-check2 me-1"></i>@h.CantidadCriterios criterio(s)
+                                        </span>
+                                    </div>
+                                </div>
+                                <span class="badge bg-primary-subtle text-primary border border-primary-subtle text-nowrap">@h.Estimacion pts</span>
+                            </div>
+                        }
+
+                        @{
+                            var bloqueadas = Model.Candidatas.Where(c => !c.EsElegible).ToList();
+                        }
+                        @if (bloqueadas.Any())
+                        {
+                            <hr class="my-1">
+                            <div class="small text-muted fw-semibold px-1">
+                                <i class="bi bi-lock-fill me-1"></i>Historias bloqueadas (no cumplen la regla de "Definition of Ready")
+                            </div>
+
+                            @foreach (var h in bloqueadas)
+                            {
+                                <div class="form-check hu-select-item d-flex align-items-start justify-content-between opacity-75" style="background-color: #f8fafc;">
+                                    <div>
+                                        <input class="form-check-input me-2" type="checkbox" id="check-@h.Codigo" disabled>
+                                        <label class="form-check-label text-muted" for="check-@h.Codigo">
+                                            <strong>@h.Codigo:</strong> @h.Quiero
+                                        </label>
+                                        <div class="ms-4 mt-1 d-flex gap-2 flex-wrap">
+                                            @foreach (var motivo in h.Motivos)
+                                            {
+                                                <span class="badge bg-danger-subtle text-danger border border-danger-subtle">
+                                                    <i class="bi bi-x-circle me-1"></i>@motivo
+                                                </span>
+                                            }
+                                        </div>
+                                    </div>
+                                    <span class="badge bg-secondary-subtle text-secondary border text-nowrap">@(h.Estimacion.HasValue ? $"{h.Estimacion} pts" : "? pts")</span>
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Columna Derecha: Panel de Compromiso -->
+            <div class="col-12 col-lg-5">
+                <div class="metric-card">
+                    <h5 class="fw-bold text-dark mb-3"><i class="bi bi-clipboard2-check text-primary me-2"></i>Compromiso del Sprint</h5>
+
+                    <div class="capacity-bar-header">
+                        <span class="text-muted">Capacidad comprometida</span>
+                        <span class="capacity-bar-value">@Model.PuntosComprometidos / @sprint.CapacidadPuntos pts</span>
+                    </div>
+                    <div class="capacity-bar-track">
+                        <div class="capacity-bar-fill @ClaseCapacidad(Model.PuntosComprometidos, sprint.CapacidadPuntos)"
+                             style="width: @(sprint.CapacidadPuntos > 0 ? Math.Min(100, Model.PuntosComprometidos * 100 / sprint.CapacidadPuntos) : 0)%;"></div>
+                    </div>
+                    <div class="capacity-bar-note">
+                        <i class="bi bi-info-circle me-1"></i>
+                        @{
+                            var disponibles = sprint.CapacidadPuntos - Model.PuntosComprometidos;
+                            var porcentajeUsado = sprint.CapacidadPuntos > 0 ? Model.PuntosComprometidos * 100 / sprint.CapacidadPuntos : 0;
+                        }
+                        @if (disponibles >= 0)
+                        {
+                            <text>@porcentajeUsado % de la capacidad utilizada. Quedan @disponibles pts disponibles.</text>
+                        }
+                        else
+                        {
+                            <text>@porcentajeUsado % de la capacidad utilizada. Supera la capacidad por @(-disponibles) pts.</text>
+                        }
+                    </div>
+
+                    <hr class="my-3">
+
+                    <div class="small fw-semibold text-dark mb-2">Historias seleccionadas (@Model.Comprometidas.Count)</div>
+                    @if (!Model.Comprometidas.Any())
+                    {
+                        <p class="text-muted small mb-3">Todavía no hay historias comprometidas en este Sprint.</p>
+                    }
+                    else
+                    {
+                        <ul class="list-unstyled small mb-3">
+                            @foreach (var h in Model.Comprometidas)
+                            {
+                                <li class="d-flex justify-content-between align-items-center py-1 border-bottom">
+                                    <span><strong>@h.Codigo</strong> @h.Quiero</span>
+                                    <span class="badge bg-primary-subtle text-primary">@h.Estimacion pts</span>
+                                </li>
+                            }
+                        </ul>
+                    }
+
+                    <hr class="my-3">
+
+                    <button type="button" class="btn btn-primary w-100 d-flex align-items-center justify-content-center gap-2 py-2" disabled title="Disponible en la parte 2 de HU-06">
+                        <i class="bi bi-check2-square"></i>
+                        <span>Confirmar Compromiso del Sprint</span>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    }
+}
