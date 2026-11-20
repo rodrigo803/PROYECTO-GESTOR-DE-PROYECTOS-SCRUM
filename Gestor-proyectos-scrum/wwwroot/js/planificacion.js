@@ -2,6 +2,21 @@
     'use strict';
 
     document.addEventListener('DOMContentLoaded', function () {
+        var botonesRechazar = document.querySelectorAll('.js-btn-rechazar');
+        var rechazarIdHistoria = document.getElementById('rechazarIdHistoria');
+        var rechazarCodigo = document.getElementById('rechazarCodigo');
+
+        botonesRechazar.forEach(function (boton) {
+            boton.addEventListener('click', function () {
+                if (rechazarIdHistoria) {
+                    rechazarIdHistoria.value = boton.dataset.idhistoria;
+                }
+                if (rechazarCodigo) {
+                    rechazarCodigo.textContent = boton.dataset.codigo;
+                }
+            });
+        });
+
         var panel = document.getElementById('panelCompromiso');
         if (!panel) {
             return;

@@ -4,6 +4,7 @@
     ViewData["Title"] = "Planificación del Sprint";
     var sprint = Model.Sprint;
     var puedePlanificar = UsuarioActual.PuedePlanificarSprint();
+    var puedeAprobar = UsuarioActual.PuedeAprobarHistorias();
 }
 
 @functions {
@@ -253,6 +254,23 @@ else
                                     <span><strong>@h.Codigo</strong> @h.Quiero</span>
                                     <span class="d-flex align-items-center gap-2">
                                         <span class="badge bg-primary-subtle text-primary">@h.Estimacion pts</span>
+                                        @if (puedeAprobar && sprint.Estado == "Activo")
+                                        {
+                                            <form method="post" asp-action="AceptarHistoria" class="d-inline m-0" onsubmit="return confirm('¿Aceptar @h.Codigo en la revisión del Sprint?');">
+                                                <input type="hidden" name="idProyecto" value="@Model.IdProyecto" />
+                                                <input type="hidden" name="idSprint" value="@Model.IdSprint" />
+                                                <input type="hidden" name="idHistoria" value="@h.IdHistoria" />
+                                                <button type="submit" class="btn btn-sm btn-link text-success p-0" title="Aceptar historia" aria-label="Aceptar @h.Codigo">
+                                                    <i class="bi bi-check-lg"></i>
+                                                </button>
+                                            </form>
+                                            <button type="button" class="btn btn-sm btn-link text-warning p-0 js-btn-rechazar"
+                                                    data-idhistoria="@h.IdHistoria" data-codigo="@h.Codigo"
+                                                    data-bs-toggle="modal" data-bs-target="#modalRechazarHistoria"
+                                                    title="Rechazar historia" aria-label="Rechazar @h.Codigo">
+                                                <i class="bi bi-x-circle"></i>
+                                            </button>
+                                        }
                                         @if (puedePlanificar)
                                         {
                                             @if (h.CantidadTareas > 0)
@@ -337,6 +355,98 @@ else
                 </div>
             </div>
         }
+
+        @if (puedeAprobar)
+        {
+            <div class="modal fade" id="modalRechazarHistoria" tabindex="-1" aria-labelledby="modalRechazarHistoriaLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <form method="post" asp-action="RechazarHistoria" class="modal-content">
+                        <input type="hidden" name="idProyecto" value="@Model.IdProyecto" />
+                        <input type="hidden" name="idSprint" value="@Model.IdSprint" />
+                        <input type="hidden" id="rechazarIdHistoria" name="idHistoria" value="" />
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="modalRechazarHistoriaLabel">Rechazar historia</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p class="small text-muted mb-2">Vas a rechazar <strong id="rechazarCodigo"></strong> en la revisión del Sprint. La historia seguirá comprometida.</p>
+                            <label class="form-label small" for="rechazarComentario">Comentario (obligatorio)</label>
+                            <textarea id="rechazarComentario" name="comentario" class="form-control" rows="3" required></textarea>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-warning">
+                                <i class="bi bi-x-circle me-1"></i>Rechazar historia
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        }
+    }
+
+    <!-- Historias no terminadas de Sprints Cerrados -->
+    @if (Model.HistoriasNoTerminadas.Any())
+    {
+        var sprintsPlanificados = Model.Sprints.Where(s => s.Estado == "Planificado").ToList();
+
+        <div class="card-custom p-4 mt-4">
+            <h5 class="fw-bold text-dark mb-3"><i class="bi bi-exclamation-triangle text-warning me-2"></i>Historias no terminadas de Sprints cerrados</h5>
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                        <tr class="small text-muted">
+                            <th>Historia</th>
+                            <th>Sprint</th>
+                            <th>Pts</th>
+                            <th class="text-end">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var h in Model.HistoriasNoTerminadas)
+                        {
+                            <tr>
+                                <td><strong>@h.Codigo</strong> @h.Quiero</td>
+                                <td class="small text-muted">@h.NombreSprint</td>
+                                <td><span class="badge bg-primary-subtle text-primary">@h.Estimacion pts</span></td>
+                                <td class="text-end">
+                                    @if (puedePlanificar)
+                                    {
+                                        <div class="d-flex gap-2 justify-content-end flex-wrap">
+                                            <form method="post" asp-action="RegresarAlBacklog" class="d-inline m-0" onsubmit="return confirm('¿Regresar @h.Codigo al Product Backlog?');">
+                                                <input type="hidden" name="idProyecto" value="@Model.IdProyecto" />
+                                                <input type="hidden" name="idSprint" value="@Model.IdSprint" />
+                                                <input type="hidden" name="idSprintHistoria" value="@h.IdSprintHistoria" />
+                                                <button type="submit" class="btn btn-sm btn-outline-secondary">Regresar al Backlog</button>
+                                            </form>
+                                            @if (sprintsPlanificados.Any())
+                                            {
+                                                <form method="post" asp-action="Replanificar" class="d-inline m-0 d-flex gap-1" onsubmit="return confirm('¿Replanificar @h.Codigo al Sprint elegido?');">
+                                                    <input type="hidden" name="idProyecto" value="@Model.IdProyecto" />
+                                                    <input type="hidden" name="idSprint" value="@Model.IdSprint" />
+                                                    <input type="hidden" name="idSprintHistoria" value="@h.IdSprintHistoria" />
+                                                    <select name="idSprintDestino" class="form-select form-select-sm" style="width: auto;" aria-label="Sprint destino">
+                                                        @foreach (var s in sprintsPlanificados)
+                                                        {
+                                                            <option value="@s.IdSprint">@s.Nombre</option>
+                                                        }
+                                                    </select>
+                                                    <button type="submit" class="btn btn-sm btn-outline-primary">Replanificar</button>
+                                                </form>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted small" title="No hay Sprints Planificados en este proyecto">Sin Sprint destino</span>
+                                            }
+                                        </div>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
     }
 }
 

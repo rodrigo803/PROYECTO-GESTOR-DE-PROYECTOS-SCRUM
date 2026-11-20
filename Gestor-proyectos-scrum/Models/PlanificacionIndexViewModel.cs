@@ -16,4 +16,6 @@ public class PlanificacionIndexViewModel
     public List<HistoriaComprometidaItem> Comprometidas { get; set; } = new();
 
     public int PuntosComprometidos { get; set; }
+
+    public List<HistoriaNoTerminadaItem> HistoriasNoTerminadas { get; set; } = new();
 }

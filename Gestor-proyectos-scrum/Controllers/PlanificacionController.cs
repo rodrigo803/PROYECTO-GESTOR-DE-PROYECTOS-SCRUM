@@ -46,6 +46,7 @@ public class PlanificacionController : Controller
         }
 
         modelo.IdSprint = idSprint;
+        modelo.HistoriasNoTerminadas = (await _planificacionRepositorio.ListarHistoriasNoTerminadasAsync(idProyecto.Value)).ToList();
 
         if (idSprint is null)
         {
@@ -164,6 +165,104 @@ public class PlanificacionController : Controller
         {
             await _planificacionRepositorio.QuitarHistoriaAsync(idSprint, idHistoria, _usuarioActual.IdUsuario);
             TempData["Mensaje"] = "La historia se quitó del Sprint y volvió al Product Backlog.";
+        }
+        catch (InvalidOperationException ex)
+        {
+            TempData["Error"] = ex.Message;
+        }
+
+        return RedirectToAction(nameof(Index), new { idProyecto, idSprint });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> AceptarHistoria(int idProyecto, int idSprint, int idHistoria)
+    {
+        if (!_usuarioActual.PuedeAprobarHistorias())
+        {
+            TempData["Error"] = "No tienes permisos para aceptar o rechazar historias.";
+            return RedirectToAction(nameof(Index), new { idProyecto, idSprint });
+        }
+
+        try
+        {
+            await _planificacionRepositorio.AceptarHistoriaAsync(idSprint, idHistoria, _usuarioActual.IdUsuario);
+            TempData["Mensaje"] = "La historia se aceptó en la revisión del Sprint.";
+        }
+        catch (InvalidOperationException ex)
+        {
+            TempData["Error"] = ex.Message;
+        }
+
+        return RedirectToAction(nameof(Index), new { idProyecto, idSprint });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> RechazarHistoria(int idProyecto, int idSprint, int idHistoria, string comentario)
+    {
+        if (!_usuarioActual.PuedeAprobarHistorias())
+        {
+            TempData["Error"] = "No tienes permisos para aceptar o rechazar historias.";
+            return RedirectToAction(nameof(Index), new { idProyecto, idSprint });
+        }
+
+        if (string.IsNullOrWhiteSpace(comentario))
+        {
+            TempData["Error"] = "Debes escribir un comentario para rechazar la historia.";
+            return RedirectToAction(nameof(Index), new { idProyecto, idSprint });
+        }
+
+        try
+        {
+            await _planificacionRepositorio.RechazarHistoriaAsync(idSprint, idHistoria, comentario.Trim(), _usuarioActual.IdUsuario);
+            TempData["Mensaje"] = "La historia se rechazó en la revisión del Sprint. Sigue comprometida.";
+        }
+        catch (InvalidOperationException ex)
+        {
+            TempData["Error"] = ex.Message;
+        }
+
+        return RedirectToAction(nameof(Index), new { idProyecto, idSprint });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> RegresarAlBacklog(int idProyecto, int idSprint, int idSprintHistoria)
+    {
+        if (!_usuarioActual.PuedePlanificarSprint())
+        {
+            TempData["Error"] = "No tienes permisos para planificar el Sprint.";
+            return RedirectToAction(nameof(Index), new { idProyecto, idSprint });
+        }
+
+        try
+        {
+            await _planificacionRepositorio.RegresarAlBacklogAsync(idSprintHistoria, _usuarioActual.IdUsuario);
+            TempData["Mensaje"] = "La historia volvió al Product Backlog como 'Lista'.";
+        }
+        catch (InvalidOperationException ex)
+        {
+            TempData["Error"] = ex.Message;
+        }
+
+        return RedirectToAction(nameof(Index), new { idProyecto, idSprint });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Replanificar(int idProyecto, int idSprint, int idSprintHistoria, int idSprintDestino)
+    {
+        if (!_usuarioActual.PuedePlanificarSprint())
+        {
+            TempData["Error"] = "No tienes permisos para planificar el Sprint.";
+            return RedirectToAction(nameof(Index), new { idProyecto, idSprint });
+        }
+
+        try
+        {
+            await _planificacionRepositorio.ReplanificarAsync(idSprintHistoria, idSprintDestino, _usuarioActual.IdUsuario);
+            TempData["Mensaje"] = "La historia se replanificó al nuevo Sprint junto con sus tareas pendientes.";
         }
         catch (InvalidOperationException ex)
         {
