@@ -1,7 +1,9 @@
 @model Gestor_proyectos_scrum.Models.PlanificacionIndexViewModel
+@inject Gestor_proyectos_scrum.Services.UsuarioActual UsuarioActual
 @{
     ViewData["Title"] = "Planificación del Sprint";
     var sprint = Model.Sprint;
+    var puedePlanificar = UsuarioActual.PuedePlanificarSprint();
 }
 
 @functions {
@@ -133,6 +135,10 @@ else
             <!-- Columna Izquierda: Product Backlog -->
             <div class="col-12 col-lg-7">
                 <div class="card-custom overflow-hidden h-100">
+                    <form id="formComprometer" method="post" asp-action="Comprometer">
+                        <input type="hidden" name="idProyecto" value="@Model.IdProyecto" />
+                        <input type="hidden" name="idSprint" value="@Model.IdSprint" />
+
                     <div class="p-3 border-bottom bg-light bg-opacity-50 d-flex align-items-center justify-content-between">
                         <h5 class="mb-0 fw-bold fs-6 text-dark">Product Backlog</h5>
                         <span class="badge bg-secondary-subtle text-secondary rounded-pill">@Model.Candidatas.Count historia(s)</span>
@@ -148,7 +154,10 @@ else
                         {
                             <div class="form-check hu-select-item d-flex align-items-start justify-content-between">
                                 <div>
-                                    <input class="form-check-input me-2" type="checkbox" id="check-@h.Codigo" disabled>
+                                    <input class="form-check-input me-2 js-historia-checkbox" type="checkbox" id="check-@h.Codigo"
+                                           name="idHistoria" value="@h.IdHistoria"
+                                           data-codigo="@h.Codigo" data-titulo="@h.Quiero" data-puntos="@h.Estimacion"
+                                           disabled="@(!puedePlanificar)">
                                     <label class="form-check-label" for="check-@h.Codigo">
                                         <strong>@h.Codigo:</strong> @h.Quiero
                                     </label>
@@ -195,23 +204,24 @@ else
                             }
                         }
                     </div>
+                    </form>
                 </div>
             </div>
 
             <!-- Columna Derecha: Panel de Compromiso -->
             <div class="col-12 col-lg-5">
-                <div class="metric-card">
+                <div class="metric-card" id="panelCompromiso" data-capacidad="@sprint.CapacidadPuntos" data-comprometidos="@Model.PuntosComprometidos">
                     <h5 class="fw-bold text-dark mb-3"><i class="bi bi-clipboard2-check text-primary me-2"></i>Compromiso del Sprint</h5>
 
                     <div class="capacity-bar-header">
                         <span class="text-muted">Capacidad comprometida</span>
-                        <span class="capacity-bar-value">@Model.PuntosComprometidos / @sprint.CapacidadPuntos pts</span>
+                        <span id="capacidadValor" class="capacity-bar-value">@Model.PuntosComprometidos / @sprint.CapacidadPuntos pts</span>
                     </div>
                     <div class="capacity-bar-track">
-                        <div class="capacity-bar-fill @ClaseCapacidad(Model.PuntosComprometidos, sprint.CapacidadPuntos)"
+                        <div id="capacidadFill" class="capacity-bar-fill @ClaseCapacidad(Model.PuntosComprometidos, sprint.CapacidadPuntos)"
                              style="width: @(sprint.CapacidadPuntos > 0 ? Math.Min(100, Model.PuntosComprometidos * 100 / sprint.CapacidadPuntos) : 0)%;"></div>
                     </div>
-                    <div class="capacity-bar-note">
+                    <div id="capacidadNota" class="capacity-bar-note">
                         <i class="bi bi-info-circle me-1"></i>
                         @{
                             var disponibles = sprint.CapacidadPuntos - Model.PuntosComprometidos;
@@ -241,7 +251,27 @@ else
                             {
                                 <li class="d-flex justify-content-between align-items-center py-1 border-bottom">
                                     <span><strong>@h.Codigo</strong> @h.Quiero</span>
-                                    <span class="badge bg-primary-subtle text-primary">@h.Estimacion pts</span>
+                                    <span class="d-flex align-items-center gap-2">
+                                        <span class="badge bg-primary-subtle text-primary">@h.Estimacion pts</span>
+                                        @if (puedePlanificar)
+                                        {
+                                            @if (h.CantidadTareas > 0)
+                                            {
+                                                <span class="text-muted" title="Tiene @h.CantidadTareas tarea(s): primero hay que eliminarlas o moverlas."><i class="bi bi-lock-fill"></i></span>
+                                            }
+                                            else
+                                            {
+                                                <form method="post" asp-action="QuitarHistoria" class="d-inline m-0" onsubmit="return confirm('¿Quitar @h.Codigo del Sprint?');">
+                                                    <input type="hidden" name="idProyecto" value="@Model.IdProyecto" />
+                                                    <input type="hidden" name="idSprint" value="@Model.IdSprint" />
+                                                    <input type="hidden" name="idHistoria" value="@h.IdHistoria" />
+                                                    <button type="submit" class="btn btn-sm btn-link text-danger p-0" title="Quitar del Sprint" aria-label="Quitar @h.Codigo del Sprint">
+                                                        <i class="bi bi-x-lg"></i>
+                                                    </button>
+                                                </form>
+                                            }
+                                        }
+                                    </span>
                                 </li>
                             }
                         </ul>
@@ -249,13 +279,67 @@ else
 
                     <hr class="my-3">
 
-                    <button type="button" class="btn btn-primary w-100 d-flex align-items-center justify-content-center gap-2 py-2" disabled title="Disponible en la parte 2 de HU-06">
-                        <i class="bi bi-check2-square"></i>
-                        <span>Confirmar Compromiso del Sprint</span>
-                    </button>
+                    @if (puedePlanificar)
+                    {
+                        <button type="button" id="btnAbrirModalCompromiso" class="btn btn-primary w-100 d-flex align-items-center justify-content-center gap-2 py-2" data-bs-toggle="modal" data-bs-target="#modalConfirmarCompromiso" disabled>
+                            <i class="bi bi-check2-square"></i>
+                            <span>Confirmar Compromiso del Sprint</span>
+                        </button>
+                    }
+                    else
+                    {
+                        <button type="button" class="btn btn-primary w-100 d-flex align-items-center justify-content-center gap-2 py-2" disabled title="No tienes permisos para planificar el Sprint">
+                            <i class="bi bi-check2-square"></i>
+                            <span>Confirmar Compromiso del Sprint</span>
+                        </button>
+                    }
                 </div>
             </div>
 
         </div>
+
+        @if (puedePlanificar)
+        {
+            <div class="modal fade" id="modalConfirmarCompromiso" tabindex="-1" aria-labelledby="modalConfirmarCompromisoLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="modalConfirmarCompromisoLabel">Confirmar Compromiso del Sprint</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p class="small text-muted mb-2">Historias seleccionadas:</p>
+                            <ul id="modalListaSeleccionadas" class="list-unstyled small mb-3">
+                                <li class="text-muted small">No has seleccionado historias.</li>
+                            </ul>
+                            <div class="d-flex justify-content-between small mb-1">
+                                <span class="text-muted">Puntos seleccionados</span>
+                                <span id="modalResumenPuntos" class="fw-bold">0 pts</span>
+                            </div>
+                            <div class="d-flex justify-content-between small mb-3">
+                                <span class="text-muted">Capacidad restante tras confirmar</span>
+                                <span id="modalResumenCapacidad" class="fw-bold">0 pts</span>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="inputConfirmo" name="confirmo" value="true" form="formComprometer">
+                                <label class="form-check-label small" for="inputConfirmo">
+                                    Confirmo que las historias cumplen criterios de aceptación y estimación.
+                                </label>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" id="btnEnviarCompromiso" form="formComprometer" class="btn btn-primary" disabled>
+                                <i class="bi bi-check2-square me-1"></i>Comprometer historias
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
     }
+}
+
+@section Scripts {
+    <script src="~/js/planificacion.js" asp-append-version="true"></script>
 }

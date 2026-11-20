@@ -15,4 +15,6 @@ public class UsuarioActual
     public string Rol => "Product Owner";
 
     public bool PuedeGestionarProyectos() => Rol is "Administrador" or "Product Owner";
+
+    public bool PuedePlanificarSprint() => Rol is "Administrador" or "Product Owner" or "Scrum Master";
 }
