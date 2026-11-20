@@ -49,7 +49,7 @@ public class PlanificacionRepositorio
         return await conexion.QueryFirstOrDefaultAsync<SprintPlanificacionInfo>(sql, new { IdSprint = idSprint });
     }
 
-    public async Task<IReadOnlyList<HistoriaCandidataItem>> ListarCandidatasAsync(int idProyecto, int idSprint)
+    public async Task<IReadOnlyList<HistoriaCandidataItem>> ListarCandidatasAsync(int idProyecto)
     {
         const string sql = @"
             select
@@ -62,13 +62,7 @@ public class PlanificacionRepositorio
                 h.OrdenPrioridad,
                 h.Estimacion,
                 h.Estado,
-                count(ca.IdCriterio) as CantidadCriterios,
-                exists (
-                    select 1 from SprintHistorias sh2
-                    where sh2.IdHistoria = h.IdHistoria
-                      and sh2.IdSprint = @IdSprint
-                      and sh2.Resultado = 'Comprometida'
-                ) as YaComprometida
+                count(ca.IdCriterio) as CantidadCriterios
             from HistoriasUsuario h
             left join CriteriosAceptacion ca on ca.IdHistoria = h.IdHistoria
             where h.IdProyecto = @IdProyecto
@@ -77,13 +71,12 @@ public class PlanificacionRepositorio
                   select 1 from SprintHistorias sh
                   where sh.IdHistoria = h.IdHistoria
                     and sh.Resultado = 'Comprometida'
-                    and sh.IdSprint <> @IdSprint
               )
             group by h.IdHistoria, h.Codigo, h.Como, h.Quiero, h.Para, h.Prioridad, h.OrdenPrioridad, h.Estimacion, h.Estado
             order by h.OrdenPrioridad;";
 
         using var conexion = await _conexionDb.CrearConexionAbiertaAsync();
-        var filas = await conexion.QueryAsync<HistoriaCandidataItemFila>(sql, new { IdProyecto = idProyecto, IdSprint = idSprint });
+        var filas = await conexion.QueryAsync<HistoriaCandidataItemFila>(sql, new { IdProyecto = idProyecto });
 
         return filas.Select(MapearCandidata).ToList();
     }
@@ -110,25 +103,20 @@ public class PlanificacionRepositorio
 
     private static HistoriaCandidataItem MapearCandidata(HistoriaCandidataItemFila fila)
     {
-        // Una historia ya comprometida en este Sprint es elegible por definición, aunque su Estado
-        // ya haya pasado a "En Sprint" (deja de cumplir "Lista" tal como quedó al momento de comprometerla).
         var motivos = new List<string>();
-        if (!fila.YaComprometida)
+        if (fila.Estado != "Lista")
         {
-            if (fila.Estado != "Lista")
-            {
-                motivos.Add("No está en estado Lista");
-            }
+            motivos.Add("No está en estado Lista");
+        }
 
-            if (fila.Estimacion is null)
-            {
-                motivos.Add("Sin estimación");
-            }
+        if (fila.Estimacion is null)
+        {
+            motivos.Add("Sin estimación");
+        }
 
-            if (fila.CantidadCriterios == 0)
-            {
-                motivos.Add("Sin criterios de aceptación");
-            }
+        if (fila.CantidadCriterios == 0)
+        {
+            motivos.Add("Sin criterios de aceptación");
         }
 
         return new HistoriaCandidataItem
@@ -142,7 +130,6 @@ public class PlanificacionRepositorio
             OrdenPrioridad = fila.OrdenPrioridad,
             Estimacion = fila.Estimacion,
             CantidadCriterios = fila.CantidadCriterios,
-            YaComprometida = fila.YaComprometida,
             Motivos = motivos
         };
     }
@@ -160,6 +147,5 @@ public class PlanificacionRepositorio
         public int? Estimacion { get; set; }
         public string Estado { get; set; } = string.Empty;
         public int CantidadCriterios { get; set; }
-        public bool YaComprometida { get; set; }
     }
 }

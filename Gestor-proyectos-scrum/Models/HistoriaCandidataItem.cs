@@ -13,9 +13,6 @@ public class HistoriaCandidataItem
     public int? Estimacion { get; set; }
     public int CantidadCriterios { get; set; }
 
-    /// <summary>True si ya está comprometida en el Sprint elegido (checkbox marcado).</summary>
-    public bool YaComprometida { get; set; }
-
     /// <summary>Motivos por los que no puede entrar al Sprint; vacío si es elegible.</summary>
     public List<string> Motivos { get; set; } = new();
 

@@ -49,7 +49,7 @@ public class PlanificacionController : Controller
         }
 
         modelo.Sprint = await _planificacionRepositorio.ObtenerSprintAsync(idSprint.Value);
-        modelo.Candidatas = (await _planificacionRepositorio.ListarCandidatasAsync(idProyecto.Value, idSprint.Value)).ToList();
+        modelo.Candidatas = (await _planificacionRepositorio.ListarCandidatasAsync(idProyecto.Value)).ToList();
         modelo.Comprometidas = (await _planificacionRepositorio.ListarComprometidasAsync(idSprint.Value)).ToList();
         modelo.PuntosComprometidos = modelo.Comprometidas.Sum(c => c.Estimacion ?? 0);
 
