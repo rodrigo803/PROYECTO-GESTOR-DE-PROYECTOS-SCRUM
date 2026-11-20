@@ -536,7 +536,9 @@ public class PlanificacionRepositorio
 
     /// <summary>Historias comprometidas o ya Terminadas de un Sprint, con su estado de aprobación, para
     /// la vista cliente de solo lectura. No incluye historias Replanificadas o Devueltas: esas ya no
-    /// pertenecen a este Sprint.</summary>
+    /// pertenecen a este Sprint. El rechazo solo cuenta si ocurrió durante ESTE compromiso (Fecha de la
+    /// Aprobación posterior a FechaCompromiso): un rechazo de un ciclo anterior, ya Replanificado, no debe
+    /// arrastrarse como "Rechazada" al nuevo compromiso.</summary>
     public async Task<IReadOnlyList<HistoriaComprometidaClienteItem>> ListarComprometidasClienteAsync(int idSprint)
     {
         const string sql = @"
@@ -549,7 +551,8 @@ public class PlanificacionRepositorio
                 sh.Resultado,
                 (select count(*) from Tareas t where t.IdSprintHistoria = sh.IdSprintHistoria) as CantidadTareas,
                 exists (
-                    select 1 from Aprobaciones a where a.IdHistoria = h.IdHistoria and a.Resultado = 'Rechazado'
+                    select 1 from Aprobaciones a
+                    where a.IdHistoria = h.IdHistoria and a.Resultado = 'Rechazado' and a.Fecha >= sh.FechaCompromiso
                 ) as TieneRechazo
             from SprintHistorias sh
             join HistoriasUsuario h on h.IdHistoria = sh.IdHistoria
