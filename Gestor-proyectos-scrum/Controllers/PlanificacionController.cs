@@ -61,6 +61,50 @@ public class PlanificacionController : Controller
         return View(modelo);
     }
 
+    [HttpGet]
+    public async Task<IActionResult> Cliente(int? idProyecto, int? idSprint)
+    {
+        var proyectos = await _planificacionRepositorio.ListarProyectosDeMiembroAsync(_usuarioActual.IdUsuario);
+        var modelo = new PlanificacionClienteViewModel { Proyectos = proyectos.ToList() };
+
+        if (!proyectos.Any())
+        {
+            return View(modelo);
+        }
+
+        if (idProyecto is not null && !proyectos.Any(p => p.IdProyecto == idProyecto))
+        {
+            TempData["Error"] = "No tienes acceso a ese proyecto.";
+            return RedirectToAction(nameof(Cliente));
+        }
+
+        idProyecto ??= proyectos.First().IdProyecto;
+        modelo.IdProyecto = idProyecto;
+
+        var sprints = await _planificacionRepositorio.ListarSprintsDelProyectoAsync(idProyecto.Value);
+        modelo.Sprints = sprints.ToList();
+
+        if (idSprint is not null && !sprints.Any(s => s.IdSprint == idSprint))
+        {
+            TempData["Error"] = "Ese Sprint no pertenece a este proyecto.";
+            return RedirectToAction(nameof(Cliente), new { idProyecto });
+        }
+
+        idSprint ??= sprints.FirstOrDefault()?.IdSprint;
+        modelo.IdSprint = idSprint;
+
+        if (idSprint is null)
+        {
+            return View(modelo);
+        }
+
+        modelo.Sprint = await _planificacionRepositorio.ObtenerSprintAsync(idSprint.Value);
+        modelo.Comprometidas = (await _planificacionRepositorio.ListarComprometidasClienteAsync(idSprint.Value)).ToList();
+        modelo.PuntosComprometidos = modelo.Comprometidas.Sum(c => c.Estimacion ?? 0);
+
+        return View(modelo);
+    }
+
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Comprometer(int idProyecto, int idSprint, List<int>? idHistoria, bool confirmo)

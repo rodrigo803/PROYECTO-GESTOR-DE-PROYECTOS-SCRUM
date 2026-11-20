@@ -505,6 +505,72 @@ public class PlanificacionRepositorio
         }
     }
 
+    /// <summary>Proyectos donde el usuario es miembro, sin importar su Estado (la vista cliente también
+    /// consulta el historial de Sprints Cerrados).</summary>
+    public async Task<IReadOnlyList<ProyectoOpcion>> ListarProyectosDeMiembroAsync(int idUsuario)
+    {
+        const string sql = @"
+            select p.IdProyecto, p.Codigo, p.Nombre, p.Estado
+            from Proyectos p
+            join ProyectoMiembros pm on pm.IdProyecto = p.IdProyecto and pm.IdUsuario = @IdUsuario
+            order by p.Codigo;";
+
+        using var conexion = await _conexionDb.CrearConexionAbiertaAsync();
+        var filas = await conexion.QueryAsync<ProyectoOpcion>(sql, new { IdUsuario = idUsuario });
+        return filas.ToList();
+    }
+
+    /// <summary>Todos los Sprints del proyecto, con los Activos y Planificados primero y los Cerrados al final.</summary>
+    public async Task<IReadOnlyList<SprintOpcion>> ListarSprintsDelProyectoAsync(int idProyecto)
+    {
+        const string sql = @"
+            select IdSprint, Nombre, Estado
+            from Sprints
+            where IdProyecto = @IdProyecto
+            order by case Estado when 'Activo' then 0 when 'Planificado' then 1 else 2 end, FechaInicio desc;";
+
+        using var conexion = await _conexionDb.CrearConexionAbiertaAsync();
+        var filas = await conexion.QueryAsync<SprintOpcion>(sql, new { IdProyecto = idProyecto });
+        return filas.ToList();
+    }
+
+    /// <summary>Historias comprometidas o ya Terminadas de un Sprint, con su estado de aprobación, para
+    /// la vista cliente de solo lectura. No incluye historias Replanificadas o Devueltas: esas ya no
+    /// pertenecen a este Sprint.</summary>
+    public async Task<IReadOnlyList<HistoriaComprometidaClienteItem>> ListarComprometidasClienteAsync(int idSprint)
+    {
+        const string sql = @"
+            select
+                h.IdHistoria,
+                h.Codigo,
+                h.Quiero,
+                h.Estimacion,
+                h.Prioridad,
+                sh.Resultado,
+                (select count(*) from Tareas t where t.IdSprintHistoria = sh.IdSprintHistoria) as CantidadTareas,
+                exists (
+                    select 1 from Aprobaciones a where a.IdHistoria = h.IdHistoria and a.Resultado = 'Rechazado'
+                ) as TieneRechazo
+            from SprintHistorias sh
+            join HistoriasUsuario h on h.IdHistoria = sh.IdHistoria
+            where sh.IdSprint = @IdSprint and sh.Resultado in ('Comprometida', 'Terminada')
+            order by h.OrdenPrioridad;";
+
+        using var conexion = await _conexionDb.CrearConexionAbiertaAsync();
+        var filas = await conexion.QueryAsync<HistoriaComprometidaClienteFila>(sql, new { IdSprint = idSprint });
+
+        return filas.Select(f => new HistoriaComprometidaClienteItem
+        {
+            IdHistoria = f.IdHistoria,
+            Codigo = f.Codigo,
+            Quiero = f.Quiero,
+            Estimacion = f.Estimacion,
+            Prioridad = f.Prioridad,
+            CantidadTareas = f.CantidadTareas,
+            EstadoAprobacion = f.Resultado == "Terminada" ? "Aceptada" : (f.TieneRechazo ? "Rechazada" : "Pendiente")
+        }).ToList();
+    }
+
     private static async Task<SprintHistoriaParaQuitarFila> BloquearSprintHistoriaComprometidaAsync(
         MySqlConnection conexion, MySqlTransaction transaccion, int idSprint, int idHistoria, string estadoSprintRequerido)
     {
@@ -635,5 +701,17 @@ public class PlanificacionRepositorio
         public int? Estimacion { get; set; }
         public string EstadoSprint { get; set; } = string.Empty;
         public int IdProyecto { get; set; }
+    }
+
+    private class HistoriaComprometidaClienteFila
+    {
+        public int IdHistoria { get; set; }
+        public string Codigo { get; set; } = string.Empty;
+        public string Quiero { get; set; } = string.Empty;
+        public int? Estimacion { get; set; }
+        public string Prioridad { get; set; } = string.Empty;
+        public string Resultado { get; set; } = string.Empty;
+        public int CantidadTareas { get; set; }
+        public bool TieneRechazo { get; set; }
     }
 }
