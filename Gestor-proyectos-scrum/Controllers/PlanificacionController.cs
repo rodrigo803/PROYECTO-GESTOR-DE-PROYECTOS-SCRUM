@@ -1,29 +1,33 @@
-using Gestor_proyectos_scrum.Data;
 using Gestor_proyectos_scrum.Models;
 using Gestor_proyectos_scrum.Services;
 using Microsoft.AspNetCore.Mvc;
-using MySqlConnector;
 
 namespace Gestor_proyectos_scrum.Controllers;
 
+/// <summary>
+/// Controlador MVC para HU-06: Sprint Backlog / Planificación.
+/// Consume la Minimal API (Gestor-proyectos-scrum.Api) mediante ScrumApiClient;
+/// no accede directamente a MySQL.
+/// </summary>
 public class PlanificacionController : Controller
 {
-    private readonly PlanificacionRepositorio _planificacionRepositorio;
+    private readonly ScrumApiClient _apiClient;
     private readonly UsuarioActual _usuarioActual;
 
-    public PlanificacionController(PlanificacionRepositorio planificacionRepositorio, UsuarioActual usuarioActual)
+    public PlanificacionController(ScrumApiClient apiClient, UsuarioActual usuarioActual)
     {
-        _planificacionRepositorio = planificacionRepositorio;
+        _apiClient = apiClient;
         _usuarioActual = usuarioActual;
     }
 
     public async Task<IActionResult> Index(int? idProyecto, int? idSprint)
     {
-        var proyectos = await _planificacionRepositorio.ListarProyectosAbiertosAsync();
+        var proyectosRes = await _apiClient.ObtenerProyectosAbiertosAsync();
+        var proyectos = proyectosRes.Datos ?? new List<ProyectoOpcion>();
 
-        var modelo = new PlanificacionIndexViewModel { Proyectos = proyectos.ToList() };
+        var modelo = new PlanificacionIndexViewModel { Proyectos = proyectos };
 
-        if (!proyectos.Any())
+        if (proyectos.Count == 0)
         {
             return View(modelo);
         }
@@ -36,8 +40,8 @@ public class PlanificacionController : Controller
 
         modelo.IdProyecto = idProyecto;
 
-        var sprints = await _planificacionRepositorio.ListarSprintsPlanificablesAsync(idProyecto.Value);
-        modelo.Sprints = sprints.ToList();
+        var sprints = (await _apiClient.ObtenerSprintsPlanificablesAsync(idProyecto.Value)).Datos ?? new List<SprintOpcion>();
+        modelo.Sprints = sprints;
 
         if (idSprint is null || !sprints.Any(s => s.IdSprint == idSprint))
         {
@@ -46,16 +50,16 @@ public class PlanificacionController : Controller
         }
 
         modelo.IdSprint = idSprint;
-        modelo.HistoriasNoTerminadas = (await _planificacionRepositorio.ListarHistoriasNoTerminadasAsync(idProyecto.Value)).ToList();
+        modelo.HistoriasNoTerminadas = (await _apiClient.ObtenerHistoriasNoTerminadasAsync(idProyecto.Value)).Datos ?? new List<HistoriaNoTerminadaItem>();
 
         if (idSprint is null)
         {
             return View(modelo);
         }
 
-        modelo.Sprint = await _planificacionRepositorio.ObtenerSprintAsync(idSprint.Value);
-        modelo.Candidatas = (await _planificacionRepositorio.ListarCandidatasAsync(idProyecto.Value)).ToList();
-        modelo.Comprometidas = (await _planificacionRepositorio.ListarComprometidasAsync(idSprint.Value)).ToList();
+        modelo.Sprint = (await _apiClient.ObtenerSprintPlanificacionAsync(idSprint.Value)).Datos;
+        modelo.Candidatas = (await _apiClient.ObtenerCandidatasAsync(idProyecto.Value)).Datos ?? new List<HistoriaCandidataItem>();
+        modelo.Comprometidas = (await _apiClient.ObtenerComprometidasAsync(idSprint.Value)).Datos ?? new List<HistoriaComprometidaItem>();
         modelo.PuntosComprometidos = modelo.Comprometidas.Sum(c => c.Estimacion ?? 0);
 
         return View(modelo);
@@ -64,10 +68,10 @@ public class PlanificacionController : Controller
     [HttpGet]
     public async Task<IActionResult> Cliente(int? idProyecto, int? idSprint)
     {
-        var proyectos = await _planificacionRepositorio.ListarProyectosDeMiembroAsync(_usuarioActual.IdUsuario);
-        var modelo = new PlanificacionClienteViewModel { Proyectos = proyectos.ToList() };
+        var proyectos = (await _apiClient.ObtenerProyectosDeMiembroAsync()).Datos ?? new List<ProyectoOpcion>();
+        var modelo = new PlanificacionClienteViewModel { Proyectos = proyectos };
 
-        if (!proyectos.Any())
+        if (proyectos.Count == 0)
         {
             return View(modelo);
         }
@@ -81,8 +85,8 @@ public class PlanificacionController : Controller
         idProyecto ??= proyectos.First().IdProyecto;
         modelo.IdProyecto = idProyecto;
 
-        var sprints = await _planificacionRepositorio.ListarSprintsDelProyectoAsync(idProyecto.Value);
-        modelo.Sprints = sprints.ToList();
+        var sprints = (await _apiClient.ObtenerSprintsDelProyectoClienteAsync(idProyecto.Value)).Datos ?? new List<SprintOpcion>();
+        modelo.Sprints = sprints;
 
         if (idSprint is not null && !sprints.Any(s => s.IdSprint == idSprint))
         {
@@ -98,8 +102,8 @@ public class PlanificacionController : Controller
             return View(modelo);
         }
 
-        modelo.Sprint = await _planificacionRepositorio.ObtenerSprintAsync(idSprint.Value);
-        modelo.Comprometidas = (await _planificacionRepositorio.ListarComprometidasClienteAsync(idSprint.Value)).ToList();
+        modelo.Sprint = (await _apiClient.ObtenerSprintClienteAsync(idSprint.Value)).Datos;
+        modelo.Comprometidas = (await _apiClient.ObtenerComprometidasClienteAsync(idSprint.Value)).Datos ?? new List<HistoriaComprometidaClienteItem>();
         modelo.PuntosComprometidos = modelo.Comprometidas.Sum(c => c.Estimacion ?? 0);
 
         return View(modelo);
@@ -112,30 +116,6 @@ public class PlanificacionController : Controller
         if (!_usuarioActual.PuedePlanificarSprint())
         {
             TempData["Error"] = "No tienes permisos para planificar el Sprint.";
-            return RedirectToAction(nameof(Index), new { idProyecto, idSprint });
-        }
-
-        var sprint = await _planificacionRepositorio.ObtenerSprintAsync(idSprint);
-        if (sprint is null)
-        {
-            return NotFound();
-        }
-
-        if (sprint.IdProyecto != idProyecto)
-        {
-            return BadRequest();
-        }
-
-        if (sprint.Estado is not ("Planificado" or "Activo"))
-        {
-            TempData["Error"] = "El Sprint debe estar Planificado o Activo para comprometer historias.";
-            return RedirectToAction(nameof(Index), new { idProyecto, idSprint });
-        }
-
-        var proyectosAbiertos = await _planificacionRepositorio.ListarProyectosAbiertosAsync();
-        if (!proyectosAbiertos.Any(p => p.IdProyecto == idProyecto))
-        {
-            TempData["Error"] = "El proyecto está Cerrado.";
             return RedirectToAction(nameof(Index), new { idProyecto, idSprint });
         }
 
@@ -152,45 +132,10 @@ public class PlanificacionController : Controller
             return RedirectToAction(nameof(Index), new { idProyecto, idSprint });
         }
 
-        var candidatas = (await _planificacionRepositorio.ListarCandidatasAsync(idProyecto))
-            .ToDictionary(c => c.IdHistoria);
-
-        var invalidas = idsSeleccionadas
-            .Where(id => !candidatas.TryGetValue(id, out var historia) || !historia.EsElegible)
-            .ToList();
-
-        if (invalidas.Count > 0)
-        {
-            TempData["Error"] = "Una o más historias seleccionadas ya no están disponibles para este Sprint. Vuelve a intentarlo.";
-            return RedirectToAction(nameof(Index), new { idProyecto, idSprint });
-        }
-
-        var comprometidasActuales = await _planificacionRepositorio.ListarComprometidasAsync(idSprint);
-        var puntosYaComprometidos = comprometidasActuales.Sum(c => c.Estimacion ?? 0);
-        var puntosNuevos = idsSeleccionadas.Sum(id => candidatas[id].Estimacion ?? 0);
-        var disponibles = sprint.CapacidadPuntos - puntosYaComprometidos;
-
-        if (puntosNuevos > disponibles)
-        {
-            var exceso = puntosNuevos - disponibles;
-            TempData["Error"] = $"Las historias seleccionadas suman {puntosNuevos} pts, pero solo quedan {disponibles} pts disponibles de capacidad (sobran {exceso} pts).";
-            return RedirectToAction(nameof(Index), new { idProyecto, idSprint });
-        }
-
-        try
-        {
-            await _planificacionRepositorio.ComprometerAsync(idSprint, idsSeleccionadas, _usuarioActual.IdUsuario);
-            var codigos = string.Join(", ", idsSeleccionadas.Select(id => candidatas[id].Codigo));
-            TempData["Mensaje"] = $"Se comprometieron {idsSeleccionadas.Count} historia(s) al Sprint \"{sprint.Nombre}\": {codigos}.";
-        }
-        catch (InvalidOperationException ex)
-        {
-            TempData["Error"] = ex.Message;
-        }
-        catch (MySqlException ex) when (ex.Number == 1062)
-        {
-            TempData["Error"] = "Una de las historias ya fue comprometida por otro usuario. Vuelve a intentarlo.";
-        }
+        var resultado = await _apiClient.ComprometerHistoriasAsync(idSprint, idsSeleccionadas);
+        TempData[resultado.Exito ? "Mensaje" : "Error"] = resultado.Exito
+            ? resultado.Datos?.Mensaje ?? "Historias comprometidas correctamente."
+            : resultado.Error ?? "No fue posible comprometer las historias.";
 
         return RedirectToAction(nameof(Index), new { idProyecto, idSprint });
     }
@@ -205,15 +150,10 @@ public class PlanificacionController : Controller
             return RedirectToAction(nameof(Index), new { idProyecto, idSprint });
         }
 
-        try
-        {
-            await _planificacionRepositorio.QuitarHistoriaAsync(idSprint, idHistoria, _usuarioActual.IdUsuario);
-            TempData["Mensaje"] = "La historia se quitó del Sprint y volvió al Product Backlog.";
-        }
-        catch (InvalidOperationException ex)
-        {
-            TempData["Error"] = ex.Message;
-        }
+        var resultado = await _apiClient.QuitarHistoriaAsync(idSprint, idHistoria);
+        TempData[resultado.Exito ? "Mensaje" : "Error"] = resultado.Exito
+            ? resultado.Datos?.Mensaje ?? "La historia se quitó del Sprint."
+            : resultado.Error ?? "No fue posible quitar la historia.";
 
         return RedirectToAction(nameof(Index), new { idProyecto, idSprint });
     }
@@ -228,15 +168,10 @@ public class PlanificacionController : Controller
             return RedirectToAction(nameof(Index), new { idProyecto, idSprint });
         }
 
-        try
-        {
-            await _planificacionRepositorio.AceptarHistoriaAsync(idSprint, idHistoria, _usuarioActual.IdUsuario);
-            TempData["Mensaje"] = "La historia se aceptó en la revisión del Sprint.";
-        }
-        catch (InvalidOperationException ex)
-        {
-            TempData["Error"] = ex.Message;
-        }
+        var resultado = await _apiClient.AceptarHistoriaAsync(idSprint, idHistoria);
+        TempData[resultado.Exito ? "Mensaje" : "Error"] = resultado.Exito
+            ? resultado.Datos?.Mensaje ?? "La historia se aceptó en la revisión del Sprint."
+            : resultado.Error ?? "No fue posible aceptar la historia.";
 
         return RedirectToAction(nameof(Index), new { idProyecto, idSprint });
     }
@@ -257,15 +192,10 @@ public class PlanificacionController : Controller
             return RedirectToAction(nameof(Index), new { idProyecto, idSprint });
         }
 
-        try
-        {
-            await _planificacionRepositorio.RechazarHistoriaAsync(idSprint, idHistoria, comentario.Trim(), _usuarioActual.IdUsuario);
-            TempData["Mensaje"] = "La historia se rechazó en la revisión del Sprint. Sigue comprometida.";
-        }
-        catch (InvalidOperationException ex)
-        {
-            TempData["Error"] = ex.Message;
-        }
+        var resultado = await _apiClient.RechazarHistoriaAsync(idSprint, idHistoria, comentario.Trim());
+        TempData[resultado.Exito ? "Mensaje" : "Error"] = resultado.Exito
+            ? resultado.Datos?.Mensaje ?? "La historia se rechazó en la revisión del Sprint."
+            : resultado.Error ?? "No fue posible rechazar la historia.";
 
         return RedirectToAction(nameof(Index), new { idProyecto, idSprint });
     }
@@ -280,15 +210,10 @@ public class PlanificacionController : Controller
             return RedirectToAction(nameof(Index), new { idProyecto, idSprint });
         }
 
-        try
-        {
-            await _planificacionRepositorio.RegresarAlBacklogAsync(idSprintHistoria, _usuarioActual.IdUsuario);
-            TempData["Mensaje"] = "La historia volvió al Product Backlog como 'Lista'.";
-        }
-        catch (InvalidOperationException ex)
-        {
-            TempData["Error"] = ex.Message;
-        }
+        var resultado = await _apiClient.RegresarAlBacklogAsync(idSprintHistoria);
+        TempData[resultado.Exito ? "Mensaje" : "Error"] = resultado.Exito
+            ? resultado.Datos?.Mensaje ?? "La historia volvió al Product Backlog."
+            : resultado.Error ?? "No fue posible regresar la historia al Backlog.";
 
         return RedirectToAction(nameof(Index), new { idProyecto, idSprint });
     }
@@ -303,15 +228,10 @@ public class PlanificacionController : Controller
             return RedirectToAction(nameof(Index), new { idProyecto, idSprint });
         }
 
-        try
-        {
-            await _planificacionRepositorio.ReplanificarAsync(idSprintHistoria, idSprintDestino, _usuarioActual.IdUsuario);
-            TempData["Mensaje"] = "La historia se replanificó al nuevo Sprint junto con sus tareas pendientes.";
-        }
-        catch (InvalidOperationException ex)
-        {
-            TempData["Error"] = ex.Message;
-        }
+        var resultado = await _apiClient.ReplanificarAsync(idSprintHistoria, idSprintDestino);
+        TempData[resultado.Exito ? "Mensaje" : "Error"] = resultado.Exito
+            ? resultado.Datos?.Mensaje ?? "La historia se replanificó al nuevo Sprint."
+            : resultado.Error ?? "No fue posible replanificar la historia.";
 
         return RedirectToAction(nameof(Index), new { idProyecto, idSprint });
     }
