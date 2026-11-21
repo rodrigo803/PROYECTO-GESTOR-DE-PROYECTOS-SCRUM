@@ -1,0 +1,173 @@
+@model Gestor_proyectos_scrum.Models.CrearTareaViewModel
+@{
+    ViewData["Title"] = "Nueva Tarea";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/modulos-rodrigo.css" asp-append-version="true" />
+}
+
+@await Html.PartialAsync("_BarraPerfilPruebas")
+
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-1 small text-muted">
+                <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-decoration-none text-muted">Inicio</a></li>
+                <li class="breadcrumb-item"><a asp-controller="Tareas" asp-action="Index" class="text-decoration-none text-muted">Sprint Backlog &amp; Tareas</a></li>
+                <li class="breadcrumb-item active text-primary fw-medium" aria-current="page">Nueva Tarea</li>
+            </ol>
+        </nav>
+        <div class="d-flex align-items-center gap-2">
+            <h1 class="page-title mb-0">Agregar Nueva Tarea Técnica</h1>
+            <span class="badge bg-primary-subtle text-primary border border-primary-subtle">HU-07</span>
+        </div>
+        <p class="page-subtitle mb-0">Toda tarea inicia en estado <strong>Pendiente</strong> y con <strong>0%</strong> de avance. El progreso se reporta mediante checkpoints inmutables.</p>
+    </div>
+
+    <div>
+        <a asp-action="Index" class="btn btn-outline-secondary d-inline-flex align-items-center gap-2">
+            <i class="bi bi-arrow-left"></i>
+            <span>Volver al Sprint Backlog</span>
+        </a>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-12 col-lg-8">
+        <div class="card-custom p-4">
+            <form asp-action="Create" method="post" class="form-validar-scrum" novalidate>
+                @Html.AntiForgeryToken()
+
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger rounded-3 small" role="alert"></div>
+
+                <div class="row g-3">
+                    <!-- Historia comprometida en Sprint -->
+                    <div class="col-12">
+                        <label asp-for="IdSprintHistoria" class="form-label fw-semibold text-dark"></label>
+                        <span class="text-danger">*</span>
+                        <select asp-for="IdSprintHistoria"
+                                class="form-select"
+                                required
+                                data-msg-required="Seleccione una Historia de Usuario comprometida en un Sprint.">
+                            <option value="">Seleccione una Historia de Usuario comprometida...</option>
+                            @foreach (var sh in Model.SprintHistoriasDisponibles)
+                            {
+                                <option value="@sh.IdSprintHistoria">@sh.EtiquetaSelector</option>
+                            }
+                        </select>
+                        <div class="form-text">Solo se listan Historias comprometidas en Sprints en estado Activo o Planificado.</div>
+                        <span asp-validation-for="IdSprintHistoria" class="text-danger small"></span>
+                    </div>
+
+                    <!-- Título de la tarea -->
+                    <div class="col-12">
+                        <label asp-for="Titulo" class="form-label fw-semibold text-dark"></label>
+                        <span class="text-danger">*</span>
+                        <input asp-for="Titulo"
+                               class="form-control"
+                               maxlength="150"
+                               placeholder="ej. Implementar endpoint de validación criptográfica OTP"
+                               required
+                               data-msg-required="El título de la tarea es obligatorio." />
+                        <span asp-validation-for="Titulo" class="text-danger small"></span>
+                    </div>
+
+                    <!-- Descripción -->
+                    <div class="col-12">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <label asp-for="Descripcion" class="form-label fw-semibold text-dark mb-1"></label>
+                            <span id="contadorDescCreatePage" class="char-counter">0 / 500</span>
+                        </div>
+                        <textarea asp-for="Descripcion"
+                                  rows="2"
+                                  maxlength="500"
+                                  data-char-counter="#contadorDescCreatePage"
+                                  class="form-control"
+                                  placeholder="Detalla los requisitos técnicos, criterios o entregables de esta tarea..."></textarea>
+                        <span asp-validation-for="Descripcion" class="text-danger small"></span>
+                    </div>
+
+                    <!-- Responsable -->
+                    <div class="col-12 col-md-6">
+                        <label asp-for="IdResponsable" class="form-label fw-semibold text-dark"></label>
+                        <select asp-for="IdResponsable" class="form-select">
+                            <option value="">-- Sin asignar por ahora --</option>
+                            @foreach (var r in Model.ResponsablesDisponibles)
+                            {
+                                <option value="@r.IdUsuario">@r.NombreCompleto (@r.RolNombre)</option>
+                            }
+                        </select>
+                        <span asp-validation-for="IdResponsable" class="text-danger small"></span>
+                    </div>
+
+                    <!-- Fecha de entrega estimada -->
+                    <div class="col-12 col-md-6">
+                        <label asp-for="FechaEntregaEstimada" class="form-label fw-semibold text-dark"></label>
+                        <span class="text-danger">*</span>
+                        <input asp-for="FechaEntregaEstimada"
+                               type="date"
+                               class="form-control"
+                               required
+                               data-msg-required="La fecha de entrega estimada es obligatoria." />
+                        <span asp-validation-for="FechaEntregaEstimada" class="text-danger small"></span>
+                    </div>
+
+                    <!-- Puntos de esfuerzo -->
+                    <div class="col-12 col-md-6">
+                        <label asp-for="PuntosEsfuerzo" class="form-label fw-semibold text-dark"></label>
+                        <span class="text-danger">*</span>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="bi bi-award text-muted"></i></span>
+                            <input asp-for="PuntosEsfuerzo"
+                                   type="number"
+                                   min="1"
+                                   max="100"
+                                   class="form-control"
+                                   required
+                                   data-msg-required="Los puntos de esfuerzo son obligatorios."
+                                   data-msg-min="Los puntos de esfuerzo deben ser mayores a 0." />
+                            <span class="input-group-text bg-light text-muted small">pts</span>
+                        </div>
+                        <div class="form-text">Peso relativo utilizado para calcular el avance ponderado de la Historia y del Sprint.</div>
+                        <span asp-validation-for="PuntosEsfuerzo" class="text-danger small"></span>
+                    </div>
+
+                    <!-- Horas estimadas -->
+                    <div class="col-12 col-md-6">
+                        <label asp-for="HorasEstimadas" class="form-label fw-semibold text-dark"></label>
+                        <span class="text-danger">*</span>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="bi bi-clock text-muted"></i></span>
+                            <input asp-for="HorasEstimadas"
+                                   type="number"
+                                   step="0.5"
+                                   min="0.5"
+                                   max="500"
+                                   class="form-control"
+                                   required
+                                   data-msg-required="Las horas estimadas son obligatorias."
+                                   data-msg-min="Las horas estimadas deben ser mayores a 0." />
+                            <span class="input-group-text bg-light text-muted small">hrs</span>
+                        </div>
+                        <span asp-validation-for="HorasEstimadas" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <hr class="my-4" />
+
+                <div class="d-flex justify-content-end gap-2">
+                    <a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a>
+                    <button type="submit" class="btn btn-primary d-inline-flex align-items-center gap-2 px-4">
+                        <i class="bi bi-check2-circle"></i>
+                        <span>Guardar Tarea</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/modulos-rodrigo.js" asp-append-version="true"></script>
+}
