@@ -90,6 +90,7 @@ app.MapGet("/api/health", async (ConexionDbApi db) =>
 app.MapUsuariosEndpoints();
 app.MapSprintsEndpoints();
 app.MapTareasEndpoints();
+app.MapProyectosEndpoints();
 
 app.Run();
 
