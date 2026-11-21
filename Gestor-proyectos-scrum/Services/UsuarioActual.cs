@@ -11,4 +11,12 @@ public class UsuarioActual
     public int IdUsuario => 2;
 
     public string Nombre => "Valeria Castro";
+
+    public string Rol => "Product Owner";
+
+    public bool PuedeGestionarProyectos() => Rol is "Administrador" or "Product Owner";
+
+    public bool PuedePlanificarSprint() => Rol is "Administrador" or "Product Owner" or "Scrum Master";
+
+    public bool PuedeAprobarHistorias() => Rol is "Administrador" or "Product Owner";
 }

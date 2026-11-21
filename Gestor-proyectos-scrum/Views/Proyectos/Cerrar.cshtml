@@ -1,0 +1,131 @@
+@model Gestor_proyectos_scrum.Models.ProyectoCerrarViewModel
+@{
+    ViewData["Title"] = "Cerrar Proyecto";
+}
+
+@functions {
+    private static string ClaseEstado(string estado) => estado switch
+    {
+        "Activo" => "project-status-activo",
+        "Planificado" => "project-status-planificado",
+        "En pausa" => "project-status-pausa",
+        "Cerrado" => "project-status-cerrado",
+        _ => "project-status-planificado"
+    };
+}
+
+<div class="mb-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-1 small text-muted">
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-decoration-none text-muted">Inicio</a></li>
+            <li class="breadcrumb-item"><a asp-action="Index" class="text-decoration-none text-muted">Gestión de Proyectos</a></li>
+            <li class="breadcrumb-item"><a asp-action="Detalle" asp-route-id="@Model.IdProyecto" class="text-decoration-none text-muted">@Model.Codigo</a></li>
+            <li class="breadcrumb-item active text-primary fw-medium" aria-current="page">Cerrar Proyecto</li>
+        </ol>
+    </nav>
+    <h1 class="page-title mb-0">Cerrar Proyecto</h1>
+    <p class="page-subtitle mb-0">@Model.Nombre (@Model.Codigo)</p>
+</div>
+
+<div class="card-custom p-4" style="max-width: 720px;">
+
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+    <!-- Resumen del proyecto a cerrar -->
+    <div class="p-3 rounded-3 border bg-light mb-3">
+        <div class="d-flex justify-content-between align-items-start mb-2 flex-wrap gap-2">
+            <div>
+                <div class="fw-bold text-dark">@Model.Nombre</div>
+                <small class="text-muted">@Model.FechaInicio.ToString("dd/MM/yyyy") &mdash; @Model.FechaFin.ToString("dd/MM/yyyy")</small>
+            </div>
+            <span class="project-status-badge @ClaseEstado(Model.Estado)"><span class="status-dot"></span>@Model.Estado</span>
+        </div>
+        <div class="row g-2 small">
+            <div class="col-6 col-sm-3">
+                <div class="text-muted">Sprints</div>
+                <div class="fw-semibold text-dark">@Model.SprintsCerrados de @Model.CantidadSprints cerrados</div>
+            </div>
+            <div class="col-6 col-sm-3">
+                <div class="text-muted">Miembros</div>
+                <div class="fw-semibold text-dark">@Model.CantidadMiembros</div>
+            </div>
+            <div class="col-6 col-sm-3">
+                <div class="text-muted">Historias pendientes</div>
+                <div class="fw-semibold text-dark">@Model.HistoriasPendientes</div>
+            </div>
+            <div class="col-6 col-sm-3">
+                <div class="text-muted">Impedimentos abiertos</div>
+                <div class="fw-semibold text-dark">@Model.ImpedimentosAbiertos</div>
+            </div>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.SprintActivoNombre))
+    {
+        <div class="alert alert-danger d-flex align-items-start gap-2 mb-3">
+            <i class="bi bi-exclamation-octagon-fill fs-5"></i>
+            <div class="small">
+                <strong>No se puede cerrar este proyecto.</strong>
+                Tiene el sprint <strong>@Model.SprintActivoNombre</strong> actualmente Activo.
+                Debes cerrar o cancelar ese sprint antes de cerrar el proyecto.
+            </div>
+        </div>
+    }
+    else if (Model.HistoriasPendientes > 0)
+    {
+        <div class="alert alert-warning d-flex align-items-start gap-2 mb-3">
+            <i class="bi bi-exclamation-triangle-fill fs-5"></i>
+            <div class="small">
+                Este proyecto tiene <strong>@Model.HistoriasPendientes historia(s)</strong> que no están en estado Terminada.
+                Puedes cerrarlo de todas formas, pero quedarán sin completar.
+            </div>
+        </div>
+    }
+
+    <form asp-action="Cerrar" asp-route-id="@Model.IdProyecto" method="post" novalidate>
+        <div class="row g-3">
+            <div class="col-12">
+                <label asp-for="Motivo" class="form-label fw-semibold text-dark">
+                    Motivo de Cierre <span class="text-danger">*</span>
+                </label>
+                <select asp-for="Motivo" class="form-select">
+                    <option value="">Selecciona un motivo</option>
+                    <option value="Proyecto completado">Proyecto completado</option>
+                    <option value="Cancelado por el cliente">Cancelado por el cliente</option>
+                    <option value="Reemplazado por otro proyecto">Reemplazado por otro proyecto</option>
+                </select>
+                <span asp-validation-for="Motivo" class="text-danger small"></span>
+            </div>
+
+            <div class="col-12">
+                <label asp-for="Observaciones" class="form-label fw-semibold text-dark">Observaciones (opcional)</label>
+                <textarea asp-for="Observaciones" class="form-control" rows="2" placeholder="Detalles adicionales sobre el cierre..."></textarea>
+                <span asp-validation-for="Observaciones" class="text-danger small"></span>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2 mt-4">
+            <a asp-action="Detalle" asp-route-id="@Model.IdProyecto" class="btn btn-outline-secondary">Cancelar</a>
+            @if (!string.IsNullOrEmpty(Model.SprintActivoNombre))
+            {
+                <button type="submit" class="btn btn-danger d-flex align-items-center gap-2" disabled title="Bloqueado: hay un sprint activo">
+                    <i class="bi bi-slash-circle"></i>
+                    <span>Cerrar Proyecto</span>
+                </button>
+            }
+            else
+            {
+                <button type="submit" class="btn btn-danger d-flex align-items-center gap-2"
+                        onclick="return confirm('¿Confirmas que deseas cerrar este proyecto? Esta acción no se puede deshacer.');">
+                    <i class="bi bi-slash-circle"></i>
+                    <span>Cerrar Proyecto</span>
+                </button>
+            }
+        </div>
+    </form>
+
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
