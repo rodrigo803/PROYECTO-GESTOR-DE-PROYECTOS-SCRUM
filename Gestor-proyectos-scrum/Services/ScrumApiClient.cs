@@ -9,7 +9,7 @@ namespace Gestor_proyectos_scrum.Services;
 /// Propaga automáticamente el header X-User-Id tomando el usuario activo de sesión
 /// de pruebas (Development) o UsuarioActual.
 /// </summary>
-public class ScrumApiClient
+public partial class ScrumApiClient
 {
     public const string SessionDevUserId = "DevUserId";
     public const string SessionDevUserNombre = "DevUserNombre";
