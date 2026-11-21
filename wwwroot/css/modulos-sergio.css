@@ -1,0 +1,489 @@
+/* =============================================================
+   MODULOS-SERGIO.CSS
+   Estilos propios de Sergio Monge (HU-03, HU-06, HU-09, HU-12).
+   Se enlaza siempre despues de css/styles.css. No modifica ni
+   duplica las reglas de Rodrigo; solo agrega clases nuevas.
+   ============================================================= */
+
+:root {
+  --client-accent: #14b8a6;
+  --client-accent-hover: #0d9488;
+  --client-accent-light: #ccfbf1;
+}
+
+/* =============================================================
+   SELECTOR DE VISTA (ADMINISTRATIVA | CLIENTE)
+   ============================================================= */
+.view-switch {
+  display: inline-flex;
+  align-items: center;
+  background-color: #eef2ff;
+  border: 1px solid var(--card-border);
+  border-radius: 999px;
+  padding: 0.25rem;
+  gap: 0.15rem;
+}
+
+.view-switch-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.9rem;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: all 0.2s ease;
+  min-height: 40px;
+}
+
+.view-switch-option:hover {
+  color: var(--primary-color);
+}
+
+.view-switch-option.active {
+  background-color: var(--primary-color);
+  color: #ffffff;
+  box-shadow: 0 1px 2px 0 rgba(79, 70, 229, 0.35);
+}
+
+/* Variante con acento verde azulado para paginas de Vista Cliente */
+.view-switch.view-switch-client {
+  background-color: var(--client-accent-light);
+}
+
+.view-switch.view-switch-client .view-switch-option.active {
+  background-color: var(--client-accent);
+  box-shadow: 0 1px 2px 0 rgba(20, 184, 166, 0.35);
+}
+
+/* =============================================================
+   SIDEBAR DE VISTA CLIENTE (acento #14b8a6)
+   ============================================================= */
+.client-sidebar .sidebar-heading {
+  color: #5eead4;
+}
+
+.client-sidebar .sidebar-nav-link:hover {
+  color: #ffffff;
+}
+
+.client-sidebar .sidebar-nav-link:hover i {
+  color: var(--client-accent);
+}
+
+.client-sidebar .sidebar-nav-link.active {
+  background-color: rgba(20, 184, 166, 0.15);
+  border-left-color: var(--client-accent);
+}
+
+.client-sidebar .sidebar-nav-link.active i {
+  color: var(--client-accent);
+}
+
+/* =============================================================
+   AVATARES APILADOS (miembros de proyecto / equipo)
+   ============================================================= */
+.avatar-stack {
+  display: flex;
+  align-items: center;
+}
+
+.avatar-stack-item {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.78rem;
+  color: #ffffff;
+  border: 2px solid #ffffff;
+  margin-left: -10px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+}
+
+.avatar-stack-item:first-child {
+  margin-left: 0;
+}
+
+.avatar-stack-item.avatar-stack-more {
+  background-color: #e2e8f0;
+  color: #475569;
+  font-size: 0.7rem;
+}
+
+.avatar-stack-sm .avatar-stack-item {
+  width: 26px;
+  height: 26px;
+  font-size: 0.68rem;
+  margin-left: -8px;
+}
+
+/* =============================================================
+   BADGES DE ESTADO DE PROYECTO
+   (Planificado, Activo, En pausa, Cerrado)
+   ============================================================= */
+.project-status-badge {
+  border-radius: 20px;
+  padding: 0.3rem 0.85rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  border: 1px solid transparent;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  white-space: nowrap;
+}
+
+.project-status-planificado {
+  background-color: #e0f2fe;
+  color: #075985;
+  border-color: #bae6fd;
+}
+.project-status-planificado .status-dot { background-color: #0284c7; }
+
+.project-status-activo {
+  background-color: #dcfce7;
+  color: #166534;
+  border-color: #bbf7d0;
+}
+.project-status-activo .status-dot { background-color: #16a34a; }
+
+.project-status-pausa {
+  background-color: #fef3c7;
+  color: #92400e;
+  border-color: #fde68a;
+}
+.project-status-pausa .status-dot { background-color: #d97706; }
+
+.project-status-cerrado {
+  background-color: #e2e8f0;
+  color: #334155;
+  border-color: #cbd5e1;
+}
+.project-status-cerrado .status-dot { background-color: #64748b; }
+
+/* =============================================================
+   TARJETAS DE METRICAS
+   ============================================================= */
+.metric-card {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid var(--card-border);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
+  padding: 1.1rem 1.25rem;
+  transition: box-shadow 0.2s ease;
+  height: 100%;
+}
+
+.metric-card:hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+}
+
+.metric-card-label {
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.metric-card-value {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin-top: 0.15rem;
+}
+
+.metric-card-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.metric-card-icon-indigo {
+  background-color: #eef2ff;
+  color: var(--primary-color);
+}
+
+.metric-card-icon-teal {
+  background-color: var(--client-accent-light);
+  color: var(--client-accent-hover);
+}
+
+.metric-card-icon-amber {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.metric-card-icon-rose {
+  background-color: #ffe4e6;
+  color: #9f1239;
+}
+
+.metric-card-footnote {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-top: 0.5rem;
+}
+
+/* =============================================================
+   BARRA DE CAPACIDAD (Sprint Backlog: capacidad vs. puntos)
+   ============================================================= */
+.capacity-bar-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 0.35rem;
+  font-size: 0.82rem;
+}
+
+.capacity-bar-header .capacity-bar-value {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.capacity-bar-track {
+  width: 100%;
+  height: 10px;
+  background-color: #e2e8f0;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.capacity-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+.capacity-bar-fill.capacity-ok {
+  background-color: #16a34a;
+}
+
+.capacity-bar-fill.capacity-warning {
+  background-color: #d97706;
+}
+
+.capacity-bar-fill.capacity-over {
+  background-color: #dc2626;
+}
+
+.capacity-bar-note {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  margin-top: 0.35rem;
+}
+
+/* =============================================================
+   BADGES DE SEVERIDAD (Impedimentos HU-09)
+   ============================================================= */
+.severity-badge {
+  border-radius: 6px;
+  padding: 0.25rem 0.6rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border: 1px solid transparent;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  white-space: nowrap;
+}
+
+.severity-critica {
+  background-color: #fee2e2;
+  color: #991b1b;
+  border-color: #fecaca;
+}
+
+.severity-alta {
+  background-color: #ffedd5;
+  color: #9a3412;
+  border-color: #fed7aa;
+}
+
+.severity-media {
+  background-color: #fef9c3;
+  color: #854d0e;
+  border-color: #fef08a;
+}
+
+.severity-baja {
+  background-color: #e2e8f0;
+  color: #475569;
+  border-color: #cbd5e1;
+}
+
+/* =============================================================
+   CHIPS DE FILTRO (Impedimentos HU-09)
+   ============================================================= */
+.filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.85rem;
+  border-radius: 999px;
+  border: 1px solid var(--card-border);
+  background-color: #ffffff;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  min-height: 40px;
+}
+
+.filter-chip:hover {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}
+
+.filter-chip.active {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+  color: #ffffff;
+}
+
+.filter-chip .filter-chip-count {
+  background-color: rgba(255, 255, 255, 0.25);
+  border-radius: 999px;
+  padding: 0.05rem 0.45rem;
+  font-size: 0.72rem;
+}
+
+.filter-chip:not(.active) .filter-chip-count {
+  background-color: #f1f5f9;
+  color: var(--text-muted);
+}
+
+/* =============================================================
+   ESCALA DE BREAKPOINTS (Responsividad HU-12)
+   ============================================================= */
+.breakpoint-scale-wrapper {
+  position: relative;
+  overflow: hidden;
+  padding-top: 30px;
+  margin-bottom: 1rem;
+}
+
+.breakpoint-scale {
+  position: relative;
+  display: flex;
+  width: 100%;
+  height: 56px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.breakpoint-segment {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  border-right: 1px solid rgba(255, 255, 255, 0.25);
+  text-align: center;
+  padding: 0.25rem;
+}
+
+.breakpoint-segment:last-child {
+  border-right: 0;
+}
+
+.breakpoint-segment small {
+  font-weight: 500;
+  opacity: 0.85;
+  font-size: 0.65rem;
+}
+
+.breakpoint-marker {
+  position: absolute;
+  top: 6px;
+  bottom: 0;
+  width: 0;
+  border-left: 2px dashed #0f172a;
+}
+
+.breakpoint-marker-label {
+  position: absolute;
+  top: 0;
+  transform: translateX(-50%);
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #0f172a;
+  white-space: nowrap;
+}
+
+/* =============================================================
+   MARCOS DE VISTA PREVIA POR DISPOSITIVO (Responsividad HU-12)
+   ============================================================= */
+.device-frame {
+  background: #ffffff;
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.device-frame-header {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.75rem;
+  background-color: #1e293b;
+  color: #cbd5e1;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.device-frame-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: #64748b;
+}
+
+.device-frame-viewport {
+  position: relative;
+  overflow: hidden;
+  background-color: #f8fafc;
+}
+
+.device-frame-viewport iframe {
+  border: 0;
+  display: block;
+  pointer-events: none;
+  transform-origin: top left;
+}
+
+.device-frame-viewport-desktop {
+  width: 320px;
+  height: 260px;
+}
+
+.device-frame-viewport-tablet {
+  width: 220px;
+  height: 260px;
+}
+
+.device-frame-viewport-mobile {
+  width: 150px;
+  height: 260px;
+}
+
+/* =============================================================
+   RESPONSIVIDAD (HU-12) — utilitarios compartidos
+   ============================================================= */
+@media (max-width: 767.98px) {
+  .metric-card-value {
+    font-size: 1.35rem;
+  }
+}

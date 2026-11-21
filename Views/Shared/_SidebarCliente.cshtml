@@ -1,0 +1,52 @@
+@{
+    var controladorActual = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+
+    string EsActivo(string controlador) => controladorActual.Equals(controlador, StringComparison.OrdinalIgnoreCase) ? " active" : "";
+}
+
+<!-- ========================================== -->
+<!-- SIDEBAR DE CLIENTE                          -->
+<!-- ========================================== -->
+<aside class="admin-sidebar client-sidebar" id="adminSidebar">
+
+    <div class="sidebar-heading">Vista Cliente</div>
+    <nav class="nav flex-column mb-3">
+        <a class="sidebar-nav-link@(EsActivo("Home"))" href='@Url.Content("~/Home/InicioCliente")'>
+            <i class="bi bi-house"></i>
+            <span>Inicio</span>
+        </a>
+        <a class="sidebar-nav-link@(EsActivo("Proyectos"))" href='@Url.Content("~/Proyectos/Cliente")'>
+            <i class="bi bi-kanban"></i>
+            <span>Mis Proyectos</span>
+        </a>
+        <a class="sidebar-nav-link@(EsActivo("Backlog"))" href='@Url.Content("~/Backlog/Cliente")'>
+            <i class="bi bi-journal-text"></i>
+            <span>Product Backlog</span>
+        </a>
+        <a class="sidebar-nav-link@(EsActivo("Planificacion"))" href='@Url.Content("~/Planificacion/Cliente")'>
+            <i class="bi bi-card-checklist"></i>
+            <span>Compromiso del Sprint</span>
+        </a>
+        <a class="sidebar-nav-link@(EsActivo("Tablero"))" href='@Url.Content("~/Tablero/Cliente")'>
+            <i class="bi bi-columns-gap"></i>
+            <span>Tablero</span>
+        </a>
+        <a class="sidebar-nav-link@(EsActivo("Impedimentos"))" href='@Url.Content("~/Impedimentos/Cliente")'>
+            <i class="bi bi-cone-striped"></i>
+            <span>Reportar Impedimento</span>
+        </a>
+        <a class="sidebar-nav-link@(EsActivo("Retrospectivas"))" href='@Url.Content("~/Retrospectivas/Cliente")'>
+            <i class="bi bi-chat-square-text"></i>
+            <span>Retrospectiva</span>
+        </a>
+    </nav>
+
+    <!-- Botón Cerrar Sesión en pie del Sidebar -->
+    <div class="mt-auto px-3 pt-4">
+        <button class="btn btn-outline-danger btn-sm w-100 d-flex align-items-center justify-content-center gap-2" type="button" onclick="confirmarCierreSesion()">
+            <i class="bi bi-box-arrow-right"></i>
+            <span>Cerrar Sesión</span>
+        </button>
+    </div>
+
+</aside>
