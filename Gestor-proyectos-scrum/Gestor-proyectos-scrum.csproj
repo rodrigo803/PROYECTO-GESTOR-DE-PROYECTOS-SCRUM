@@ -13,4 +13,8 @@
     <PackageReference Include="MySqlConnector" Version="3.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Gestor-proyectos-scrum.Api\Gestor-proyectos-scrum.Api.csproj" />
+  </ItemGroup>
+
 </Project>
