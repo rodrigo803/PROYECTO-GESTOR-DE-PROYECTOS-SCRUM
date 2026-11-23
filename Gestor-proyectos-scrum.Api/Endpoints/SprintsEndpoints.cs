@@ -27,7 +27,8 @@ public static class SprintsEndpoints
                     END,
                     Codigo ASC;");
             return Results.Ok(proyectos);
-        });
+        })
+        .RequireRoles();
 
         // GET /api/sprints?idProyecto=&estado=&buscar=
         group.MapGet("/", async (int? idProyecto, string? estado, string? buscar, ConexionDbApi db) =>
@@ -109,7 +110,8 @@ public static class SprintsEndpoints
 
             var sprints = await conexion.QueryAsync<SprintDto>(sql, parametros);
             return Results.Ok(sprints);
-        });
+        })
+        .RequireRoles();
 
         // GET /api/sprints/{id:int}
         group.MapGet("/{id:int}", async (int id, ConexionDbApi db) =>
@@ -198,7 +200,8 @@ public static class SprintsEndpoints
                 Sprint = sprint,
                 Historias = historias
             });
-        });
+        })
+        .RequireRoles();
 
         // POST /api/sprints (Requiere rol: Scrum Master, Administrador)
         group.MapPost("/", async (

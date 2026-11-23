@@ -20,7 +20,8 @@ public static class TareasEndpoints
             using var conexion = await db.CrearConexionAbiertaAsync();
             var dto = await CargarCatalogosInternoAsync(conexion);
             return Results.Ok(dto);
-        });
+        })
+        .RequireRoles();
 
         // GET /api/tareas/sprint-backlog?idSprint=&idResponsable=&estado=&buscar=
         group.MapGet("/sprint-backlog", async (int? idSprint, int? idResponsable, string? estado, string? buscar, ConexionDbApi db) =>
@@ -158,7 +159,8 @@ public static class TareasEndpoints
 
             viewDto.Historias = historias;
             return Results.Ok(viewDto);
-        });
+        })
+        .RequireRoles();
 
         // GET /api/tareas?idSprint=&idResponsable=&estado=&buscar=
         group.MapGet("/", async (int? idSprint, int? idResponsable, string? estado, string? buscar, ConexionDbApi db) =>
@@ -166,7 +168,8 @@ public static class TareasEndpoints
             using var conexion = await db.CrearConexionAbiertaAsync();
             var tareas = await ConsultarTareasInternoAsync(conexion, idSprint, idResponsable, estado, buscar);
             return Results.Ok(tareas);
-        });
+        })
+        .RequireRoles();
 
         // GET /api/tareas/{id:int}
         group.MapGet("/{id:int}", async (int id, ConexionDbApi db) =>

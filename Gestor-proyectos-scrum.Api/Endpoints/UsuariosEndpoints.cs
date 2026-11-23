@@ -19,7 +19,8 @@ public static class UsuariosEndpoints
             var roles = await conexion.QueryAsync<RolDto>(
                 "SELECT IdRol, Nombre FROM Roles ORDER BY IdRol;");
             return Results.Ok(roles);
-        });
+        })
+        .RequireRoles("Administrador");
 
         // GET /api/usuarios?buscar=&idRol=&activo=
         group.MapGet("/", async (string? buscar, int? idRol, bool? activo, ConexionDbApi db) =>
@@ -89,7 +90,8 @@ public static class UsuariosEndpoints
 
             var usuarios = await conexion.QueryAsync<UsuarioDto>(sql, parametros);
             return Results.Ok(usuarios);
-        });
+        })
+        .RequireRoles("Administrador");
 
         // GET /api/usuarios/{id:int}
         group.MapGet("/{id:int}", async (int id, ConexionDbApi db) =>
@@ -123,7 +125,8 @@ public static class UsuariosEndpoints
             }
 
             return Results.Ok(usuario);
-        });
+        })
+        .RequireRoles("Administrador");
 
         // POST /api/usuarios (Requiere rol: Administrador)
         group.MapPost("/", async (
