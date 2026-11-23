@@ -6,6 +6,7 @@
     var pctGlobal = (int)Math.Clamp(Math.Round(Model.AvanceGlobalPonderado), 0, 100);
     var returnUrl = Context.Request.Path + Context.Request.QueryString;
     var hayFiltros = Model.IdResponsableFiltro.HasValue || !string.IsNullOrWhiteSpace(Model.EstadoFiltro) || !string.IsNullOrWhiteSpace(Model.Buscar);
+    var puedeGestionar = Model.PerfilActual.PuedeGestionarTareas;
 
     string ObtenerClaseEstadoTarea(string estado) => estado switch
     {
@@ -130,7 +131,7 @@
         </div>
 
         <div class="col-12 col-md-2 d-flex justify-content-md-end gap-2">
-            @if (!sprintCerrado && Model.SprintHistoriasElegibles.Count > 0)
+            @if (puedeGestionar && !sprintCerrado && Model.SprintHistoriasElegibles.Count > 0)
             {
                 <button type="button"
                         class="btn btn-sm btn-primary d-inline-flex align-items-center gap-1 shadow-sm"
@@ -271,7 +272,7 @@ else
                                 }
                             </div>
 
-                            @if (!sprintCerrado && h.Resultado == "Comprometida")
+                            @if (puedeGestionar && !sprintCerrado && h.Resultado == "Comprometida")
                             {
                                 <button type="button"
                                         class="btn btn-sm btn-primary d-inline-flex align-items-center gap-1 shadow-sm text-nowrap"
@@ -414,7 +415,7 @@ else
                                                                     <i class="bi bi-eye me-2 text-primary"></i>Historial y Aprobaciones
                                                                 </a>
                                                             </li>
-                                                            @if (!sprintCerrado)
+                                                            @if (puedeGestionar && !sprintCerrado)
                                                             {
                                                                 <li>
                                                                     <button type="button"
