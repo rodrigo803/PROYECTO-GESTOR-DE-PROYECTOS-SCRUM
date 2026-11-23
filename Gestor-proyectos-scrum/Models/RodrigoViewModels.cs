@@ -724,6 +724,27 @@ public class RegistrarAprobacionViewModel
     public string? Comentario { get; set; }
 }
 
+public class MisTareasViewModel
+{
+    public List<MisTareasProyectoViewModel> Proyectos { get; set; } = new();
+}
+
+public class MisTareasProyectoViewModel
+{
+    public int IdProyecto { get; set; }
+    public string ProyectoCodigo { get; set; } = string.Empty;
+    public string ProyectoNombre { get; set; } = string.Empty;
+    public List<MisTareasSprintViewModel> Sprints { get; set; } = new();
+}
+
+public class MisTareasSprintViewModel
+{
+    public int IdSprint { get; set; }
+    public string SprintNombre { get; set; } = string.Empty;
+    public string SprintEstado { get; set; } = string.Empty;
+    public List<TareaItemViewModel> Tareas { get; set; } = new();
+}
+
 public class TareaDetailsViewModel
 {
     public TareaItemViewModel Tarea { get; set; } = new();

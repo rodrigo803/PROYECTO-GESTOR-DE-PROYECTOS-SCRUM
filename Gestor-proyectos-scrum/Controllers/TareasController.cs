@@ -9,19 +9,23 @@ namespace Gestor_proyectos_scrum.Controllers;
 /// Controlador MVC para HU-07: Gestión de Tareas, Checkpoints Inmutables (AvanceTareas)
 /// y Aprobaciones/Rechazos (Aprobaciones).
 /// Consume la Minimal API mediante ScrumApiClient.
-/// Admin y SM gestionan y asignan; PO solo ve.
+/// Admin y SM gestionan y asignan; PO solo ve. Cliente/RegistrarAvanceCliente son la vista
+/// cliente (Miembro del Equipo, "Mis tareas"), por eso cada acción lleva su propio
+/// [Authorize] en vez de uno a nivel de clase.
 /// </summary>
-[Authorize(Roles = Permisos.TareasVer)]
 public class TareasController : Controller
 {
     private readonly ScrumApiClient _apiClient;
+    private readonly UsuarioActual _usuarioActual;
 
-    public TareasController(ScrumApiClient apiClient)
+    public TareasController(ScrumApiClient apiClient, UsuarioActual usuarioActual)
     {
         _apiClient = apiClient;
+        _usuarioActual = usuarioActual;
     }
 
     [HttpGet]
+    [Authorize(Roles = Permisos.TareasVer)]
     public async Task<IActionResult> Index(int? idSprint, int? idResponsable, string? estado, string? buscar)
     {
         var perfilTask = _apiClient.ObtenerPerfilActivoAsync();
@@ -69,6 +73,7 @@ public class TareasController : Controller
     }
 
     [HttpGet]
+    [Authorize(Roles = Permisos.TareasVer)]
     public async Task<IActionResult> Details(int id)
     {
         var perfilTask = _apiClient.ObtenerPerfilActivoAsync();
@@ -361,6 +366,71 @@ public class TareasController : Controller
             return RedirectToAction(nameof(Index), new { idSprint = idSprintRetorno.Value });
         }
         return RedirectToAction(nameof(Details), new { id });
+    }
+
+    [HttpGet]
+    [Authorize(Roles = Permisos.Miembro)]
+    public async Task<IActionResult> Cliente()
+    {
+        var tareasRes = await _apiClient.ObtenerTareasAsync(idResponsable: _usuarioActual.IdUsuario);
+        if (!tareasRes.Exito)
+        {
+            TempData["Error"] = tareasRes.Error;
+        }
+
+        var tareas = tareasRes.Datos ?? new List<TareaItemViewModel>();
+
+        var vm = new MisTareasViewModel
+        {
+            Proyectos = tareas
+                .GroupBy(t => (t.IdProyecto, t.ProyectoCodigo, t.ProyectoNombre))
+                .Select(gp => new MisTareasProyectoViewModel
+                {
+                    IdProyecto = gp.Key.IdProyecto,
+                    ProyectoCodigo = gp.Key.ProyectoCodigo,
+                    ProyectoNombre = gp.Key.ProyectoNombre,
+                    Sprints = gp
+                        .GroupBy(t => (t.IdSprint, t.SprintNombre, t.SprintEstado))
+                        .Select(gs => new MisTareasSprintViewModel
+                        {
+                            IdSprint = gs.Key.IdSprint,
+                            SprintNombre = gs.Key.SprintNombre,
+                            SprintEstado = gs.Key.SprintEstado,
+                            Tareas = gs.OrderBy(t => t.Estado == "Finalizado" ? 1 : 0)
+                                .ThenBy(t => t.FechaEntregaEstimada)
+                                .ToList()
+                        })
+                        .OrderByDescending(s => string.Equals(s.SprintEstado, "Activo", StringComparison.OrdinalIgnoreCase))
+                        .ThenByDescending(s => s.IdSprint)
+                        .ToList()
+                })
+                .OrderBy(p => p.ProyectoCodigo)
+                .ToList()
+        };
+
+        return View(vm);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = Permisos.Miembro)]
+    public async Task<IActionResult> RegistrarAvanceCliente(int? id, RegistrarCheckpointViewModel model)
+    {
+        var targetId = model.IdTarea > 0 ? model.IdTarea : (id ?? 0);
+
+        var resultado = await _apiClient.RegistrarAvanceTareaAsync(targetId, new
+        {
+            model.PorcentajeNuevo,
+            model.HorasTrabajadas,
+            model.EstadoNuevo,
+            model.Justificacion
+        });
+
+        TempData[resultado.Exito ? "Mensaje" : "Error"] = resultado.Exito
+            ? resultado.Datos?.Mensaje ?? "Checkpoint de avance registrado correctamente."
+            : resultado.Error ?? "No fue posible registrar el checkpoint de avance.";
+
+        return RedirectToAction(nameof(Cliente));
     }
 
     private async Task RecargarCatalogosCrearAsync(CrearTareaViewModel vm)
