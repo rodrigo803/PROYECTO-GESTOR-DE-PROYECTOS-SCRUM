@@ -92,6 +92,7 @@ public static class ScrumApiExtensions
         app.MapTareasEndpoints();
         app.MapProyectosEndpoints();
         app.MapPlanificacionEndpoints();
+        app.MapBacklogEndpoints();
 
         return app;
     }
