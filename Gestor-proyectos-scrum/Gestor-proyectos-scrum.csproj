@@ -17,4 +17,14 @@
     <ProjectReference Include="..\Gestor-proyectos-scrum.Api\Gestor-proyectos-scrum.Api.csproj" />
   </ItemGroup>
 
+  <!-- Nunca publicar archivos de configuración con contraseñas o que son solo plantillas de ejemplo. -->
+  <ItemGroup>
+    <Content Update="appsettings.Development.json">
+      <CopyToPublishDirectory>Never</CopyToPublishDirectory>
+    </Content>
+    <Content Update="appsettings.Production.example.json">
+      <CopyToPublishDirectory>Never</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>

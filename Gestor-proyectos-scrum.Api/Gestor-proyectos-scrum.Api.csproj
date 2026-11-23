@@ -15,4 +15,18 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="10.2.3" />
   </ItemGroup>
 
+  <!--
+    Cuando el MVC referencia este proyecto para montarlo en una sola app (Plesk),
+    dotnet publish choca porque ambos proyectos tienen su propio appsettings.json
+    con la misma ruta relativa. El de esta Api solo trae Cors/AllowedHosts, y el
+    código ya cae a esos mismos valores por defecto si el archivo no existe, así
+    que no se publica (dotnet run local de la Api sola no cambia: sigue
+    copiándose a bin/ con CopyToOutputDirectory).
+  -->
+  <ItemGroup>
+    <Content Update="appsettings.json">
+      <CopyToPublishDirectory>Never</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>
