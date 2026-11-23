@@ -163,8 +163,16 @@ public static class TareasEndpoints
         .RequireRoles();
 
         // GET /api/tareas?idSprint=&idResponsable=&estado=&buscar=
-        group.MapGet("/", async (int? idSprint, int? idResponsable, string? estado, string? buscar, ConexionDbApi db) =>
+        // Miembro del Equipo solo puede ver sus propias tareas: se fuerza idResponsable a su Id,
+        // sin importar lo que pida el parámetro (evita que consulte tareas de otro usuario).
+        group.MapGet("/", async (int? idSprint, int? idResponsable, string? estado, string? buscar, HttpContext httpContext, ConexionDbApi db) =>
         {
+            var rolActor = RequireRolesFilter.ObtenerRolUsuarioActual(httpContext);
+            if (string.Equals(rolActor, "Miembro del Equipo", StringComparison.OrdinalIgnoreCase))
+            {
+                idResponsable = RequireRolesFilter.ObtenerIdUsuarioActual(httpContext);
+            }
+
             using var conexion = await db.CrearConexionAbiertaAsync();
             var tareas = await ConsultarTareasInternoAsync(conexion, idSprint, idResponsable, estado, buscar);
             return Results.Ok(tareas);
@@ -261,7 +269,7 @@ public static class TareasEndpoints
             });
         });
 
-        // POST /api/tareas (Requiere rol: Administrador, Product Owner, Scrum Master, Miembro del Equipo)
+        // POST /api/tareas (Requiere rol: Administrador, Scrum Master)
         group.MapPost("/", async (
             CrearTareaRequest req,
             HttpContext httpContext,
@@ -346,7 +354,7 @@ public static class TareasEndpoints
 
             return Results.Created($"/api/tareas/{nuevoId}", new ApiMessageResponse("Tarea creada correctamente en estado Pendiente (0%).", nuevoId));
         })
-        .RequireRoles("Administrador", "Product Owner", "Scrum Master", "Miembro del Equipo");
+        .RequireRoles("Administrador", "Scrum Master");
 
         // PUT /api/tareas/{id:int}
         group.MapPut("/{id:int}", async (
@@ -421,9 +429,10 @@ public static class TareasEndpoints
 
             return Results.Ok(new ApiMessageResponse("Metadatos de la tarea actualizados correctamente.", id));
         })
-        .RequireRoles("Administrador", "Product Owner", "Scrum Master", "Miembro del Equipo");
+        .RequireRoles("Administrador", "Scrum Master");
 
         // POST /api/tareas/{id:int}/avances (Checkpoints inmutables en AvanceTareas)
+        // Admin y Scrum Master en cualquier tarea; Miembro del Equipo solo en sus propias tareas asignadas.
         group.MapPost("/{id:int}/avances", async (
             int id,
             RegistrarAvanceTareaRequest req,
@@ -474,6 +483,15 @@ public static class TareasEndpoints
             {
                 return Results.BadRequest(new ApiErrorResponse(
                     $"No se pueden registrar checkpoints de avance porque el Sprint '{tareaActual.SprintNombre}' está Cerrado."));
+            }
+
+            var rolActor = RequireRolesFilter.ObtenerRolUsuarioActual(httpContext);
+            if (string.Equals(rolActor, "Miembro del Equipo", StringComparison.OrdinalIgnoreCase) &&
+                tareaActual.IdResponsable != RequireRolesFilter.ObtenerIdUsuarioActual(httpContext))
+            {
+                return Results.Json(
+                    new ApiErrorResponse("No puedes registrar avance en una tarea que no tienes asignada."),
+                    statusCode: StatusCodes.Status403Forbidden);
             }
 
             var porcentajeAnterior = tareaActual.PorcentajeAvance;
@@ -549,7 +567,7 @@ public static class TareasEndpoints
                 $"/api/tareas/{id}",
                 new ApiMessageResponse($"Checkpoint registrado: {porcentajeAnterior}% → {req.PorcentajeNuevo}% ({estadoNuevoNormalizado}).", idAvance));
         })
-        .RequireRoles("Administrador", "Product Owner", "Scrum Master", "Miembro del Equipo");
+        .RequireRoles("Administrador", "Scrum Master", "Miembro del Equipo");
 
         // POST /api/tareas/{id:int}/aprobaciones
         group.MapPost("/{id:int}/aprobaciones", async (
@@ -616,7 +634,7 @@ public static class TareasEndpoints
                 $"/api/tareas/{id}",
                 new ApiMessageResponse($"Revisión registrada como '{resultadoNormalizado}' correctamente.", idAprobacion));
         })
-        .RequireRoles("Administrador", "Product Owner", "Scrum Master");
+        .RequireRoles("Administrador", "Scrum Master");
 
         // DELETE /api/tareas/{id:int}
         group.MapDelete("/{id:int}", async (
@@ -682,7 +700,7 @@ public static class TareasEndpoints
 
             return Results.Ok(new ApiMessageResponse($"Tarea '{tareaActual.Titulo}' eliminada correctamente.", id));
         })
-        .RequireRoles("Administrador", "Scrum Master", "Product Owner");
+        .RequireRoles("Administrador", "Scrum Master");
     }
 
     private static async Task<TareaCatalogosDto> CargarCatalogosInternoAsync(MySqlConnector.MySqlConnection conexion)
