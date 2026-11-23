@@ -27,9 +27,19 @@ public class UsuarioActual
 
     public string Rol => Usuario?.FindFirstValue(ClaimTypes.Role) ?? string.Empty;
 
-    public bool PuedeGestionarProyectos() => Rol is "Administrador" or "Product Owner";
+    public bool EsVistaAdministrativa => Permisos.EsVistaAdministrativa(Rol);
 
-    public bool PuedePlanificarSprint() => Rol is "Administrador" or "Product Owner" or "Scrum Master";
+    public bool EsVistaCliente => Permisos.EsVistaCliente(Rol);
 
-    public bool PuedeAprobarHistorias() => Rol is "Administrador" or "Product Owner";
+    public bool PuedeGestionarProyectos() => Permisos.TieneUnoDeLosRoles(Rol, Permisos.ProyectosGestionar);
+
+    public bool PuedeGestionarBacklog() => Permisos.TieneUnoDeLosRoles(Rol, Permisos.BacklogGestionar);
+
+    public bool PuedeGestionarSprints() => Permisos.TieneUnoDeLosRoles(Rol, Permisos.SprintsGestionar);
+
+    public bool PuedeGestionarTareas() => Permisos.TieneUnoDeLosRoles(Rol, Permisos.TareasGestionar);
+
+    public bool PuedePlanificarSprint() => Permisos.TieneUnoDeLosRoles(Rol, Permisos.PlanificacionPlanificar);
+
+    public bool PuedeAprobarHistorias() => Permisos.TieneUnoDeLosRoles(Rol, Permisos.PlanificacionAprobar);
 }
