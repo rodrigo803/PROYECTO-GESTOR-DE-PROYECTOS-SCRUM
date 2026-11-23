@@ -1,11 +1,18 @@
 using Gestor_proyectos_scrum.Api;
 using Gestor_proyectos_scrum.Data;
 using Gestor_proyectos_scrum.Services;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Mvc.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllersWithViews();
+// [Authorize] global: todo el MVC requiere sesión iniciada salvo lo marcado [AllowAnonymous]
+// (Acceso y, en Development, PerfilPruebas). Ver Controllers/AccesoController.cs (HU-01).
+builder.Services.AddControllersWithViews(options =>
+{
+    options.Filters.Add(new AuthorizeFilter());
+});
 
 builder.Services.AddScoped<ConexionDb>();
 builder.Services.AddScoped<UsuarioActual>();
@@ -16,14 +23,18 @@ builder.Services.AddScoped<UsuarioActual>();
 builder.Services.AddScrumApi();
 
 builder.Services.AddHttpContextAccessor();
-builder.Services.AddDistributedMemoryCache();
-builder.Services.AddSession(options =>
-{
-    options.IdleTimeout = TimeSpan.FromHours(4);
-    options.Cookie.HttpOnly = true;
-    options.Cookie.IsEssential = true;
-    options.Cookie.Name = ".ScrumManager.Session";
-});
+
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Acceso/Index";
+        options.AccessDeniedPath = "/Acceso/Denegado";
+        options.Cookie.Name = "ScrumManager.Sesion";
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SameSite = SameSiteMode.Lax;
+        options.ExpireTimeSpan = TimeSpan.FromHours(3);
+        options.SlidingExpiration = true;
+    });
 
 // Con la Api montada en el mismo proceso, ApiSettings:BaseUrl en local apunta a la
 // propia URL del MVC (ver launchSettings.json); en Plesk apunta al mismo dominio público.
@@ -54,8 +65,7 @@ app.UseWhen(
 
 app.UseRouting();
 
-app.UseSession();
-
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapStaticAssets();

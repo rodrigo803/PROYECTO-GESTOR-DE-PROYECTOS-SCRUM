@@ -1,14 +1,13 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 
 namespace Gestor_proyectos_scrum.Services;
 
 /// <summary>
-/// Usuario autenticado de la sesión actual.
-/// Lee el perfil activo guardado en sesión por PerfilPruebasController (el mismo que
-/// ScrumApiClient manda como header X-User-Id a la Api), para que todo el sistema
-/// use una sola fuente del usuario actual. Si la sesión no tiene un perfil elegido,
-/// cae a un usuario fijo de desarrollo.
-/// Cuando exista el login de HU-01 (Jesús), este es el único lugar que hay que cambiar.
+/// Usuario autenticado de la sesión actual. Lee IdUsuario, Nombre y Rol de los claims
+/// de la cookie de autenticación que abre AccesoController tras validar la contraseña
+/// contra la Api (HU-01). Con [Authorize] global en el MVC, cualquier acción que se
+/// ejecute (salvo Acceso) ya tiene un usuario autenticado detrás de estos claims.
 /// </summary>
 public class UsuarioActual
 {
@@ -19,13 +18,14 @@ public class UsuarioActual
         _httpContextAccessor = httpContextAccessor;
     }
 
-    private ISession? Sesion => _httpContextAccessor.HttpContext?.Session;
+    private ClaimsPrincipal? Usuario => _httpContextAccessor.HttpContext?.User;
 
-    public int IdUsuario => Sesion?.GetInt32(ScrumApiClient.SessionDevUserId) ?? 2;
+    public int IdUsuario =>
+        int.TryParse(Usuario?.FindFirstValue(ClaimTypes.NameIdentifier), out var id) ? id : 0;
 
-    public string Nombre => Sesion?.GetString(ScrumApiClient.SessionDevUserNombre) ?? "Valeria Castro";
+    public string Nombre => Usuario?.FindFirstValue(ClaimTypes.Name) ?? string.Empty;
 
-    public string Rol => Sesion?.GetString(ScrumApiClient.SessionDevUserRol) ?? "Product Owner";
+    public string Rol => Usuario?.FindFirstValue(ClaimTypes.Role) ?? string.Empty;
 
     public bool PuedeGestionarProyectos() => Rol is "Administrador" or "Product Owner";
 

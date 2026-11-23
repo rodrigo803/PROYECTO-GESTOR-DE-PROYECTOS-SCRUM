@@ -90,6 +90,10 @@
 
     @await Html.PartialAsync("_SidebarCliente")
 
+    <form id="formCerrarSesion" asp-controller="Acceso" asp-action="Salir" method="post" class="d-none">
+        @Html.AntiForgeryToken()
+    </form>
+
     <!-- ========================================== -->
     <!-- ÁREA DE CONTENIDO                           -->
     <!-- ========================================== -->

@@ -86,6 +86,7 @@ public static class ScrumApiExtensions
             }
         }).WithTags("Diagnóstico");
 
+        app.MapAccesoEndpoints();
         app.MapUsuariosEndpoints();
         app.MapSprintsEndpoints();
         app.MapTareasEndpoints();
