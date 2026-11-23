@@ -56,3 +56,26 @@ dotnet user-secrets set "ConnectionStrings:ScrumDb" "Server=localhost;Port=3306;
 ```
 
 Reemplaza `TU_CONTRASEÑA` por la contraseña de tu MySQL local. Esto sobreescribe (solo en tu máquina) la cadena de `appsettings.Development.json` al correr el proyecto en modo Development.
+
+## 🌐 Publicar en Plesk
+
+La Api (`Gestor-proyectos-scrum.Api`) está montada dentro del propio MVC (`Gestor-proyectos-scrum`), así que en Plesk solo se publica **un** sitio.
+
+1. **Generar el publish (self-contained win-x64)**, desde la carpeta `Gestor-proyectos-scrum/`:
+   ```bash
+   dotnet publish -c Release -r win-x64 --self-contained true -o C:\publicar\scrum-publicar
+   ```
+   Self-contained porque el servidor de Plesk no tiene instalado el runtime de .NET 10; así el publish trae su propio `dotnet` embebido (el `.exe` generado ya no depende de nada instalado en el servidor).
+
+2. **Subir el contenido** de `C:\publicar\scrum-publicar` (no la carpeta en sí, su contenido) a `httpdocs/scrum` del dominio en Plesk, vía el administrador de archivos de Plesk o FTP/SFTP.
+
+3. **Crear el directorio virtual** en Plesk: Sitios web y dominios → tu dominio → Hosting Node.js/IIS → "Agregar directorio" (o "Crear aplicación" según la versión del panel) con ruta `/scrumapp` apuntando a `httpdocs/scrum`. Plesk detecta el `web.config` incluido en el publish y configura el `AspNetCoreModuleV2` automáticamente.
+
+4. **`appsettings.Production.json`**: no viaja en el repo ni en el publish (está en `.gitignore`). Se sube **a mano** directamente a `httpdocs/scrum` en el servidor, copiando `appsettings.Production.example.json` como base y completando ahí mismo la contraseña real de MySQL — nunca se escribe esa contraseña en Git ni en el publish local.
+
+5. **Logs**: `web.config` escribe el log de arranque de Kestrel/IIS en `httpdocs/scrum/logs/stdout*.log` (la carpeta `logs/` debe existir y tener permisos de escritura; si no existe, créala vacía al subir). Son el primer lugar donde mirar si el sitio da 502/503 después de publicar.
+
+6. **Actualizar una versión ya publicada**: subir un `.dll` mientras el proceso de IIS lo tiene abierto falla ("file in use"). Antes de sobrescribir:
+   - Sube un archivo `app_offline.htm` a `httpdocs/scrum` (cualquier HTML; IIS lo detecta y detiene la app, mostrando ese archivo a los visitantes).
+   - Sobrescribe los archivos actualizados del publish.
+   - Borra `app_offline.htm` para que IIS vuelva a arrancar la app con el código nuevo.
