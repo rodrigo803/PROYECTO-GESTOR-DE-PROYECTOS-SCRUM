@@ -1,5 +1,6 @@
 using Gestor_proyectos_scrum.Models;
 using Gestor_proyectos_scrum.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Gestor_proyectos_scrum.Controllers;
@@ -7,7 +8,9 @@ namespace Gestor_proyectos_scrum.Controllers;
 /// <summary>
 /// Controlador MVC para HU-02: Gestión de Usuarios, Roles y Permisos.
 /// Consume la Minimal API mediante ScrumApiClient.
+/// Solo Administrador: es el único rol de la matriz que puede ver y gestionar este módulo.
 /// </summary>
+[Authorize(Roles = Permisos.UsuariosAcceso)]
 public class UsuariosController : Controller
 {
     private readonly ScrumApiClient _apiClient;

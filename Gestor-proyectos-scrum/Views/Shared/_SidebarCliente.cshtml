@@ -27,18 +27,25 @@
             <i class="bi bi-card-checklist"></i>
             <span>Compromiso del Sprint</span>
         </a>
-        <a asp-controller="Tablero" asp-action="Cliente" class="sidebar-nav-link@(EsActivo("Tablero"))">
+        <a asp-controller="Tareas" asp-action="Cliente" class="sidebar-nav-link@(EsActivo("Tareas"))">
+            <i class="bi bi-list-task"></i>
+            <span>Mis Tareas</span>
+        </a>
+        <span class="sidebar-nav-link disabled" aria-disabled="true" title="Próximamente (Proyecto Final)">
             <i class="bi bi-columns-gap"></i>
             <span>Tablero</span>
-        </a>
-        <a asp-controller="Impedimentos" asp-action="Cliente" class="sidebar-nav-link@(EsActivo("Impedimentos"))">
+            <span class="badge-proximamente">Próximamente</span>
+        </span>
+        <span class="sidebar-nav-link disabled" aria-disabled="true" title="Próximamente (Proyecto Final)">
             <i class="bi bi-cone-striped"></i>
             <span>Reportar Impedimento</span>
-        </a>
-        <a asp-controller="Retrospectivas" asp-action="Cliente" class="sidebar-nav-link@(EsActivo("Retrospectivas"))">
+            <span class="badge-proximamente">Próximamente</span>
+        </span>
+        <span class="sidebar-nav-link disabled" aria-disabled="true" title="Próximamente (Proyecto Final)">
             <i class="bi bi-chat-square-text"></i>
             <span>Retrospectiva</span>
-        </a>
+            <span class="badge-proximamente">Próximamente</span>
+        </span>
     </nav>
 
     <!-- Botón Cerrar Sesión en pie del Sidebar -->

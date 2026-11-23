@@ -1,5 +1,6 @@
 using Gestor_proyectos_scrum.Models;
 using Gestor_proyectos_scrum.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Gestor_proyectos_scrum.Controllers;
@@ -8,6 +9,9 @@ namespace Gestor_proyectos_scrum.Controllers;
 /// Controlador MVC para HU-03: Gestión de Proyectos.
 /// Consume la Minimal API (Gestor-proyectos-scrum.Api) mediante ScrumApiClient;
 /// no accede directamente a MySQL.
+/// Admin y PO gestionan; SM solo ve. Cliente/DetalleCliente son la vista cliente
+/// (Miembro del Equipo), por eso cada acción lleva su propio [Authorize] en vez de
+/// uno a nivel de clase: este controller mezcla ambas vistas.
 /// </summary>
 public class ProyectosController : Controller
 {
@@ -20,6 +24,7 @@ public class ProyectosController : Controller
         _usuarioActual = usuarioActual;
     }
 
+    [Authorize(Roles = Permisos.ProyectosVer)]
     public async Task<IActionResult> Index(string? buscar, string? estado, string? orden)
     {
         var proyectosTask = _apiClient.ObtenerProyectosAsync(buscar, estado, orden);
@@ -47,6 +52,7 @@ public class ProyectosController : Controller
     }
 
     [HttpGet]
+    [Authorize(Roles = Permisos.ProyectosGestionar)]
     public async Task<IActionResult> Crear()
     {
         if (!_usuarioActual.PuedeGestionarProyectos())
@@ -66,6 +72,7 @@ public class ProyectosController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = Permisos.ProyectosGestionar)]
     public async Task<IActionResult> Crear(ProyectoFormViewModel modelo)
     {
         if (!_usuarioActual.PuedeGestionarProyectos())
@@ -116,6 +123,7 @@ public class ProyectosController : Controller
     }
 
     [HttpGet]
+    [Authorize(Roles = Permisos.ProyectosGestionar)]
     public async Task<IActionResult> Editar(int id)
     {
         if (!_usuarioActual.PuedeGestionarProyectos())
@@ -149,6 +157,7 @@ public class ProyectosController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = Permisos.ProyectosGestionar)]
     public async Task<IActionResult> Editar(int id, ProyectoFormViewModel modelo)
     {
         if (!_usuarioActual.PuedeGestionarProyectos())
@@ -216,6 +225,7 @@ public class ProyectosController : Controller
     }
 
     [HttpGet]
+    [Authorize(Roles = Permisos.ProyectosVer)]
     public async Task<IActionResult> Detalle(int id)
     {
         var resultado = await _apiClient.ObtenerDetalleProyectoAsync(id);
@@ -231,6 +241,7 @@ public class ProyectosController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = Permisos.ProyectosGestionar)]
     public async Task<IActionResult> AgregarMiembro(int id, int idUsuario, string rolProyecto)
     {
         if (!_usuarioActual.PuedeGestionarProyectos())
@@ -257,6 +268,7 @@ public class ProyectosController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = Permisos.ProyectosGestionar)]
     public async Task<IActionResult> CambiarRolMiembro(int id, int idUsuario, string nuevoRol)
     {
         if (!_usuarioActual.PuedeGestionarProyectos())
@@ -283,6 +295,7 @@ public class ProyectosController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = Permisos.ProyectosGestionar)]
     public async Task<IActionResult> QuitarMiembro(int id, int idUsuario)
     {
         if (!_usuarioActual.PuedeGestionarProyectos())
@@ -308,6 +321,7 @@ public class ProyectosController : Controller
     }
 
     [HttpGet]
+    [Authorize(Roles = Permisos.ProyectosGestionar)]
     public async Task<IActionResult> Cerrar(int id)
     {
         if (!_usuarioActual.PuedeGestionarProyectos())
@@ -340,6 +354,7 @@ public class ProyectosController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = Permisos.ProyectosGestionar)]
     public async Task<IActionResult> Cerrar(int id, ProyectoCerrarViewModel modelo)
     {
         if (!_usuarioActual.PuedeGestionarProyectos())
@@ -372,6 +387,7 @@ public class ProyectosController : Controller
     }
 
     [HttpGet]
+    [Authorize(Roles = Permisos.Miembro)]
     public async Task<IActionResult> Cliente()
     {
         var resultado = await _apiClient.ObtenerProyectosClienteAsync();
@@ -384,6 +400,7 @@ public class ProyectosController : Controller
     }
 
     [HttpGet]
+    [Authorize(Roles = Permisos.Miembro)]
     public async Task<IActionResult> DetalleCliente(int id)
     {
         var resultado = await _apiClient.ObtenerDetalleClienteProyectoAsync(id);

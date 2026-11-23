@@ -109,6 +109,27 @@ body {
   color: #818cf8;
 }
 
+.sidebar-nav-link.disabled {
+  cursor: not-allowed;
+  color: #64748b;
+  pointer-events: none;
+}
+
+.sidebar-nav-link.disabled i {
+  color: #475569;
+}
+
+.sidebar-nav-link .badge-proximamente {
+  margin-left: auto;
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  padding: 0.2rem 0.45rem;
+  background-color: rgba(255, 255, 255, 0.08);
+  color: #94a3b8;
+  border-radius: 999px;
+}
+
 /* ========================================================= */
 /* CONTENIDO PRINCIPAL                                       */
 /* ========================================================= */

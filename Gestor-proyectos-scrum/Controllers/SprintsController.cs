@@ -1,5 +1,6 @@
 using Gestor_proyectos_scrum.Models;
 using Gestor_proyectos_scrum.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Gestor_proyectos_scrum.Controllers;
@@ -7,7 +8,9 @@ namespace Gestor_proyectos_scrum.Controllers;
 /// <summary>
 /// Controlador MVC para HU-05: Gestión de Sprints.
 /// Consume la Minimal API mediante ScrumApiClient.
+/// Admin y SM gestionan (crear/editar/iniciar/cerrar/eliminar); PO solo ve.
 /// </summary>
+[Authorize(Roles = Permisos.SprintsVer)]
 public class SprintsController : Controller
 {
     private readonly ScrumApiClient _apiClient;
@@ -90,6 +93,7 @@ public class SprintsController : Controller
     }
 
     [HttpGet]
+    [Authorize(Roles = Permisos.SprintsGestionar)]
     public async Task<IActionResult> Create(int? idProyecto)
     {
         var proyectosRes = await _apiClient.ObtenerProyectosSprintAsync();
@@ -131,6 +135,7 @@ public class SprintsController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = Permisos.SprintsGestionar)]
     public async Task<IActionResult> Create(CrearSprintViewModel vm)
     {
         if (vm.FechaInicio.Date >= vm.FechaFin.Date)
@@ -171,6 +176,7 @@ public class SprintsController : Controller
     }
 
     [HttpGet]
+    [Authorize(Roles = Permisos.SprintsGestionar)]
     public async Task<IActionResult> Edit(int id)
     {
         var detalleRes = await _apiClient.ObtenerSprintDetalleAsync(id);
@@ -208,6 +214,7 @@ public class SprintsController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = Permisos.SprintsGestionar)]
     public async Task<IActionResult> Edit(int? id, EditarSprintViewModel vm)
     {
         var targetId = vm.IdSprint > 0 ? vm.IdSprint : (id ?? 0);
@@ -248,6 +255,7 @@ public class SprintsController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = Permisos.SprintsGestionar)]
     public async Task<IActionResult> Iniciar(int id, string? returnUrl)
     {
         var resultado = await _apiClient.CambiarEstadoSprintAsync(id, "Activo");
@@ -270,6 +278,7 @@ public class SprintsController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = Permisos.SprintsGestionar)]
     public async Task<IActionResult> Cerrar(int id, string? destinoIncompletas, string? returnUrl)
     {
         var destino = string.Equals(destinoIncompletas, "Replanificada", StringComparison.OrdinalIgnoreCase)
@@ -296,6 +305,7 @@ public class SprintsController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = Permisos.SprintsGestionar)]
     public async Task<IActionResult> Eliminar(int id)
     {
         var resultado = await _apiClient.EliminarSprintAsync(id);

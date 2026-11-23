@@ -92,6 +92,9 @@ public class RequireRolesFilter : IEndpointFilter
         return 1;
     }
 
+    public static string? ObtenerRolUsuarioActual(HttpContext httpContext) =>
+        httpContext.Items.TryGetValue(CurrentUserRoleKey, out var val) ? val as string : null;
+
     private sealed class UsuarioAuthRow
     {
         public int IdUsuario { get; set; }

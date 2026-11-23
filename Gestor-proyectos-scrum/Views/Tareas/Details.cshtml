@@ -3,6 +3,7 @@
     var t = Model.Tarea;
     ViewData["Title"] = $"Tarea #{t.IdTarea} - {t.Titulo}";
     var sprintCerrado = string.Equals(t.SprintEstado, "Cerrado", StringComparison.OrdinalIgnoreCase);
+    var puedeGestionar = Model.PerfilActual.PuedeGestionarTareas;
     var puedeAprobar = Model.PerfilActual.PuedeAprobarTareas;
     var puedeEliminar = Model.PerfilActual.PuedeEliminarTareas && !sprintCerrado && Model.Avances.Count == 0 && Model.Aprobaciones.Count == 0 && !t.Bloqueada;
 
@@ -59,7 +60,7 @@
     </div>
 
     <div class="d-flex align-items-center gap-2 flex-wrap">
-        @if (!sprintCerrado)
+        @if (puedeGestionar && !sprintCerrado)
         {
             <a asp-action="Edit" asp-route-id="@t.IdTarea" class="btn btn-outline-primary d-inline-flex align-items-center gap-1">
                 <i class="bi bi-pencil"></i>
@@ -164,7 +165,14 @@
                 Cada reporte inserta un checkpoint <strong>inmutable</strong> (no se puede editar ni eliminar después de guardado) partiendo del <strong>@t.PorcentajeAvance%</strong> actual y actualiza automáticamente la tarea.
             </div>
 
-            @if (sprintCerrado)
+            @if (!puedeGestionar)
+            {
+                <div class="alert alert-light border small mb-0">
+                    <i class="bi bi-lock me-1"></i>
+                    Tu rol actual (<strong>@Model.PerfilActual.Rol</strong>) no puede registrar checkpoints. Esta acción es solo para <strong>Scrum Master</strong> o <strong>Administrador</strong>.
+                </div>
+            }
+            else if (sprintCerrado)
             {
                 <div class="alert alert-secondary small mb-0">
                     <i class="bi bi-archive-fill me-1"></i>
@@ -295,14 +303,14 @@
                 Revisión Formal de la Tarea
             </h5>
             <p class="text-muted small mb-3">
-                Permite al <strong>Product Owner</strong>, <strong>Scrum Master</strong> o <strong>Administrador</strong> aprobar o rechazar formalmente el entregable de esta tarea.
+                Permite al <strong>Scrum Master</strong> o <strong>Administrador</strong> aprobar o rechazar formalmente el entregable de esta tarea.
             </p>
 
             @if (!puedeAprobar)
             {
                 <div class="alert alert-light border small mb-0">
                     <i class="bi bi-lock me-1"></i>
-                    Tu rol actual (<strong>@Model.PerfilActual.Rol</strong>) no puede emitir dictámenes de aprobación. Usa el selector superior de desarrollo para cambiar a <strong>Product Owner</strong>, <strong>Scrum Master</strong> o <strong>Administrador</strong>.
+                    Tu rol actual (<strong>@Model.PerfilActual.Rol</strong>) no puede emitir dictámenes de aprobación. Esta acción es solo para <strong>Scrum Master</strong> o <strong>Administrador</strong>.
                 </div>
             }
             else

@@ -1,5 +1,6 @@
 using Gestor_proyectos_scrum.Models;
 using Gestor_proyectos_scrum.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Gestor_proyectos_scrum.Controllers;
@@ -8,17 +9,23 @@ namespace Gestor_proyectos_scrum.Controllers;
 /// Controlador MVC para HU-07: Gestión de Tareas, Checkpoints Inmutables (AvanceTareas)
 /// y Aprobaciones/Rechazos (Aprobaciones).
 /// Consume la Minimal API mediante ScrumApiClient.
+/// Admin y SM gestionan y asignan; PO solo ve. Cliente/RegistrarAvanceCliente son la vista
+/// cliente (Miembro del Equipo, "Mis tareas"), por eso cada acción lleva su propio
+/// [Authorize] en vez de uno a nivel de clase.
 /// </summary>
 public class TareasController : Controller
 {
     private readonly ScrumApiClient _apiClient;
+    private readonly UsuarioActual _usuarioActual;
 
-    public TareasController(ScrumApiClient apiClient)
+    public TareasController(ScrumApiClient apiClient, UsuarioActual usuarioActual)
     {
         _apiClient = apiClient;
+        _usuarioActual = usuarioActual;
     }
 
     [HttpGet]
+    [Authorize(Roles = Permisos.TareasVer)]
     public async Task<IActionResult> Index(int? idSprint, int? idResponsable, string? estado, string? buscar)
     {
         var perfilTask = _apiClient.ObtenerPerfilActivoAsync();
@@ -66,6 +73,7 @@ public class TareasController : Controller
     }
 
     [HttpGet]
+    [Authorize(Roles = Permisos.TareasVer)]
     public async Task<IActionResult> Details(int id)
     {
         var perfilTask = _apiClient.ObtenerPerfilActivoAsync();
@@ -107,6 +115,7 @@ public class TareasController : Controller
     }
 
     [HttpGet]
+    [Authorize(Roles = Permisos.TareasGestionar)]
     public async Task<IActionResult> Create(int? idSprintHistoria, int? idSprint)
     {
         var catalogosRes = await _apiClient.ObtenerCatalogosTareasAsync();
@@ -144,6 +153,7 @@ public class TareasController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = Permisos.TareasGestionar)]
     public async Task<IActionResult> Create(CrearTareaViewModel vm, int? idSprintRetorno)
     {
         if (!ModelState.IsValid)
@@ -185,6 +195,7 @@ public class TareasController : Controller
     }
 
     [HttpGet]
+    [Authorize(Roles = Permisos.TareasGestionar)]
     public async Task<IActionResult> Edit(int id)
     {
         var detalleTask = _apiClient.ObtenerTareaDetalleAsync(id);
@@ -232,6 +243,7 @@ public class TareasController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = Permisos.TareasGestionar)]
     public async Task<IActionResult> Edit(int? id, EditarTareaViewModel vm, int? idSprintRetorno)
     {
         var targetId = vm.IdTarea > 0 ? vm.IdTarea : (id ?? 0);
@@ -278,6 +290,7 @@ public class TareasController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = Permisos.TareasGestionar)]
     public async Task<IActionResult> RegistrarAvance(int? id, RegistrarCheckpointViewModel model, string? returnUrl)
     {
         var targetId = model.IdTarea > 0 ? model.IdTarea : (id ?? 0);
@@ -310,6 +323,7 @@ public class TareasController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = Permisos.TareasGestionar)]
     public async Task<IActionResult> RegistrarAprobacion(int id, RegistrarAprobacionViewModel model)
     {
         var resultado = await _apiClient.RegistrarAprobacionTareaAsync(id, new
@@ -332,6 +346,7 @@ public class TareasController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = Permisos.TareasGestionar)]
     public async Task<IActionResult> Eliminar(int id, int? idSprintRetorno)
     {
         var resultado = await _apiClient.EliminarTareaAsync(id);
@@ -351,6 +366,71 @@ public class TareasController : Controller
             return RedirectToAction(nameof(Index), new { idSprint = idSprintRetorno.Value });
         }
         return RedirectToAction(nameof(Details), new { id });
+    }
+
+    [HttpGet]
+    [Authorize(Roles = Permisos.Miembro)]
+    public async Task<IActionResult> Cliente()
+    {
+        var tareasRes = await _apiClient.ObtenerTareasAsync(idResponsable: _usuarioActual.IdUsuario);
+        if (!tareasRes.Exito)
+        {
+            TempData["Error"] = tareasRes.Error;
+        }
+
+        var tareas = tareasRes.Datos ?? new List<TareaItemViewModel>();
+
+        var vm = new MisTareasViewModel
+        {
+            Proyectos = tareas
+                .GroupBy(t => (t.IdProyecto, t.ProyectoCodigo, t.ProyectoNombre))
+                .Select(gp => new MisTareasProyectoViewModel
+                {
+                    IdProyecto = gp.Key.IdProyecto,
+                    ProyectoCodigo = gp.Key.ProyectoCodigo,
+                    ProyectoNombre = gp.Key.ProyectoNombre,
+                    Sprints = gp
+                        .GroupBy(t => (t.IdSprint, t.SprintNombre, t.SprintEstado))
+                        .Select(gs => new MisTareasSprintViewModel
+                        {
+                            IdSprint = gs.Key.IdSprint,
+                            SprintNombre = gs.Key.SprintNombre,
+                            SprintEstado = gs.Key.SprintEstado,
+                            Tareas = gs.OrderBy(t => t.Estado == "Finalizado" ? 1 : 0)
+                                .ThenBy(t => t.FechaEntregaEstimada)
+                                .ToList()
+                        })
+                        .OrderByDescending(s => string.Equals(s.SprintEstado, "Activo", StringComparison.OrdinalIgnoreCase))
+                        .ThenByDescending(s => s.IdSprint)
+                        .ToList()
+                })
+                .OrderBy(p => p.ProyectoCodigo)
+                .ToList()
+        };
+
+        return View(vm);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = Permisos.Miembro)]
+    public async Task<IActionResult> RegistrarAvanceCliente(int? id, RegistrarCheckpointViewModel model)
+    {
+        var targetId = model.IdTarea > 0 ? model.IdTarea : (id ?? 0);
+
+        var resultado = await _apiClient.RegistrarAvanceTareaAsync(targetId, new
+        {
+            model.PorcentajeNuevo,
+            model.HorasTrabajadas,
+            model.EstadoNuevo,
+            model.Justificacion
+        });
+
+        TempData[resultado.Exito ? "Mensaje" : "Error"] = resultado.Exito
+            ? resultado.Datos?.Mensaje ?? "Checkpoint de avance registrado correctamente."
+            : resultado.Error ?? "No fue posible registrar el checkpoint de avance.";
+
+        return RedirectToAction(nameof(Cliente));
     }
 
     private async Task RecargarCatalogosCrearAsync(CrearTareaViewModel vm)

@@ -51,9 +51,11 @@ public class PerfilActivoViewModel
     public bool EsScrumMaster => string.Equals(Rol, "Scrum Master", StringComparison.OrdinalIgnoreCase);
     public bool EsMiembroEquipo => string.Equals(Rol, "Miembro del Equipo", StringComparison.OrdinalIgnoreCase);
 
+    // Sprints y Tareas: Admin y SM gestionan (crean/editan/asignan/aprueban/eliminan); PO solo ve.
     public bool PuedeGestionarSprints => EsAdministrador || EsScrumMaster;
-    public bool PuedeAprobarTareas => EsAdministrador || EsProductOwner || EsScrumMaster;
-    public bool PuedeEliminarTareas => EsAdministrador || EsProductOwner || EsScrumMaster;
+    public bool PuedeGestionarTareas => EsAdministrador || EsScrumMaster;
+    public bool PuedeAprobarTareas => EsAdministrador || EsScrumMaster;
+    public bool PuedeEliminarTareas => EsAdministrador || EsScrumMaster;
 }
 
 // =========================================================================
@@ -720,6 +722,27 @@ public class RegistrarAprobacionViewModel
     [StringLength(500, ErrorMessage = "El comentario no debe superar 500 caracteres.")]
     [Display(Name = "Comentario / Observaciones")]
     public string? Comentario { get; set; }
+}
+
+public class MisTareasViewModel
+{
+    public List<MisTareasProyectoViewModel> Proyectos { get; set; } = new();
+}
+
+public class MisTareasProyectoViewModel
+{
+    public int IdProyecto { get; set; }
+    public string ProyectoCodigo { get; set; } = string.Empty;
+    public string ProyectoNombre { get; set; } = string.Empty;
+    public List<MisTareasSprintViewModel> Sprints { get; set; } = new();
+}
+
+public class MisTareasSprintViewModel
+{
+    public int IdSprint { get; set; }
+    public string SprintNombre { get; set; } = string.Empty;
+    public string SprintEstado { get; set; } = string.Empty;
+    public List<TareaItemViewModel> Tareas { get; set; } = new();
 }
 
 public class TareaDetailsViewModel

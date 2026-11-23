@@ -1,5 +1,6 @@
 using Gestor_proyectos_scrum.Models;
 using Gestor_proyectos_scrum.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Gestor_proyectos_scrum.Controllers;
@@ -12,6 +13,8 @@ namespace Gestor_proyectos_scrum.Controllers;
 /// (sesión y permisos) se quedan aquí, las reglas de negocio con datos de la base
 /// (prioridad/estado válidos, estimación y criterios, aprobaciones, Sprints) las valida
 /// la Api.
+/// Admin y PO gestionan; SM solo ve. Cliente es la vista cliente (Miembro del Equipo),
+/// por eso cada acción lleva su propio [Authorize] en vez de uno a nivel de clase.
 /// </summary>
 public class BacklogController : Controller
 {
@@ -24,9 +27,10 @@ public class BacklogController : Controller
         _usuarioActual = usuarioActual;
     }
 
-    private bool PuedeEditar => _usuarioActual.Rol is "Administrador" or "Product Owner";
+    private bool PuedeEditar => _usuarioActual.PuedeGestionarBacklog();
 
     [HttpGet]
+    [Authorize(Roles = Permisos.BacklogVer)]
     public async Task<IActionResult> Index(int? proyectoId)
     {
         var proyectosRes = await _apiClient.ObtenerProyectosBacklogAsync();
@@ -54,13 +58,9 @@ public class BacklogController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = Permisos.BacklogGestionar)]
     public async Task<IActionResult> Guardar(HistoriaDto h)
     {
-        if (!PuedeEditar)
-        {
-            return Forbid();
-        }
-
         var redirigir = RedirectToAction(nameof(Index), new { proyectoId = h.IdProyecto });
 
         var payload = new
@@ -90,18 +90,40 @@ public class BacklogController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = Permisos.BacklogGestionar)]
     public async Task<IActionResult> Eliminar(int id, int proyectoId)
     {
-        if (!PuedeEditar)
-        {
-            return Forbid();
-        }
-
         var resultado = await _apiClient.EliminarHistoriaAsync(id);
         TempData[resultado.Exito ? "Mensaje" : "Error"] = resultado.Exito
             ? resultado.Datos?.Mensaje ?? "Historia eliminada."
             : resultado.Error ?? "No fue posible eliminar la historia.";
 
         return RedirectToAction(nameof(Index), new { proyectoId });
+    }
+
+    [HttpGet]
+    [Authorize(Roles = Permisos.Miembro)]
+    public async Task<IActionResult> Cliente(int? proyectoId)
+    {
+        var proyectosRes = await _apiClient.ObtenerProyectosBacklogAsync();
+        var proyectos = proyectosRes.Datos ?? new List<ProyectoOpcion>();
+
+        var vm = new BacklogVista { Proyectos = proyectos };
+        vm.ProyectoId = proyectos.Any(p => p.IdProyecto == proyectoId)
+            ? proyectoId!.Value
+            : proyectos.FirstOrDefault()?.IdProyecto ?? 0;
+
+        if (vm.ProyectoId > 0)
+        {
+            var historiasRes = await _apiClient.ObtenerHistoriasBacklogAsync(vm.ProyectoId);
+            if (!historiasRes.Exito)
+            {
+                TempData["Error"] = historiasRes.Error;
+            }
+
+            vm.Historias = historiasRes.Datos ?? new List<HistoriaDto>();
+        }
+
+        return View(vm);
     }
 }
