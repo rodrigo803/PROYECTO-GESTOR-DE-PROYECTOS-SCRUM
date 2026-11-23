@@ -6,7 +6,10 @@ Fecha: 19/11/2026
 Ejecutar en una base RECIÉN CREADA con BDScrumManager_MySQL.sql
 (no después del script de pruebas, porque ese también inserta usuarios).
 El orden de los insert importa: los Id se generan en el orden en que se insertan.
-Las contraseñas son temporales hasta que HU-01 (login) defina el cifrado.
+
+HU-01: las contraseñas ya quedan con un hash BCrypt real (BCrypt.Net-Next) de la
+contraseña de demostración "Scrum2026!" para los 10 usuarios. Si tu base ya existía
+con el marcador 'PENDIENTE-HU01', corre database/BDScrumManager_actualizar_contrasenas.sql.
 */
 
 set names utf8mb4;
@@ -14,19 +17,20 @@ set names utf8mb4;
 -- Roles ya insertados por el script de estructura:
 -- 1 Administrador, 2 Product Owner, 3 Scrum Master, 4 Miembro del Equipo
 
+-- Contraseña de demostración para los 10 usuarios: Scrum2026!
 insert into Usuarios
 (Nombre,Apellidos,Correo,ContrasenaHash,IdRol)
 values
-('Admin','Sistema','admin@scrummanager.test','PENDIENTE-HU01',1),
-('Valeria','Castro','valeria.castro@scrummanager.test','PENDIENTE-HU01',2),
-('Rodrigo','Morales','rodrigo.morales@scrummanager.test','PENDIENTE-HU01',3),
-('Carlos','Ruiz','carlos.ruiz@scrummanager.test','PENDIENTE-HU01',4),
-('Ana','Gómez','ana.gomez@scrummanager.test','PENDIENTE-HU01',4),
-('Mateo','Silva','mateo.silva@scrummanager.test','PENDIENTE-HU01',4),
-('Lucía','Morales','lucia.morales@scrummanager.test','PENDIENTE-HU01',2),
-('Jesús','De Lima','jesus.delima@scrummanager.test','PENDIENTE-HU01',3),
-('Daniela','Vargas','daniela.vargas@scrummanager.test','PENDIENTE-HU01',4),
-('Andrés','Solís','andres.solis@scrummanager.test','PENDIENTE-HU01',4);
+('Admin','Sistema','admin@scrummanager.test','$2a$11$wtv4ly8.Mo2awZQg7.wSG.Rt2z70dcTtejMwZpzjTkJMCiTIlobf.',1),
+('Valeria','Castro','valeria.castro@scrummanager.test','$2a$11$LNcVU15u6Ap4oZFJVmPhhuO7XWRyA/Cv4uAA1HesdGx3A6MtMtGaS',2),
+('Rodrigo','Morales','rodrigo.morales@scrummanager.test','$2a$11$zYGhtDfUJm1NMgeQDa9YAukehhf8c0CPiuOVrIJHyZX5W443skFh6',3),
+('Carlos','Ruiz','carlos.ruiz@scrummanager.test','$2a$11$jgkAFjwD3cXwUYPsZfx6H.N1jjKAO6/7o.lNqXUF1xSByHD3GjKi.',4),
+('Ana','Gómez','ana.gomez@scrummanager.test','$2a$11$K4rwu246i.KwdVEZDjBwsu69D0w01HnZCq9ihgiYV68vJ6IEF.G/e',4),
+('Mateo','Silva','mateo.silva@scrummanager.test','$2a$11$sm0Wdfu4ZzoZYCksH8/fOuGFHS.YLXBnx9en/fdu6lpUNzij8uQ3S',4),
+('Lucía','Morales','lucia.morales@scrummanager.test','$2a$11$Ewn8yYk9kLnQJBiZOzidLezlYMnenrQLmc7B4FCEzYc5zv4rSYGTe',2),
+('Jesús','De Lima','jesus.delima@scrummanager.test','$2a$11$4V4Kfnk23KD8CcaTaH0LSu80UaKx3r2UHyZmINErYimhxsguUW8Ry',3),
+('Daniela','Vargas','daniela.vargas@scrummanager.test','$2a$11$QYkqq5B2FtD9JZsqMCMdAOd/Wy1wN12/bqTF7OLxcmNattA18CbCa',4),
+('Andrés','Solís','andres.solis@scrummanager.test','$2a$11$XJvNQ4yH2/FE/Xp65SUQ8.qyj/kdeYIcnIGoThPOExOWckYRB.WKq',4);
 
 -- HU-03: proyectos (PRY-004 queda sin Scrum Master para probar la validación)
 insert into Proyectos

@@ -1,6 +1,7 @@
 using Dapper;
 using Gestor_proyectos_scrum.Data;
 using Gestor_proyectos_scrum.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
@@ -67,6 +68,7 @@ namespace Gestor_proyectos_scrum.Controllers
             return View(modelo);
         }
 
+        [AllowAnonymous]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {

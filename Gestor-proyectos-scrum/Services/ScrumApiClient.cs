@@ -6,101 +6,34 @@ namespace Gestor_proyectos_scrum.Services;
 
 /// <summary>
 /// Cliente HTTP tipado para consumir la Minimal API (Gestor-proyectos-scrum.Api).
-/// Propaga automáticamente el header X-User-Id tomando el usuario activo de sesión
-/// de pruebas (Development) o UsuarioActual.
+/// Propaga automáticamente el header X-User-Id con el Id del usuario autenticado
+/// por cookie (UsuarioActual, HU-01).
 /// </summary>
 public partial class ScrumApiClient
 {
-    public const string SessionDevUserId = "DevUserId";
-    public const string SessionDevUserNombre = "DevUserNombre";
-    public const string SessionDevUserRol = "DevUserRol";
-
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNameCaseInsensitive = true
     };
 
     private readonly HttpClient _httpClient;
-    private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly UsuarioActual _usuarioActual;
-    private readonly IWebHostEnvironment _env;
 
-    public ScrumApiClient(
-        HttpClient httpClient,
-        IHttpContextAccessor httpContextAccessor,
-        UsuarioActual usuarioActual,
-        IWebHostEnvironment env)
+    public ScrumApiClient(HttpClient httpClient, UsuarioActual usuarioActual)
     {
         _httpClient = httpClient;
-        _httpContextAccessor = httpContextAccessor;
         _usuarioActual = usuarioActual;
-        _env = env;
     }
 
-    public int ObtenerIdUsuarioActivo()
+    /// <summary>Id del usuario autenticado por cookie (HU-01); lo manda la Api como X-User-Id.</summary>
+    public int ObtenerIdUsuarioActivo() => _usuarioActual.IdUsuario;
+
+    public Task<PerfilActivoViewModel> ObtenerPerfilActivoAsync() => Task.FromResult(new PerfilActivoViewModel
     {
-        var session = _httpContextAccessor.HttpContext?.Session;
-        if (_env.IsDevelopment() && session is not null)
-        {
-            var devUserId = session.GetInt32(SessionDevUserId);
-            if (devUserId.HasValue && devUserId.Value > 0)
-            {
-                return devUserId.Value;
-            }
-        }
-
-        return _usuarioActual.IdUsuario;
-    }
-
-    public async Task<PerfilActivoViewModel> ObtenerPerfilActivoAsync()
-    {
-        var session = _httpContextAccessor.HttpContext?.Session;
-        var idActivo = ObtenerIdUsuarioActivo();
-
-        if (_env.IsDevelopment() && session is not null)
-        {
-            var cachedId = session.GetInt32(SessionDevUserId);
-            var cachedNombre = session.GetString(SessionDevUserNombre);
-            var cachedRol = session.GetString(SessionDevUserRol);
-
-            if (cachedId == idActivo && !string.IsNullOrWhiteSpace(cachedNombre) && !string.IsNullOrWhiteSpace(cachedRol))
-            {
-                return new PerfilActivoViewModel
-                {
-                    IdUsuario = idActivo,
-                    Nombre = cachedNombre,
-                    Rol = cachedRol
-                };
-            }
-        }
-
-        var res = await ObtenerUsuarioPorIdAsync(idActivo);
-        if (res.Exito && res.Datos is not null)
-        {
-            if (_env.IsDevelopment() && session is not null)
-            {
-                session.SetInt32(SessionDevUserId, res.Datos.IdUsuario);
-                session.SetString(SessionDevUserNombre, res.Datos.NombreCompleto);
-                session.SetString(SessionDevUserRol, res.Datos.RolNombre);
-            }
-
-            return new PerfilActivoViewModel
-            {
-                IdUsuario = res.Datos.IdUsuario,
-                Nombre = res.Datos.NombreCompleto,
-                Rol = res.Datos.RolNombre
-            };
-        }
-
-        return idActivo switch
-        {
-            1 => new PerfilActivoViewModel { IdUsuario = 1, Nombre = "Admin Sistema", Rol = "Administrador" },
-            2 => new PerfilActivoViewModel { IdUsuario = 2, Nombre = "Valeria Castro", Rol = "Product Owner" },
-            3 => new PerfilActivoViewModel { IdUsuario = 3, Nombre = "Rodrigo Morales", Rol = "Scrum Master" },
-            4 => new PerfilActivoViewModel { IdUsuario = 4, Nombre = "Carlos Ruiz", Rol = "Miembro del Equipo" },
-            _ => new PerfilActivoViewModel { IdUsuario = _usuarioActual.IdUsuario, Nombre = _usuarioActual.Nombre, Rol = "Product Owner" }
-        };
-    }
+        IdUsuario = _usuarioActual.IdUsuario,
+        Nombre = _usuarioActual.Nombre,
+        Rol = _usuarioActual.Rol
+    });
 
     // =========================================================================
     // HU-02: ENDPOINTS DE USUARIOS

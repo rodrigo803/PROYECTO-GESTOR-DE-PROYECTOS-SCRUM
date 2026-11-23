@@ -86,11 +86,13 @@ public static class ScrumApiExtensions
             }
         }).WithTags("Diagnóstico");
 
+        app.MapAccesoEndpoints();
         app.MapUsuariosEndpoints();
         app.MapSprintsEndpoints();
         app.MapTareasEndpoints();
         app.MapProyectosEndpoints();
         app.MapPlanificacionEndpoints();
+        app.MapBacklogEndpoints();
 
         return app;
     }

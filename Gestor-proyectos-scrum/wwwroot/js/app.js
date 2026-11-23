@@ -132,11 +132,10 @@ function mostrarToast(mensaje, tipo = 'success') {
 }
 
 /**
- * Confirmación simulada para el cierre de sesión
+ * Cierre de sesión real: envía el formulario oculto hacia Acceso/Salir (HU-01).
  */
 function confirmarCierreSesion() {
   if (confirm('¿Estás seguro de que deseas cerrar sesión en SCRUM Manager?')) {
-    alert('Sesión finalizada. Redirigiendo a pantalla de login...');
-    window.location.href = 'cerrar-sesion.html';
+    document.getElementById('formCerrarSesion')?.submit();
   }
 }

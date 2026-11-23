@@ -1,12 +1,20 @@
+using System.Security.Claims;
 using Gestor_proyectos_scrum.Services;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Gestor_proyectos_scrum.Controllers;
 
 /// <summary>
-/// Permite cambiar el perfil de usuario activo en sesión durante las pruebas en entorno Development
-/// para evaluar los 4 roles de SCRUM sin alterar _Layout.cshtml ni UsuarioActual.cs.
+/// Acceso directo (sin contraseña) a los 4 perfiles de prueba, solo en Development, para
+/// evaluar los distintos roles sin reescribir credenciales a cada rato. Con HU-01 ya no
+/// guarda el perfil en sesión: inicia la MISMA cookie de autenticación que usa el login
+/// real (AccesoController), para que todo el sistema siga leyendo un solo origen de verdad
+/// (los claims) y no haya dos mecanismos de identidad conviviendo.
 /// </summary>
+[AllowAnonymous]
 public class PerfilPruebasController : Controller
 {
     private readonly IWebHostEnvironment _env;
@@ -28,33 +36,23 @@ public class PerfilPruebasController : Controller
         }
 
         var resultado = await _apiClient.ObtenerUsuarioPorIdAsync(idUsuario);
-        if (resultado.Exito && resultado.Datos is not null)
+        if (!resultado.Exito || resultado.Datos is null)
         {
-            var u = resultado.Datos;
-            HttpContext.Session.SetInt32(ScrumApiClient.SessionDevUserId, u.IdUsuario);
-            HttpContext.Session.SetString(ScrumApiClient.SessionDevUserNombre, u.NombreCompleto);
-            HttpContext.Session.SetString(ScrumApiClient.SessionDevUserRol, u.RolNombre);
-
-            TempData["Mensaje"] = $"Perfil de pruebas cambiado a: {u.NombreCompleto} ({u.RolNombre}).";
+            TempData["Error"] = resultado.Error ?? "No se pudo cargar ese usuario de prueba.";
+            return RedirectToAction("Index", "Usuarios");
         }
-        else
+
+        var u = resultado.Datos;
+        var claims = new[]
         {
-            // Fallback por si la API aún no responde pero se quiere cambiar el ID en sesión
-            var (nombreFallback, rolFallback) = idUsuario switch
-            {
-                1 => ("Admin Sistema", "Administrador"),
-                2 => ("Valeria Castro", "Product Owner"),
-                3 => ("Rodrigo Morales", "Scrum Master"),
-                4 => ("Carlos Ruiz", "Miembro del Equipo"),
-                _ => ($"Usuario #{idUsuario}", "Miembro del Equipo")
-            };
+            new Claim(ClaimTypes.NameIdentifier, u.IdUsuario.ToString()),
+            new Claim(ClaimTypes.Name, u.NombreCompleto),
+            new Claim(ClaimTypes.Role, u.RolNombre)
+        };
+        await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme,
+            new ClaimsPrincipal(new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme)));
 
-            HttpContext.Session.SetInt32(ScrumApiClient.SessionDevUserId, idUsuario);
-            HttpContext.Session.SetString(ScrumApiClient.SessionDevUserNombre, nombreFallback);
-            HttpContext.Session.SetString(ScrumApiClient.SessionDevUserRol, rolFallback);
-
-            TempData["Mensaje"] = $"Perfil de pruebas establecido en: {nombreFallback} ({rolFallback}).";
-        }
+        TempData["Mensaje"] = $"Perfil de pruebas: sesión iniciada como {u.NombreCompleto} ({u.RolNombre}).";
 
         if (!string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl))
         {
