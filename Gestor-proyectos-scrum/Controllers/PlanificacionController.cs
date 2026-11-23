@@ -1,5 +1,6 @@
 using Gestor_proyectos_scrum.Models;
 using Gestor_proyectos_scrum.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Gestor_proyectos_scrum.Controllers;
@@ -8,6 +9,8 @@ namespace Gestor_proyectos_scrum.Controllers;
 /// Controlador MVC para HU-06: Sprint Backlog / Planificación.
 /// Consume la Minimal API (Gestor-proyectos-scrum.Api) mediante ScrumApiClient;
 /// no accede directamente a MySQL.
+/// Admin, PO y SM planifican; aceptar/rechazar solo Admin y PO. Cliente es la vista
+/// cliente (Miembro del Equipo), por eso cada acción lleva su propio [Authorize].
 /// </summary>
 public class PlanificacionController : Controller
 {
@@ -20,6 +23,7 @@ public class PlanificacionController : Controller
         _usuarioActual = usuarioActual;
     }
 
+    [Authorize(Roles = Permisos.PlanificacionVer)]
     public async Task<IActionResult> Index(int? idProyecto, int? idSprint)
     {
         var proyectosRes = await _apiClient.ObtenerProyectosAbiertosAsync();
@@ -66,6 +70,7 @@ public class PlanificacionController : Controller
     }
 
     [HttpGet]
+    [Authorize(Roles = Permisos.Miembro)]
     public async Task<IActionResult> Cliente(int? idProyecto, int? idSprint)
     {
         var proyectos = (await _apiClient.ObtenerProyectosDeMiembroAsync()).Datos ?? new List<ProyectoOpcion>();
@@ -111,6 +116,7 @@ public class PlanificacionController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = Permisos.PlanificacionPlanificar)]
     public async Task<IActionResult> Comprometer(int idProyecto, int idSprint, List<int>? idHistoria, bool confirmo)
     {
         if (!_usuarioActual.PuedePlanificarSprint())
@@ -142,6 +148,7 @@ public class PlanificacionController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = Permisos.PlanificacionPlanificar)]
     public async Task<IActionResult> QuitarHistoria(int idProyecto, int idSprint, int idHistoria)
     {
         if (!_usuarioActual.PuedePlanificarSprint())
@@ -160,6 +167,7 @@ public class PlanificacionController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = Permisos.PlanificacionAprobar)]
     public async Task<IActionResult> AceptarHistoria(int idProyecto, int idSprint, int idHistoria)
     {
         if (!_usuarioActual.PuedeAprobarHistorias())
@@ -178,6 +186,7 @@ public class PlanificacionController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = Permisos.PlanificacionAprobar)]
     public async Task<IActionResult> RechazarHistoria(int idProyecto, int idSprint, int idHistoria, string comentario)
     {
         if (!_usuarioActual.PuedeAprobarHistorias())
@@ -202,6 +211,7 @@ public class PlanificacionController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = Permisos.PlanificacionPlanificar)]
     public async Task<IActionResult> RegresarAlBacklog(int idProyecto, int idSprint, int idSprintHistoria)
     {
         if (!_usuarioActual.PuedePlanificarSprint())
@@ -220,6 +230,7 @@ public class PlanificacionController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = Permisos.PlanificacionPlanificar)]
     public async Task<IActionResult> Replanificar(int idProyecto, int idSprint, int idSprintHistoria, int idSprintDestino)
     {
         if (!_usuarioActual.PuedePlanificarSprint())

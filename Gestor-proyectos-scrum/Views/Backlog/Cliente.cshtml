@@ -1,0 +1,75 @@
+@model Gestor_proyectos_scrum.Models.BacklogVista
+@{
+    ViewData["Title"] = "Product Backlog";
+    Layout = "_LayoutCliente";
+}
+<div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-start gap-3 mb-4">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-1 small text-muted">
+                <li class="breadcrumb-item text-muted">Vista Cliente</li>
+                <li class="breadcrumb-item active fw-medium" aria-current="page" style="color: var(--client-accent-hover);">Product Backlog</li>
+            </ol>
+        </nav>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+            <h1 class="page-title mb-0">Product Backlog</h1>
+            <span class="badge bg-primary-subtle text-primary border border-primary-subtle">HU-04</span>
+            <span class="badge bg-secondary-subtle text-secondary border"><i class="bi bi-eye me-1"></i>Solo consulta</span>
+        </div>
+        <p class="page-subtitle mb-0">Historias de usuario de los proyectos en los que participas.</p>
+    </div>
+</div>
+
+@if (!Model.Proyectos.Any())
+{
+    <div class="card-custom p-4 text-center text-muted">No perteneces a ningún proyecto todavía.</div>
+}
+else
+{
+    <form method="get" class="d-flex flex-wrap gap-2 mb-3">
+        <label class="visually-hidden" for="proyectoId">Proyecto</label>
+        <select class="form-select form-select-sm" name="proyectoId" id="proyectoId" style="max-width:300px" onchange="this.form.submit()">
+            @foreach (var p in Model.Proyectos)
+            {
+                <option value="@p.IdProyecto" selected="@(p.IdProyecto == Model.ProyectoId)">@p.Nombre</option>
+            }
+        </select>
+    </form>
+    <div class="card-custom">
+        <div class="border-bottom p-3">
+            <h2 class="h6 fw-bold mb-0">Historias del proyecto</h2>
+            <p class="text-muted small mb-0">Prioridad, estimación y criterios de aceptación</p>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-custom align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Historia de usuario</th>
+                        <th>Prioridad</th>
+                        <th>Estimación</th>
+                        <th>Estado</th>
+                        <th>Criterios</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var h in Model.Historias)
+                    {
+                        <tr>
+                            <td><strong>@h.Codigo</strong></td>
+                            <td style="min-width:280px">Como @h.Como, quiero @h.Quiero, para @h.Para.</td>
+                            <td><span class="badge @(h.Prioridad == "Alta" ? "bg-danger-subtle text-danger" : h.Prioridad == "Media" ? "bg-warning-subtle text-warning-emphasis" : "bg-secondary-subtle text-secondary")">@h.Prioridad</span></td>
+                            <td>@(h.Estimacion?.ToString() ?? "—") pts</td>
+                            <td><span class="badge bg-info-subtle text-info">@h.Estado</span></td>
+                            <td>@h.TotalCriterios</td>
+                        </tr>
+                    }
+                    @if (Model.Historias.Count == 0)
+                    {
+                        <tr><td colspan="6" class="text-center text-muted p-4">No hay historias para este proyecto.</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}

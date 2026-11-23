@@ -1,5 +1,6 @@
 using Gestor_proyectos_scrum.Models;
 using Gestor_proyectos_scrum.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Gestor_proyectos_scrum.Controllers;
@@ -8,7 +9,9 @@ namespace Gestor_proyectos_scrum.Controllers;
 /// Controlador MVC para HU-07: Gestión de Tareas, Checkpoints Inmutables (AvanceTareas)
 /// y Aprobaciones/Rechazos (Aprobaciones).
 /// Consume la Minimal API mediante ScrumApiClient.
+/// Admin y SM gestionan y asignan; PO solo ve.
 /// </summary>
+[Authorize(Roles = Permisos.TareasVer)]
 public class TareasController : Controller
 {
     private readonly ScrumApiClient _apiClient;
@@ -107,6 +110,7 @@ public class TareasController : Controller
     }
 
     [HttpGet]
+    [Authorize(Roles = Permisos.TareasGestionar)]
     public async Task<IActionResult> Create(int? idSprintHistoria, int? idSprint)
     {
         var catalogosRes = await _apiClient.ObtenerCatalogosTareasAsync();
@@ -144,6 +148,7 @@ public class TareasController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = Permisos.TareasGestionar)]
     public async Task<IActionResult> Create(CrearTareaViewModel vm, int? idSprintRetorno)
     {
         if (!ModelState.IsValid)
@@ -185,6 +190,7 @@ public class TareasController : Controller
     }
 
     [HttpGet]
+    [Authorize(Roles = Permisos.TareasGestionar)]
     public async Task<IActionResult> Edit(int id)
     {
         var detalleTask = _apiClient.ObtenerTareaDetalleAsync(id);
@@ -232,6 +238,7 @@ public class TareasController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = Permisos.TareasGestionar)]
     public async Task<IActionResult> Edit(int? id, EditarTareaViewModel vm, int? idSprintRetorno)
     {
         var targetId = vm.IdTarea > 0 ? vm.IdTarea : (id ?? 0);
@@ -278,6 +285,7 @@ public class TareasController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = Permisos.TareasGestionar)]
     public async Task<IActionResult> RegistrarAvance(int? id, RegistrarCheckpointViewModel model, string? returnUrl)
     {
         var targetId = model.IdTarea > 0 ? model.IdTarea : (id ?? 0);
@@ -310,6 +318,7 @@ public class TareasController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = Permisos.TareasGestionar)]
     public async Task<IActionResult> RegistrarAprobacion(int id, RegistrarAprobacionViewModel model)
     {
         var resultado = await _apiClient.RegistrarAprobacionTareaAsync(id, new
@@ -332,6 +341,7 @@ public class TareasController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = Permisos.TareasGestionar)]
     public async Task<IActionResult> Eliminar(int id, int? idSprintRetorno)
     {
         var resultado = await _apiClient.EliminarTareaAsync(id);

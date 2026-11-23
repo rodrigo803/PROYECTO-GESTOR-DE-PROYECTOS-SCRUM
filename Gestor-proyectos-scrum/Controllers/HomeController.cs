@@ -1,6 +1,7 @@
 using Dapper;
 using Gestor_proyectos_scrum.Data;
 using Gestor_proyectos_scrum.Models;
+using Gestor_proyectos_scrum.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
@@ -18,11 +19,13 @@ namespace Gestor_proyectos_scrum.Controllers
             _entorno = entorno;
         }
 
+        [Authorize(Roles = Permisos.DashboardAcceso)]
         public IActionResult Index()
         {
             return View();
         }
 
+        [Authorize(Roles = Permisos.VistaCliente)]
         public IActionResult InicioCliente()
         {
             return View();

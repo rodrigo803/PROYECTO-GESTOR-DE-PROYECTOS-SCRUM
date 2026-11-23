@@ -27,7 +27,7 @@ public class AccesoController : Controller
     {
         if (User.Identity?.IsAuthenticated == true)
         {
-            return RedirectToAction("Index", "Home");
+            return RedirectToInicio(User.FindFirst(ClaimTypes.Role)?.Value ?? string.Empty);
         }
 
         ViewBag.ReturnUrl = returnUrl;
@@ -67,8 +67,14 @@ public class AccesoController : Controller
             return LocalRedirect(returnUrl);
         }
 
-        return RedirectToAction("Index", "Home");
+        return RedirectToInicio(usuario.RolNombre);
     }
+
+    /// <summary>La vista depende del rol: Miembro del Equipo va directo a su inicio cliente, el resto a Home/Index.</summary>
+    private IActionResult RedirectToInicio(string rol) =>
+        Permisos.EsVistaCliente(rol)
+            ? RedirectToAction("InicioCliente", "Home")
+            : RedirectToAction("Index", "Home");
 
     [HttpPost]
     [ValidateAntiForgeryToken]
