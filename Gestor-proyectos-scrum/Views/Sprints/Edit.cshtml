@@ -1,0 +1,152 @@
+@model Gestor_proyectos_scrum.Models.EditarSprintViewModel
+@{
+    ViewData["Title"] = "Editar Sprint";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/modulos-rodrigo.css" asp-append-version="true" />
+}
+
+@await Html.PartialAsync("_BarraPerfilPruebas")
+
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-1 small text-muted">
+                <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-decoration-none text-muted">Inicio</a></li>
+                <li class="breadcrumb-item"><a asp-controller="Sprints" asp-action="Index" class="text-decoration-none text-muted">Gestión de Sprints</a></li>
+                <li class="breadcrumb-item"><a asp-controller="Sprints" asp-action="Details" asp-route-id="@Model.IdSprint" class="text-decoration-none text-muted">@Model.Nombre</a></li>
+                <li class="breadcrumb-item active text-primary fw-medium" aria-current="page">Editar</li>
+            </ol>
+        </nav>
+        <div class="d-flex align-items-center gap-2">
+            <h1 class="page-title mb-0">Editar @Model.Nombre</h1>
+            <span class="badge bg-primary-subtle text-primary border border-primary-subtle">HU-05</span>
+        </div>
+        <p class="page-subtitle mb-0">Proyecto: <strong>@Model.ProyectoCodigo — @Model.ProyectoNombre</strong> (Vigencia: @Model.ProyectoFechaInicio.ToString("dd/MM/yyyy") al @Model.ProyectoFechaFin.ToString("dd/MM/yyyy"))</p>
+    </div>
+
+    <div>
+        <a asp-action="Details" asp-route-id="@Model.IdSprint" class="btn btn-outline-secondary d-inline-flex align-items-center gap-2">
+            <i class="bi bi-arrow-left"></i>
+            <span>Volver al detalle</span>
+        </a>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-12 col-lg-8">
+        <div class="card-custom p-4">
+            <form asp-action="Edit"
+                  asp-route-id="@Model.IdSprint"
+                  method="post"
+                  class="form-validar-scrum"
+                  data-scrum-form="sprint"
+                  data-proyecto-inicio="@Model.ProyectoFechaInicio.ToString("yyyy-MM-dd")"
+                  data-proyecto-fin="@Model.ProyectoFechaFin.ToString("yyyy-MM-dd")"
+                  novalidate>
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="IdSprint" />
+                <input type="hidden" asp-for="IdProyecto" />
+                <input type="hidden" asp-for="ProyectoCodigo" />
+                <input type="hidden" asp-for="ProyectoNombre" />
+                <input type="hidden" asp-for="ProyectoFechaInicio" />
+                <input type="hidden" asp-for="ProyectoFechaFin" />
+                <input type="hidden" asp-for="Estado" />
+
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger rounded-3 small" role="alert"></div>
+
+                <div class="row g-3">
+                    <div class="col-12 col-md-8">
+                        <label asp-for="Nombre" class="form-label fw-semibold text-dark"></label>
+                        <span class="text-danger">*</span>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="bi bi-tag text-muted"></i></span>
+                            <input asp-for="Nombre"
+                                   class="form-control"
+                                   maxlength="60"
+                                   required
+                                   data-msg-required="El nombre del Sprint es obligatorio." />
+                        </div>
+                        <span asp-validation-for="Nombre" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-12 col-md-4">
+                        <label asp-for="CapacidadPuntos" class="form-label fw-semibold text-dark"></label>
+                        <span class="text-danger">*</span>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="bi bi-speedometer text-muted"></i></span>
+                            <input asp-for="CapacidadPuntos"
+                                   type="number"
+                                   min="1"
+                                   max="1000"
+                                   class="form-control"
+                                   required
+                                   data-msg-required="La capacidad en puntos es obligatoria."
+                                   data-msg-min="La capacidad estimada debe ser mayor a 0." />
+                            <span class="input-group-text bg-light text-muted small">pts</span>
+                        </div>
+                        <span asp-validation-for="CapacidadPuntos" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        <label asp-for="FechaInicio" class="form-label fw-semibold text-dark"></label>
+                        <span class="text-danger">*</span>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="bi bi-calendar-check text-muted"></i></span>
+                            <input asp-for="FechaInicio"
+                                   type="date"
+                                   class="form-control"
+                                   required
+                                   data-msg-required="La fecha de inicio es obligatoria." />
+                        </div>
+                        <span asp-validation-for="FechaInicio" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        <label asp-for="FechaFin" class="form-label fw-semibold text-dark"></label>
+                        <span class="text-danger">*</span>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="bi bi-calendar-x text-muted"></i></span>
+                            <input asp-for="FechaFin"
+                                   type="date"
+                                   class="form-control"
+                                   required
+                                   data-msg-required="La fecha de finalización es obligatoria." />
+                        </div>
+                        <span asp-validation-for="FechaFin" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <label asp-for="Objetivo" class="form-label fw-semibold text-dark mb-1"></label>
+                            <span id="contadorObjetivoEditPage" class="char-counter">0 / 300</span>
+                        </div>
+                        <textarea asp-for="Objetivo"
+                                  rows="3"
+                                  maxlength="300"
+                                  data-char-counter="#contadorObjetivoEditPage"
+                                  class="form-control"
+                                  required
+                                  data-msg-required="El objetivo del Sprint es obligatorio."></textarea>
+                        <span asp-validation-for="Objetivo" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <hr class="my-4" />
+
+                <div class="d-flex justify-content-end gap-2">
+                    <a asp-action="Details" asp-route-id="@Model.IdSprint" class="btn btn-outline-secondary">Cancelar</a>
+                    <button type="submit" class="btn btn-primary d-inline-flex align-items-center gap-2 px-4">
+                        <i class="bi bi-save"></i>
+                        <span>Guardar Cambios</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/modulos-rodrigo.js" asp-append-version="true"></script>
+}

@@ -1,0 +1,59 @@
+@{
+    var controladorActual = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+
+    string EsActivo(string controlador) => controladorActual.Equals(controlador, StringComparison.OrdinalIgnoreCase) ? " active" : "";
+}
+
+<!-- ========================================== -->
+<!-- SIDEBAR DE CLIENTE                          -->
+<!-- ========================================== -->
+<aside class="admin-sidebar client-sidebar" id="adminSidebar">
+
+    <div class="sidebar-heading">Vista Cliente</div>
+    <nav class="nav flex-column mb-3">
+        <a asp-controller="Home" asp-action="InicioCliente" class="sidebar-nav-link@(EsActivo("Home"))">
+            <i class="bi bi-house"></i>
+            <span>Inicio</span>
+        </a>
+        <a asp-controller="Proyectos" asp-action="Cliente" class="sidebar-nav-link@(EsActivo("Proyectos"))">
+            <i class="bi bi-kanban"></i>
+            <span>Mis Proyectos</span>
+        </a>
+        <a asp-controller="Backlog" asp-action="Cliente" class="sidebar-nav-link@(EsActivo("Backlog"))">
+            <i class="bi bi-journal-text"></i>
+            <span>Product Backlog</span>
+        </a>
+        <a asp-controller="Planificacion" asp-action="Cliente" class="sidebar-nav-link@(EsActivo("Planificacion"))">
+            <i class="bi bi-card-checklist"></i>
+            <span>Compromiso del Sprint</span>
+        </a>
+        <a asp-controller="Tareas" asp-action="Cliente" class="sidebar-nav-link@(EsActivo("Tareas"))">
+            <i class="bi bi-list-task"></i>
+            <span>Mis Tareas</span>
+        </a>
+        <span class="sidebar-nav-link disabled" aria-disabled="true" title="Próximamente (Proyecto Final)">
+            <i class="bi bi-columns-gap"></i>
+            <span>Tablero</span>
+            <span class="badge-proximamente">Próximamente</span>
+        </span>
+        <span class="sidebar-nav-link disabled" aria-disabled="true" title="Próximamente (Proyecto Final)">
+            <i class="bi bi-cone-striped"></i>
+            <span>Reportar Impedimento</span>
+            <span class="badge-proximamente">Próximamente</span>
+        </span>
+        <span class="sidebar-nav-link disabled" aria-disabled="true" title="Próximamente (Proyecto Final)">
+            <i class="bi bi-chat-square-text"></i>
+            <span>Retrospectiva</span>
+            <span class="badge-proximamente">Próximamente</span>
+        </span>
+    </nav>
+
+    <!-- Botón Cerrar Sesión en pie del Sidebar -->
+    <div class="mt-auto px-3 pt-4">
+        <button class="btn btn-outline-danger btn-sm w-100 d-flex align-items-center justify-content-center gap-2" type="button" onclick="confirmarCierreSesion()">
+            <i class="bi bi-box-arrow-right"></i>
+            <span>Cerrar Sesión</span>
+        </button>
+    </div>
+
+</aside>

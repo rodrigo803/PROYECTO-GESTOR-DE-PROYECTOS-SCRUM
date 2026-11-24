@@ -1,0 +1,119 @@
+﻿@inject Gestor_proyectos_scrum.Services.UsuarioActual UsuarioActual
+@{
+    var inicialesUsuario = UsuarioActual.Nombre.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+    var inicialesNavbar = inicialesUsuario.Length == 0
+        ? string.Empty
+        : char.ToUpperInvariant(inicialesUsuario[0][0]).ToString() + (inicialesUsuario.Length > 1 ? char.ToUpperInvariant(inicialesUsuario[^1][0]).ToString() : string.Empty);
+}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - SCRUM Manager</title>
+
+    <!-- Bootstrap 5 (local) -->
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+    <!-- Bootstrap Icons (CDN) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <!-- Google Fonts: Inter (CDN) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Estilos del equipo -->
+    <link rel="stylesheet" href="~/css/styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/modulos-sergio.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/modulos-jesus.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+
+    <!-- ========================================== -->
+    <!-- NAVBAR SUPERIOR OSCURO                      -->
+    <!-- ========================================== -->
+    <nav class="navbar navbar-dark admin-navbar px-3 px-lg-4">
+        <div class="container-fluid p-0 d-flex align-items-center justify-content-between">
+
+            <!-- Brand & Mobile Toggle -->
+            <div class="d-flex align-items-center gap-3">
+                <button class="btn btn-outline-secondary btn-sm d-lg-none text-light border-0" type="button" id="sidebarToggle" aria-label="Abrir menú">
+                    <i class="bi bi-list fs-4"></i>
+                </button>
+
+                <a class="navbar-brand d-flex align-items-center gap-2 m-0" asp-controller="Home" asp-action="Index">
+                    <span class="brand-logo-badge">
+                        <i class="bi bi-kanban-fill"></i>
+                    </span>
+                    <span class="fw-bold tracking-tight text-white fs-5">SCRUM <span class="fw-semibold" style="color: #818cf8 !important;">Manager</span></span>
+                </a>
+            </div>
+
+            <!-- Chip de estado del Sprint y Perfil -->
+            <div class="d-flex align-items-center gap-3">
+
+                <div class="d-none d-md-flex align-items-center gap-2 px-3 py-1 bg-dark-subtle rounded-pill border border-secondary border-opacity-25 text-light text-opacity-75 small">
+                    <span class="status-dot bg-success"></span>
+                    <span>Sprint 1 en curso</span>
+                    <span class="text-secondary">|</span>
+                    <span class="fw-medium text-info">Día 9 de 14</span>
+                </div>
+
+                <!-- Perfil Administrador -->
+                <div class="dropdown">
+                    <button class="btn btn-dark d-flex align-items-center gap-2 py-1 px-2 rounded-3 border border-secondary border-opacity-25" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 32px; height: 32px; font-size: 0.85rem;">
+                            @inicialesNavbar
+                        </div>
+                        <div class="text-start d-none d-sm-block pe-1">
+                            <div class="text-white fw-semibold small lh-1">@UsuarioActual.Nombre</div>
+                            <small class="text-light text-opacity-50" style="font-size: 0.72rem;">@UsuarioActual.Rol</small>
+                        </div>
+                        <i class="bi bi-chevron-down text-light text-opacity-50 small"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-sm py-2">
+                        <li><h6 class="dropdown-header">Cuenta Administrador</h6></li>
+                        <li><a class="dropdown-item d-flex align-items-center gap-2" href="#"><i class="bi bi-person text-secondary"></i> Mi Perfil</a></li>
+                        <li><a class="dropdown-item d-flex align-items-center gap-2" href="#"><i class="bi bi-sliders text-secondary"></i> Configuración</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <button class="dropdown-item d-flex align-items-center gap-2 text-danger" type="button" onclick="confirmarCierreSesion()">
+                                <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+
+            </div>
+
+        </div>
+    </nav>
+
+    @await Html.PartialAsync("_Sidebar")
+
+    <form id="formCerrarSesion" asp-controller="Acceso" asp-action="Salir" method="post" class="d-none">
+        @Html.AntiForgeryToken()
+    </form>
+
+    <!-- ========================================== -->
+    <!-- ÁREA DE CONTENIDO                           -->
+    <!-- ========================================== -->
+    <main class="main-content">
+
+        @await Html.PartialAsync("_Mensajes")
+
+        @RenderBody()
+
+    </main>
+
+    <!-- Scripts -->
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.min.js"></script>
+    <script src="~/js/app.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

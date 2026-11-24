@@ -1,0 +1,1010 @@
+@model Gestor_proyectos_scrum.Models.TareasIndexViewModel
+@{
+    ViewData["Title"] = "Sprint Backlog & Tareas";
+    var sp = Model.SprintSeleccionado;
+    var sprintCerrado = sp is not null && string.Equals(sp.Estado, "Cerrado", StringComparison.OrdinalIgnoreCase);
+    var pctGlobal = (int)Math.Clamp(Math.Round(Model.AvanceGlobalPonderado), 0, 100);
+    var returnUrl = Context.Request.Path + Context.Request.QueryString;
+    var hayFiltros = Model.IdResponsableFiltro.HasValue || !string.IsNullOrWhiteSpace(Model.EstadoFiltro) || !string.IsNullOrWhiteSpace(Model.Buscar);
+    var puedeGestionar = Model.PerfilActual.PuedeGestionarTareas;
+
+    string ObtenerClaseEstadoTarea(string estado) => estado switch
+    {
+        "Finalizado" => "status-finalizado",
+        "En revisión" => "status-revision",
+        "En progreso" => "status-progreso",
+        _ => "status-pendiente"
+    };
+
+    string ObtenerColorAvatar(int? idResponsable) => ((idResponsable ?? 0) % 4) switch
+    {
+        1 => "bg-primary text-white",
+        2 => "bg-success text-white",
+        3 => "bg-warning text-dark",
+        _ => "bg-info text-white"
+    };
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/modulos-rodrigo.css" asp-append-version="true" />
+}
+
+@await Html.PartialAsync("_BarraPerfilPruebas")
+
+<!-- Encabezado de la Pantalla (prototipo/sprint-backlog.html) -->
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-1 small text-muted">
+                <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-decoration-none text-muted">Inicio</a></li>
+                <li class="breadcrumb-item"><a asp-controller="Sprints" asp-action="Index" class="text-decoration-none text-muted">Gestión de Sprints</a></li>
+                <li class="breadcrumb-item active text-primary fw-medium" aria-current="page">Sprint Backlog</li>
+            </ol>
+        </nav>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+            <h1 class="page-title mb-0">Sprint Backlog &amp; Tareas</h1>
+            <span class="badge bg-primary-subtle text-primary border border-primary-subtle">HU-07</span>
+            @if (sp is not null)
+            {
+                if (sp.Estado == "Activo")
+                {
+                    <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1 fs-7">
+                        <i class="bi bi-play-circle-fill me-1"></i> Sprint Activo: @sp.Nombre (@sp.ProyectoCodigo)
+                    </span>
+                }
+                else if (sp.Estado == "Planificado")
+                {
+                    <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle px-2 py-1 fs-7">
+                        <i class="bi bi-hourglass-split me-1"></i> Planificado: @sp.Nombre (@sp.ProyectoCodigo)
+                    </span>
+                }
+                else
+                {
+                    <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle px-2 py-1 fs-7">
+                        <i class="bi bi-archive-fill me-1"></i> Cerrado: @sp.Nombre (@sp.ProyectoCodigo)
+                    </span>
+                }
+            }
+        </div>
+        <p class="page-subtitle mb-0 mt-1">Desglose de Historias de Usuario priorizadas y gestión del ciclo de vida de tareas técnicas.</p>
+    </div>
+
+    <!-- Indicador de Progreso del Sprint (prototipo/sprint-backlog.html) -->
+    <div class="bg-white p-3 rounded-3 border d-flex align-items-center gap-3 shadow-sm" style="min-width: 260px;">
+        <div class="flex-grow-1">
+            <div class="d-flex justify-content-between small mb-1">
+                <span class="text-muted fw-medium">Progreso Global:</span>
+                <span class="fw-bold text-primary">@Model.AvanceGlobalPonderado.ToString("0.#")%</span>
+            </div>
+            <div class="progress" style="height: 8px;">
+                <div class="progress-bar bg-primary" role="progressbar" style="width: @(pctGlobal)%;"></div>
+            </div>
+        </div>
+        <div class="text-end border-start ps-3">
+            <div class="fs-5 fw-bold text-dark lh-1">@Model.TotalPuntosEsfuerzo</div>
+            <small class="text-muted" style="font-size: 0.72rem;">Story Pts</small>
+        </div>
+    </div>
+</div>
+
+<!-- Barra de Filtros Compacta -->
+<div class="card-custom p-3 mb-4">
+    <form asp-action="Index" method="get" class="row g-2 align-items-center" novalidate>
+        <div class="col-12 col-md-3">
+            <select name="idSprint" class="form-select form-select-sm" onchange="this.form.submit()">
+                @foreach (var s in Model.Sprints)
+                {
+                    <option value="@s.IdSprint" selected="@(Model.IdSprintFiltro == s.IdSprint ? "selected" : null)">
+                        @s.Etiqueta
+                    </option>
+                }
+            </select>
+        </div>
+
+        <div class="col-12 col-sm-6 col-md-3">
+            <select name="idResponsable" class="form-select form-select-sm" onchange="this.form.submit()">
+                <option value="">Todos los responsables</option>
+                @foreach (var r in Model.Responsables)
+                {
+                    <option value="@r.IdUsuario" selected="@(Model.IdResponsableFiltro == r.IdUsuario ? "selected" : null)">
+                        @r.NombreCompleto (@r.RolNombre)
+                    </option>
+                }
+            </select>
+        </div>
+
+        <div class="col-12 col-sm-6 col-md-2">
+            <select name="estado" class="form-select form-select-sm filter-select-scrum" onchange="this.form.submit()">
+                <option value="">Todos los estados</option>
+                <option value="Pendiente" selected="@(Model.EstadoFiltro == "Pendiente" ? "selected" : null)">Pendiente</option>
+                <option value="En progreso" selected="@(Model.EstadoFiltro == "En progreso" ? "selected" : null)">En progreso</option>
+                <option value="En revisión" selected="@(Model.EstadoFiltro == "En revisión" ? "selected" : null)">En revisión</option>
+                <option value="Finalizado" selected="@(Model.EstadoFiltro == "Finalizado" ? "selected" : null)">Finalizado</option>
+            </select>
+        </div>
+
+        <div class="col-12 col-md-2">
+            <div class="input-group input-group-sm">
+                <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+                <input type="text" name="buscar" value="@Model.Buscar" class="form-control border-start-0" placeholder="Buscar tarea..." />
+            </div>
+        </div>
+
+        <div class="col-12 col-md-2 d-flex justify-content-md-end gap-2">
+            @if (puedeGestionar && !sprintCerrado && Model.SprintHistoriasElegibles.Count > 0)
+            {
+                <button type="button"
+                        class="btn btn-sm btn-primary d-inline-flex align-items-center gap-1 shadow-sm"
+                        data-bs-toggle="modal"
+                        data-bs-target="#modalAgregarTarea"
+                        onclick="prepararModalAgregarTarea('', 'Selecciona una Historia del Sprint')">
+                    <i class="bi bi-plus-lg"></i>
+                    <span>Nueva Tarea</span>
+                </button>
+            }
+            @if (hayFiltros)
+            {
+                <a asp-action="Index" asp-route-idSprint="@Model.IdSprintFiltro" class="btn btn-sm btn-outline-secondary">Limpiar</a>
+            }
+        </div>
+    </form>
+</div>
+
+<!-- 4 Tarjetas KPI del Sprint Backlog con borde izquierdo de color (prototipo/sprint-backlog.html) -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="card-custom p-3 border-start border-4 border-warning">
+            <span class="text-muted small fw-medium">Tareas Pendientes</span>
+            <h4 class="fw-bold text-dark mt-1 mb-0">@Model.CountPendientes</h4>
+            <small class="text-warning-emphasis fw-medium">@Model.HorasPendientes.ToString("0.#") hrs estimadas</small>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card-custom p-3 border-start border-4 border-info">
+            <span class="text-muted small fw-medium">En Progreso</span>
+            <h4 class="fw-bold text-dark mt-1 mb-0">@Model.CountEnProgreso</h4>
+            <small class="text-info fw-medium">@Model.HorasEnProgreso.ToString("0.#") hrs en desarrollo</small>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card-custom p-3 border-start border-4" style="border-left-color: #9333ea !important;">
+            <span class="text-muted small fw-medium">En Revisión (QA / PR)</span>
+            <h4 class="fw-bold text-dark mt-1 mb-0">@Model.CountEnRevision</h4>
+            <small class="fw-medium" style="color: #9333ea;">@Model.HorasEnRevision.ToString("0.#") hrs esperando review</small>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card-custom p-3 border-start border-4 border-success">
+            <span class="text-muted small fw-medium">Finalizadas</span>
+            <h4 class="fw-bold text-dark mt-1 mb-0">@Model.CountFinalizadas</h4>
+            <small class="text-success fw-medium">@Model.HorasFinalizadas.ToString("0.#") hrs completadas</small>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================== -->
+<!-- COMPONENTE PRINCIPAL: ACORDEÓN DE HISTORIAS DE USUARIO         -->
+<!-- (prototipo/sprint-backlog.html)                                -->
+<!-- ============================================================== -->
+@if (Model.Historias.Count == 0)
+{
+    <div class="card-custom p-5 text-center text-muted">
+        <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+        <h6 class="fw-bold text-dark">Este Sprint aún no tiene Historias de Usuario comprometidas</h6>
+        <p class="small mb-0">Selecciona otro Sprint en el filtro superior o compromete historias desde la Planificación del Sprint.</p>
+    </div>
+}
+else
+{
+    <div class="accordion accordion-story" id="accordionSprintBacklog">
+        @for (int i = 0; i < Model.Historias.Count; i++)
+        {
+            var h = Model.Historias[i];
+            var collapseId = $"collapseStory_{h.IdSprintHistoria}";
+            var headingId = $"headingStory_{h.IdSprintHistoria}";
+            var expandido = i == 0;
+            var criterioPrincipal = h.CriteriosAceptacion.FirstOrDefault()?.Descripcion
+                ?? $"Como {h.Como}, quiero {h.Quiero} para {h.Para}.";
+
+            <div class="accordion-item shadow-sm">
+                <h2 class="accordion-header" id="@headingId">
+                    <button class="accordion-button @(expandido ? "" : "collapsed")"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#@collapseId"
+                            aria-expanded="@(expandido ? "true" : "false")">
+                        <div class="d-flex flex-wrap align-items-center justify-content-between w-100 me-3 gap-2">
+
+                            <!-- Título y Código de la HU -->
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="badge bg-primary text-white px-2 py-1">@h.Codigo</span>
+                                <span class="fw-bold text-dark">@h.Quiero</span>
+                            </div>
+
+                            <!-- Badges de Metadatos (.story-meta-badge) -->
+                            <div class="d-flex align-items-center gap-2 flex-wrap">
+                                @if (h.Prioridad == "Alta")
+                                {
+                                    <span class="story-meta-badge bg-danger-subtle text-danger border border-danger-subtle">
+                                        <i class="bi bi-exclamation-circle-fill me-1"></i> Prioridad Alta
+                                    </span>
+                                }
+                                else if (h.Prioridad == "Media")
+                                {
+                                    <span class="story-meta-badge bg-warning-subtle text-warning-emphasis border border-warning-subtle">
+                                        <i class="bi bi-dash-circle-fill me-1"></i> Prioridad Media
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="story-meta-badge bg-secondary-subtle text-secondary border border-secondary-subtle">
+                                        <i class="bi bi-info-circle-fill me-1"></i> Prioridad Baja
+                                    </span>
+                                }
+
+                                <span class="story-meta-badge bg-primary-subtle text-primary border border-primary-subtle">
+                                    <i class="bi bi-award-fill me-1"></i> @(h.Estimacion ?? 0) Story Points
+                                </span>
+
+                                <span class="story-meta-badge bg-light text-muted border">
+                                    <i class="bi bi-list-task me-1"></i> @h.Tareas.Count Tareas
+                                </span>
+
+                                <span class="story-meta-badge bg-success-subtle text-success border border-success-subtle">
+                                    <i class="bi bi-graph-up-arrow me-1"></i> @h.AvancePonderado.ToString("0.#")%
+                                </span>
+                            </div>
+
+                        </div>
+                    </button>
+                </h2>
+
+                <div id="@collapseId" class="accordion-collapse collapse @(expandido ? "show" : "")" data-bs-parent="#accordionSprintBacklog">
+                    <div class="accordion-body p-0">
+
+                        <!-- Franja superior de Criterios de Aceptación y Botón Agregar Tarea -->
+                        <div class="p-3 bg-light bg-opacity-75 border-bottom d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2">
+                            <div class="text-muted small mb-0">
+                                <strong>Criterio de Aceptación:</strong> @criterioPrincipal
+                                @if (h.CriteriosAceptacion.Count > 1)
+                                {
+                                    <span class="badge bg-white text-muted border ms-1">+@(h.CriteriosAceptacion.Count - 1) criterio(s)</span>
+                                }
+                            </div>
+
+                            @if (puedeGestionar && !sprintCerrado && h.Resultado == "Comprometida")
+                            {
+                                <button type="button"
+                                        class="btn btn-sm btn-primary d-inline-flex align-items-center gap-1 shadow-sm text-nowrap"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#modalAgregarTarea"
+                                        onclick="prepararModalAgregarTarea('@h.IdSprintHistoria', '@h.Codigo: @h.Quiero.Replace("'", "\\'")')">
+                                    <i class="bi bi-plus-lg"></i>
+                                    <span>Agregar Tarea</span>
+                                </button>
+                            }
+                        </div>
+
+                        <!-- Tabla Anidada de Tareas (prototipo/sprint-backlog.html) -->
+                        <div class="table-responsive">
+                            <table class="table table-custom mb-0">
+                                <thead>
+                                    <tr>
+                                        <th scope="col" style="min-width: 220px;">Nombre de la Tarea</th>
+                                        <th scope="col" style="min-width: 170px;">Responsable</th>
+                                        <th scope="col" style="min-width: 145px;">Estimación / Esfuerzo</th>
+                                        <th scope="col" style="min-width: 175px;">Avance &amp; Estado</th>
+                                        <th scope="col" class="text-end" style="min-width: 110px;">Acción</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (h.Tareas.Count == 0)
+                                    {
+                                        <tr>
+                                            <td colspan="5" class="text-center py-4 text-muted small">
+                                                <i class="bi bi-inbox fs-4 d-block mb-1"></i>
+                                                <div>No hay tareas en esta historia para los filtros seleccionados.</div>
+                                                @if (hayFiltros)
+                                                {
+                                                    <a asp-action="Index" asp-route-idSprint="@Model.IdSprintFiltro" class="btn btn-sm btn-outline-primary mt-2">
+                                                        <i class="bi bi-arrow-counterclockwise me-1"></i>Limpiar filtros
+                                                    </a>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                    else
+                                    {
+                                        @foreach (var t in h.Tareas)
+                                        {
+                                            <tr>
+                                                <td>
+                                                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                                                        <a asp-action="Details" asp-route-id="@t.IdTarea" class="fw-semibold text-dark text-decoration-none">
+                                                            @t.Titulo
+                                                        </a>
+                                                        @if (t.Atrasada)
+                                                        {
+                                                            <span class="badge badge-atrasada">
+                                                                <i class="bi bi-exclamation-triangle-fill me-1"></i> Atrasada
+                                                            </span>
+                                                        }
+                                                        @if (t.Bloqueada)
+                                                        {
+                                                            <span class="badge badge-bloqueada">
+                                                                <i class="bi bi-cone-striped me-1"></i> Bloqueada
+                                                            </span>
+                                                        }
+                                                    </div>
+                                                    <small class="text-muted d-block">
+                                                        @(string.IsNullOrWhiteSpace(t.Descripcion) ? $"Entrega est.: {t.FechaEntregaEstimada:dd/MM/yyyy}" : t.Descripcion)
+                                                    </small>
+                                                </td>
+                                                <td>
+                                                    @if (!string.IsNullOrWhiteSpace(t.ResponsableNombre))
+                                                    {
+                                                        <div class="d-flex align-items-center gap-2">
+                                                            <div class="@ObtenerColorAvatar(t.IdResponsable) rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 28px; height: 28px; font-size: 0.75rem;">
+                                                                @t.InicialesResponsable
+                                                            </div>
+                                                            <div>
+                                                                <span class="small fw-medium text-dark">@t.ResponsableNombre</span>
+                                                                <div class="text-muted" style="font-size: 0.7rem;">@t.ResponsableRol</div>
+                                                            </div>
+                                                        </div>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="text-muted small fst-italic">Sin asignar</span>
+                                                    }
+                                                </td>
+                                                <td>
+                                                    <span class="badge bg-light text-dark border">
+                                                        <i class="bi bi-clock me-1 text-muted"></i>
+                                                        @t.HorasReales.ToString("0.#") / @t.HorasEstimadas.ToString("0.#") hrs
+                                                    </span>
+                                                    <div class="text-muted mt-1" style="font-size: 0.75rem;">
+                                                        <i class="bi bi-award text-primary"></i> @t.PuntosEsfuerzo pts esfuerzo
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="d-flex align-items-center gap-2 mb-1" style="max-width: 150px;">
+                                                        <div class="progress-thin flex-grow-1">
+                                                            <div class="progress-bar @(t.PorcentajeAvance == 100 ? "bg-success" : "bg-primary")"
+                                                                 role="progressbar"
+                                                                 style="width: @(t.PorcentajeAvance)%; height: 100%;"></div>
+                                                        </div>
+                                                        <span class="small fw-bold text-dark" style="font-size: 0.75rem;">@t.PorcentajeAvance%</span>
+                                                    </div>
+
+                                                    @if (!sprintCerrado)
+                                                    {
+                                                        <button type="button"
+                                                                class="status-badge-select @ObtenerClaseEstadoTarea(t.Estado)"
+                                                                title="Registrar Checkpoint Inmutable de Avance"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#modalRegistrarAvance"
+                                                                data-id="@t.IdTarea"
+                                                                data-titulo="@t.Titulo"
+                                                                data-pct="@t.PorcentajeAvance"
+                                                                data-estado="@t.Estado"
+                                                                onclick="prepararModalCheckpoint(this)">
+                                                            <span class="status-dot"></span>
+                                                            <span class="status-text">@t.Estado</span>
+                                                        </button>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="status-badge-select @ObtenerClaseEstadoTarea(t.Estado)">
+                                                            <span class="status-dot"></span>
+                                                            <span class="status-text">@t.Estado</span>
+                                                        </span>
+                                                    }
+                                                </td>
+                                                <td class="text-end">
+                                                    <div class="btn-group btn-group-sm">
+                                                        <a asp-action="Details" asp-route-id="@t.IdTarea" class="btn btn-sm btn-outline-primary" title="Ver Checkpoints Inmutables y Aprobaciones">
+                                                            <i class="bi bi-clock-history"></i>
+                                                        </a>
+                                                        <button class="btn btn-sm btn-link text-muted p-1" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Opciones">
+                                                            <i class="bi bi-three-dots"></i>
+                                                        </button>
+                                                        <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                                                            <li>
+                                                                <a class="dropdown-item small" asp-action="Details" asp-route-id="@t.IdTarea">
+                                                                    <i class="bi bi-eye me-2 text-primary"></i>Historial y Aprobaciones
+                                                                </a>
+                                                            </li>
+                                                            @if (puedeGestionar && !sprintCerrado)
+                                                            {
+                                                                <li>
+                                                                    <button type="button"
+                                                                            class="dropdown-item small"
+                                                                            data-bs-toggle="modal"
+                                                                            data-bs-target="#modalRegistrarAvance"
+                                                                            data-id="@t.IdTarea"
+                                                                            data-titulo="@t.Titulo"
+                                                                            data-pct="@t.PorcentajeAvance"
+                                                                            data-estado="@t.Estado"
+                                                                            onclick="prepararModalCheckpoint(this)">
+                                                                        <i class="bi bi-graph-up-arrow me-2 text-success"></i>Registrar Checkpoint
+                                                                    </button>
+                                                                </li>
+                                                                <li>
+                                                                    <button type="button"
+                                                                            class="dropdown-item small"
+                                                                            data-bs-toggle="modal"
+                                                                            data-bs-target="#modalEditarTarea"
+                                                                            data-id="@t.IdTarea"
+                                                                            data-titulo="@t.Titulo"
+                                                                            data-descripcion="@(t.Descripcion ?? "")"
+                                                                            data-responsable="@(t.IdResponsable?.ToString() ?? "")"
+                                                                            data-puntos="@t.PuntosEsfuerzo"
+                                                                            data-horas="@t.HorasEstimadas.ToString("0.#", System.Globalization.CultureInfo.InvariantCulture)"
+                                                                            data-fecha="@t.FechaEntregaEstimada.ToString("yyyy-MM-dd")"
+                                                                            onclick="prepararModalEditarTarea(this)">
+                                                                        <i class="bi bi-pencil me-2 text-muted"></i>Editar Tarea
+                                                                    </button>
+                                                                </li>
+                                                                @if (Model.PerfilActual.PuedeEliminarTareas && t.TotalCheckpoints == 0 && t.TotalAprobaciones == 0 && !t.Bloqueada)
+                                                                {
+                                                                    <li><hr class="dropdown-divider"></li>
+                                                                    <li>
+                                                                        <button type="button"
+                                                                                class="dropdown-item small text-danger"
+                                                                                data-bs-toggle="modal"
+                                                                                data-bs-target="#modalConfirmarEliminarTarea"
+                                                                                data-id="@t.IdTarea"
+                                                                                data-titulo="@t.Titulo"
+                                                                                onclick="prepararModalEliminarTarea(this)">
+                                                                            <i class="bi bi-trash me-2"></i>Eliminar Tarea
+                                                                        </button>
+                                                                    </li>
+                                                                }
+                                                            }
+                                                        </ul>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+<!-- ========================================================= -->
+<!-- MODAL OSCURO: AGREGAR TAREA (prototipo/sprint-backlog.html)-->
+<!-- ========================================================= -->
+<div class="modal fade" id="modalAgregarTarea" tabindex="-1" aria-labelledby="modalAgregarTareaLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-dark text-white px-4 py-3">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="bg-primary p-2 rounded text-white">
+                        <i class="bi bi-check2-circle fs-5"></i>
+                    </div>
+                    <div>
+                        <h5 class="modal-title fw-bold fs-5 mb-0" id="modalAgregarTareaLabel">Agregar Nueva Tarea</h5>
+                        <small class="text-light text-opacity-75" id="modalTareaSubtitulo">Asociada a: Historia de Usuario</small>
+                    </div>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+
+            <form asp-action="Create" method="post" class="form-validar-scrum" novalidate>
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="idSprintRetorno" value="@Model.IdSprintFiltro" />
+
+                <div class="modal-body p-4">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label fw-semibold text-dark small">Historia de Usuario Comprometida <span class="text-danger">*</span></label>
+                            <select name="IdSprintHistoria"
+                                    id="crearTareaIdSprintHistoria"
+                                    class="form-select form-select-sm"
+                                    required
+                                    data-msg-required="Seleccione una Historia de Usuario comprometida en el Sprint.">
+                                @foreach (var sh in Model.SprintHistoriasElegibles)
+                                {
+                                    <option value="@sh.IdSprintHistoria">@sh.EtiquetaSelector</option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label fw-semibold text-dark">
+                                Nombre de la Tarea <span class="text-danger">*</span>
+                            </label>
+                            <input type="text"
+                                   name="Titulo"
+                                   class="form-control"
+                                   maxlength="150"
+                                   placeholder="ej. Crear validación criptográfica en backend"
+                                   required
+                                   data-msg-required="El título de la tarea es obligatorio." />
+                        </div>
+
+                        <div class="col-12">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <label class="form-label fw-semibold text-dark mb-1">
+                                    Descripción Técnica de la Tarea
+                                </label>
+                                <span id="contadorCrearTareaDesc" class="char-counter">0 / 500</span>
+                            </div>
+                            <textarea name="Descripcion"
+                                      class="form-control"
+                                      rows="2"
+                                      maxlength="500"
+                                      data-char-counter="#contadorCrearTareaDesc"
+                                      placeholder="Detalla los requisitos técnicos, endpoints o librerías necesarias..."></textarea>
+                        </div>
+
+                        <div class="col-12 col-md-6">
+                            <label class="form-label fw-semibold text-dark">Asignar Responsable</label>
+                            <select name="IdResponsable" class="form-select">
+                                <option value="">-- Sin asignar --</option>
+                                @foreach (var r in Model.Responsables)
+                                {
+                                    <option value="@r.IdUsuario">@r.NombreCompleto (@r.RolNombre)</option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="col-12 col-md-6">
+                            <label class="form-label fw-semibold text-dark">
+                                Entrega Estimada <span class="text-danger">*</span>
+                            </label>
+                            <input type="date"
+                                   name="FechaEntregaEstimada"
+                                   class="form-control"
+                                   value="@(sp?.FechaFin.ToString("yyyy-MM-dd") ?? DateTime.Today.AddDays(5).ToString("yyyy-MM-dd"))"
+                                   required
+                                   data-msg-required="La fecha de entrega estimada es obligatoria." />
+                        </div>
+
+                        <div class="col-12 col-md-6">
+                            <label class="form-label fw-semibold text-dark">
+                                Esfuerzo (Puntos) <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="bi bi-award text-muted"></i></span>
+                                <input type="number"
+                                       name="PuntosEsfuerzo"
+                                       class="form-control"
+                                       value="3"
+                                       min="1"
+                                       max="100"
+                                       required
+                                       data-msg-required="Los puntos de esfuerzo son obligatorios."
+                                       data-msg-min="Los puntos de esfuerzo deben ser mayores a 0." />
+                                <span class="input-group-text bg-light text-muted small">pts</span>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-6">
+                            <label class="form-label fw-semibold text-dark">
+                                Estimación (Horas) <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="bi bi-clock text-muted"></i></span>
+                                <input type="number"
+                                       name="HorasEstimadas"
+                                       class="form-control"
+                                       value="6"
+                                       step="0.5"
+                                       min="0.5"
+                                       max="500"
+                                       required
+                                       data-msg-required="Las horas estimadas son obligatorias."
+                                       data-msg-min="Las horas estimadas deben ser mayores a 0." />
+                                <span class="input-group-text bg-light text-muted small">hrs</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer bg-light px-4 py-3">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary d-flex align-items-center gap-2">
+                        <i class="bi bi-check2-circle"></i>
+                        <span>Guardar Tarea</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================================= -->
+<!-- MODAL OSCURO: EDITAR METADATOS DE TAREA                   -->
+<!-- ========================================================= -->
+<div class="modal fade" id="modalEditarTarea" tabindex="-1" aria-labelledby="modalEditarTareaLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-dark text-white px-4 py-3">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="bg-primary p-2 rounded text-white">
+                        <i class="bi bi-pencil-square fs-5"></i>
+                    </div>
+                    <div>
+                        <h5 class="modal-title fw-bold fs-5 mb-0" id="modalEditarTareaLabel">Editar Metadatos de Tarea</h5>
+                        <small class="text-light text-opacity-75">El avance y estado se actualizan vía Checkpoints Inmutables</small>
+                    </div>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+
+            <form asp-action="Edit" method="post" class="form-validar-scrum" novalidate>
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="IdTarea" id="editIdTarea" />
+                <input type="hidden" name="idSprintRetorno" value="@Model.IdSprintFiltro" />
+
+                <div class="modal-body p-4">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label fw-semibold text-dark">Título de la Tarea <span class="text-danger">*</span></label>
+                            <input type="text"
+                                   name="Titulo"
+                                   id="editTareaTitulo"
+                                   class="form-control"
+                                   maxlength="150"
+                                   required
+                                   data-msg-required="El título de la tarea es obligatorio." />
+                        </div>
+
+                        <div class="col-12">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <label class="form-label fw-semibold text-dark mb-1">Descripción Técnica</label>
+                                <span id="contadorEditarTareaDesc" class="char-counter">0 / 500</span>
+                            </div>
+                            <textarea name="Descripcion"
+                                      id="editTareaDescripcion"
+                                      class="form-control"
+                                      rows="2"
+                                      maxlength="500"
+                                      data-char-counter="#contadorEditarTareaDesc"></textarea>
+                        </div>
+
+                        <div class="col-12 col-md-6">
+                            <label class="form-label fw-semibold text-dark">Responsable</label>
+                            <select name="IdResponsable" id="editTareaResponsable" class="form-select">
+                                <option value="">-- Sin asignar --</option>
+                                @foreach (var r in Model.Responsables)
+                                {
+                                    <option value="@r.IdUsuario">@r.NombreCompleto (@r.RolNombre)</option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="col-12 col-md-6">
+                            <label class="form-label fw-semibold text-dark">Entrega Estimada <span class="text-danger">*</span></label>
+                            <input type="date"
+                                   name="FechaEntregaEstimada"
+                                   id="editTareaFecha"
+                                   class="form-control"
+                                   required
+                                   data-msg-required="La fecha de entrega estimada es obligatoria." />
+                        </div>
+
+                        <div class="col-12 col-md-6">
+                            <label class="form-label fw-semibold text-dark">Puntos de Esfuerzo <span class="text-danger">*</span></label>
+                            <input type="number"
+                                   name="PuntosEsfuerzo"
+                                   id="editTareaPuntos"
+                                   class="form-control"
+                                   min="1"
+                                   max="100"
+                                   required
+                                   data-msg-required="Los puntos de esfuerzo son obligatorios."
+                                   data-msg-min="Los puntos de esfuerzo deben ser mayores a 0." />
+                        </div>
+
+                        <div class="col-12 col-md-6">
+                            <label class="form-label fw-semibold text-dark">Horas Estimadas <span class="text-danger">*</span></label>
+                            <input type="number"
+                                   name="HorasEstimadas"
+                                   id="editTareaHoras"
+                                   class="form-control"
+                                   step="0.5"
+                                   min="0.5"
+                                   max="500"
+                                   required
+                                   data-msg-required="Las horas estimadas son obligatorias."
+                                   data-msg-min="Las horas estimadas deben ser mayores a 0." />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer bg-light px-4 py-3">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary d-flex align-items-center gap-2">
+                        <i class="bi bi-save"></i>
+                        <span>Guardar Cambios</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================================= -->
+<!-- MODAL OSCURO: REGISTRAR CHECKPOINT INMUTABLE (AvanceTareas)-->
+<!-- ========================================================= -->
+<div class="modal fade" id="modalRegistrarAvance" tabindex="-1" aria-labelledby="modalRegistrarAvanceLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-dark text-white px-4 py-3">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="bg-primary p-2 rounded text-white">
+                        <i class="bi bi-graph-up-arrow fs-5"></i>
+                    </div>
+                    <div>
+                        <h5 class="modal-title fw-bold fs-5 mb-0" id="modalRegistrarAvanceLabel">Registrar Checkpoint Inmutable</h5>
+                        <small class="text-light text-opacity-75" id="modalCheckpointSubtitulo">Tarea</small>
+                    </div>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+
+            <form asp-action="RegistrarAvance" method="post" id="formModalCheckpoint" class="form-validar-scrum" data-scrum-form="checkpoint" data-pct-actual="0" novalidate>
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="IdTarea" id="chkIdTarea" />
+                <input type="hidden" name="returnUrl" value="@returnUrl" />
+
+                <div class="modal-body p-4">
+                    <div class="d-flex align-items-center justify-content-between p-2 px-3 mb-2 rounded-3 bg-light border small">
+                        <span>Situación actual registrada:</span>
+                        <span>
+                            <strong class="text-primary fs-6" id="chkPorcentajeAnteriorTexto">0%</strong>
+                            <span class="badge bg-white text-dark border ms-1" id="chkEstadoAnteriorTexto">Pendiente</span>
+                        </span>
+                    </div>
+
+                    <div class="alert alert-light border small py-2 px-3 mb-3 text-muted">
+                        <i class="bi bi-shield-lock text-primary me-1"></i>
+                        Los checkpoints de avance son <strong>inmutables</strong>: una vez guardados quedan en la bitácora y no pueden editarse ni eliminarse.
+                    </div>
+
+                    <div id="chkAlertaModal" class="alert alert-warning rounded-3 small d-none mb-3 alerta-validacion-scrum"></div>
+
+                    <div class="row g-3">
+                        <div class="col-12 col-sm-6">
+                            <label class="form-label fw-semibold text-dark small">Nuevo Avance (%) <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <input type="number"
+                                       name="PorcentajeNuevo"
+                                       id="chkPorcentajeNuevo"
+                                       class="form-control fw-bold"
+                                       min="0"
+                                       max="100"
+                                       required
+                                       data-msg-required="Ingrese el nuevo porcentaje de avance (0 a 100)."
+                                       data-msg-min="El porcentaje no puede ser menor a 0%."
+                                       data-msg-max="El porcentaje no puede superar 100%." />
+                                <span class="input-group-text bg-light">%</span>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-sm-6">
+                            <label class="form-label fw-semibold text-dark small">Horas Trabajadas <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <input type="number"
+                                       name="HorasTrabajadas"
+                                       id="chkHorasTrabajadas"
+                                       class="form-control"
+                                       value="2"
+                                       step="0.5"
+                                       min="0"
+                                       max="500"
+                                       required
+                                       data-msg-required="Ingrese las horas trabajadas (0 o mayor)."
+                                       data-msg-min="Las horas trabajadas no pueden ser negativas." />
+                                <span class="input-group-text bg-light">hrs</span>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label fw-semibold text-dark small">Nuevo Estado <span class="text-danger">*</span></label>
+                            <select name="EstadoNuevo" id="chkEstadoNuevo" class="form-select" required data-msg-required="Seleccione el nuevo estado de la tarea.">
+                                <option value="Pendiente">Pendiente</option>
+                                <option value="En progreso">En progreso</option>
+                                <option value="En revisión">En revisión</option>
+                                <option value="Finalizado">Finalizado (100%)</option>
+                            </select>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <label class="form-label fw-semibold text-dark small mb-1">
+                                    Justificación / Notas
+                                    <span id="chkAsteriscoJust" class="text-danger d-none">* (Obligatorio por retroceso)</span>
+                                </label>
+                                <span id="contadorChkJustModal" class="char-counter">0 / 300</span>
+                            </div>
+                            <textarea name="Justificacion"
+                                      id="chkJustificacion"
+                                      rows="2"
+                                      maxlength="300"
+                                      data-char-counter="#contadorChkJustModal"
+                                      class="form-control"
+                                      placeholder="Describe el avance o justifica cualquier disminución del porcentaje..."></textarea>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label fw-semibold text-dark small">Impedimento Relacionado (opcional)</label>
+                            <select name="IdImpedimento" id="chkIdImpedimento" class="form-select form-select-sm">
+                                <option value="">-- Ningún impedimento vinculado --</option>
+                                @foreach (var imp in Model.ImpedimentosActivos)
+                                {
+                                    <option value="@imp.IdImpedimento">[#@imp.IdImpedimento · @imp.Severidad] @imp.Titulo</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer bg-light px-4 py-3">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary d-flex align-items-center gap-2">
+                        <i class="bi bi-shield-check"></i>
+                        <span>Registrar Checkpoint</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================================= -->
+<!-- MODAL OSCURO: CONFIRMAR ELIMINAR TAREA                    -->
+<!-- ========================================================= -->
+<div class="modal fade" id="modalConfirmarEliminarTarea" tabindex="-1" aria-labelledby="modalConfirmarEliminarTareaLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-dark text-white px-4 py-3">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="bg-danger p-2 rounded text-white">
+                        <i class="bi bi-trash fs-5"></i>
+                    </div>
+                    <div>
+                        <h5 class="modal-title fw-bold fs-5 mb-0" id="modalConfirmarEliminarTareaLabel">Eliminar Tarea Técnica</h5>
+                        <small class="text-light text-opacity-75">Solo permitido para tareas sin historial de checkpoints</small>
+                    </div>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+
+            <form asp-action="Eliminar" method="post" novalidate>
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" id="eliminarIdTarea" />
+                <input type="hidden" name="idSprintRetorno" value="@Model.IdSprintFiltro" />
+
+                <div class="modal-body p-4">
+                    <p class="mb-0 text-dark" id="eliminarTareaTexto">
+                        ¿Confirmas la eliminación de esta tarea?
+                    </p>
+                </div>
+
+                <div class="modal-footer bg-light px-4 py-3">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-danger d-flex align-items-center gap-2">
+                        <i class="bi bi-trash"></i>
+                        <span>Eliminar Tarea</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/modulos-rodrigo.js" asp-append-version="true"></script>
+    <script>
+        let pctAnteriorModal = 0;
+
+        function prepararModalAgregarTarea(idSprintHistoria, etiquetaHu) {
+            const sel = document.getElementById('crearTareaIdSprintHistoria');
+            if (sel && idSprintHistoria) {
+                sel.value = idSprintHistoria;
+            }
+            const sub = document.getElementById('modalTareaSubtitulo');
+            if (sub && etiquetaHu) {
+                sub.textContent = 'Asociada a: ' + etiquetaHu;
+            }
+        }
+
+        function prepararModalEditarTarea(btn) {
+            document.getElementById('editIdTarea').value = btn.getAttribute('data-id') || '';
+            document.getElementById('editTareaTitulo').value = btn.getAttribute('data-titulo') || '';
+            document.getElementById('editTareaDescripcion').value = btn.getAttribute('data-descripcion') || '';
+            document.getElementById('editTareaResponsable').value = btn.getAttribute('data-responsable') || '';
+            document.getElementById('editTareaPuntos').value = btn.getAttribute('data-puntos') || '3';
+            document.getElementById('editTareaHoras').value = btn.getAttribute('data-horas') || '6';
+            document.getElementById('editTareaFecha').value = btn.getAttribute('data-fecha') || '';
+        }
+
+        function prepararModalEliminarTarea(btn) {
+            const id = btn.getAttribute('data-id') || '';
+            const titulo = btn.getAttribute('data-titulo') || '';
+            document.getElementById('eliminarIdTarea').value = id;
+            document.getElementById('eliminarTareaTexto').innerHTML =
+                '¿Estás seguro de que deseas eliminar la tarea <strong>' + titulo + '</strong>?';
+        }
+
+        function prepararModalCheckpoint(btn) {
+            const id = btn.getAttribute('data-id') || '';
+            const titulo = btn.getAttribute('data-titulo') || '';
+            pctAnteriorModal = parseInt(btn.getAttribute('data-pct') || '0', 10);
+            const estado = btn.getAttribute('data-estado') || 'En progreso';
+
+            const form = document.getElementById('formModalCheckpoint');
+            if (form) {
+                form.setAttribute('data-pct-actual', pctAnteriorModal.toString());
+            }
+
+            document.getElementById('chkIdTarea').value = id;
+            document.getElementById('modalCheckpointSubtitulo').textContent = 'Tarea #' + id + ': ' + titulo;
+            document.getElementById('chkPorcentajeAnteriorTexto').textContent = pctAnteriorModal + '%';
+            document.getElementById('chkEstadoAnteriorTexto').textContent = estado;
+            document.getElementById('chkPorcentajeNuevo').value = pctAnteriorModal;
+            document.getElementById('chkEstadoNuevo').value = estado;
+            document.getElementById('chkHorasTrabajadas').value = '2';
+            document.getElementById('chkJustificacion').value = '';
+            document.getElementById('chkIdImpedimento').value = '';
+            document.getElementById('chkAlertaModal').classList.add('d-none');
+            document.getElementById('chkAsteriscoJust').classList.add('d-none');
+        }
+
+        (function () {
+            const formChk = document.getElementById('formModalCheckpoint');
+            if (!formChk) return;
+
+            const inputPct = document.getElementById('chkPorcentajeNuevo');
+            const selectEstado = document.getElementById('chkEstadoNuevo');
+            const alerta = document.getElementById('chkAlertaModal');
+            const asterisco = document.getElementById('chkAsteriscoJust');
+
+            function revisarReglas() {
+                const nuevo = parseInt(inputPct.value || '0', 10);
+                const est = selectEstado.value;
+                alerta.classList.add('d-none');
+
+                if (!isNaN(nuevo) && nuevo < pctAnteriorModal) {
+                    asterisco.classList.remove('d-none');
+                    alerta.classList.remove('d-none');
+                    alerta.innerHTML = '<i class="bi bi-exclamation-triangle-fill me-1"></i> Retroceso detectado (' + pctAnteriorModal + '% → ' + nuevo + '%). Es obligatorio ingresar una justificación o vincular un impedimento.';
+                } else {
+                    asterisco.classList.add('d-none');
+                }
+
+                if (est === 'Finalizado' && nuevo !== 100) {
+                    alerta.classList.remove('d-none');
+                    alerta.innerHTML = '<i class="bi bi-info-circle-fill me-1"></i> Para marcar la tarea como <strong>Finalizado</strong>, el porcentaje de avance debe ser exactamente 100%.';
+                }
+            }
+
+            selectEstado.addEventListener('change', function () {
+                if (selectEstado.value === 'Finalizado') {
+                    inputPct.value = '100';
+                    if (window.ScrumValidador) window.ScrumValidador.limpiarInvalido(inputPct);
+                }
+                revisarReglas();
+            });
+
+            inputPct.addEventListener('input', function () {
+                const nuevo = parseInt(inputPct.value || '0', 10);
+                if (nuevo === 100 && selectEstado.value === 'Pendiente') {
+                    selectEstado.value = 'Finalizado';
+                }
+                revisarReglas();
+            });
+        })();
+    </script>
+}

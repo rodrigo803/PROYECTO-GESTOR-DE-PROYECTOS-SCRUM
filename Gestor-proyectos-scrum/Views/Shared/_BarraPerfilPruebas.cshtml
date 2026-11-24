@@ -1,0 +1,46 @@
+@inject IWebHostEnvironment Env
+@inject Gestor_proyectos_scrum.Services.UsuarioActual UsuarioActual
+@{
+    if (!Env.IsDevelopment())
+    {
+        return;
+    }
+
+    var returnUrl = Context.Request.Path + Context.Request.QueryString;
+
+    var perfiles = new (int Id, string Nombre, string Rol)[]
+    {
+        (1, "Admin Sistema", "Administrador"),
+        (2, "Valeria Castro", "Product Owner"),
+        (3, "Rodrigo Morales", "Scrum Master"),
+        (4, "Carlos Ruiz", "Miembro del Equipo")
+    };
+}
+
+<div class="card-custom p-2 px-3 mb-3 bg-light bg-opacity-50 border">
+    <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2">
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+            <span class="badge bg-dark text-white d-inline-flex align-items-center gap-1">
+                <i class="bi bi-shield-check"></i> Perfil Activo (Development)
+            </span>
+            <span class="small text-muted">
+                Sesión: <strong class="text-dark">@UsuarioActual.Nombre</strong>
+            </span>
+            <span class="badge bg-primary-subtle text-primary border border-primary-subtle">@UsuarioActual.Rol</span>
+        </div>
+
+        <form asp-controller="PerfilPruebas" asp-action="Cambiar" method="post" class="d-flex align-items-center gap-2 m-0">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="returnUrl" value="@returnUrl" />
+            <label for="selectPerfilPruebas" class="small text-muted text-nowrap mb-0">Entrar como:</label>
+            <select id="selectPerfilPruebas" name="idUsuario" class="form-select form-select-sm" style="max-width: 260px;" onchange="this.form.submit()">
+                @foreach (var p in perfiles)
+                {
+                    <option value="@p.Id" selected="@(p.Id == UsuarioActual.IdUsuario ? "selected" : null)">
+                        ID @p.Id: @p.Nombre (@p.Rol)
+                    </option>
+                }
+            </select>
+        </form>
+    </div>
+</div>

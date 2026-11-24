@@ -1,0 +1,348 @@
+@model Gestor_proyectos_scrum.Models.MisTareasViewModel
+@{
+    ViewData["Title"] = "Mis Tareas";
+    Layout = "_LayoutCliente";
+    var totalTareas = Model.Proyectos.SelectMany(p => p.Sprints).SelectMany(s => s.Tareas).Count();
+}
+
+@functions {
+    private static string ObtenerClaseEstadoTarea(string estado) => estado switch
+    {
+        "Finalizado" => "status-finalizado",
+        "En revisión" => "status-revision",
+        "En progreso" => "status-progreso",
+        _ => "status-pendiente"
+    };
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/modulos-rodrigo.css" asp-append-version="true" />
+}
+
+<div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-start gap-3 mb-4">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-1 small text-muted">
+                <li class="breadcrumb-item text-muted">Vista Cliente</li>
+                <li class="breadcrumb-item active fw-medium" aria-current="page" style="color: var(--client-accent-hover);">Mis Tareas</li>
+            </ol>
+        </nav>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+            <h1 class="page-title mb-0">Mis Tareas</h1>
+            <span class="badge bg-primary-subtle text-primary border border-primary-subtle">HU-07</span>
+        </div>
+        <p class="page-subtitle mb-0">Tareas asignadas a ti, agrupadas por proyecto y Sprint. Registra tu avance desde aquí.</p>
+    </div>
+</div>
+
+@if (totalTareas == 0)
+{
+    <div class="card-custom p-4 text-center text-muted">No tienes tareas asignadas todavía.</div>
+}
+
+@foreach (var proyecto in Model.Proyectos)
+{
+    <h2 class="h6 fw-bold text-dark mt-4 mb-2">
+        <i class="bi bi-kanban text-primary me-1"></i>
+        @proyecto.ProyectoCodigo · @proyecto.ProyectoNombre
+    </h2>
+
+    @foreach (var sprint in proyecto.Sprints)
+    {
+        <div class="card-custom mb-4">
+            <div class="p-3 border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <h5 class="fw-bold text-dark mb-0">
+                    @sprint.SprintNombre
+                    <span class="badge bg-secondary-subtle text-secondary border ms-1">@sprint.SprintEstado</span>
+                </h5>
+                <small class="text-muted">@sprint.Tareas.Count tarea(s)</small>
+            </div>
+
+            <!-- Tabla: escritorio -->
+            <div class="table-responsive d-none d-md-block">
+                <table class="table align-middle mb-0">
+                    <thead>
+                        <tr class="small text-muted">
+                            <th>Historia</th>
+                            <th>Tarea</th>
+                            <th>Estado</th>
+                            <th>Avance</th>
+                            <th>Entrega estimada</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var t in sprint.Tareas)
+                        {
+                            <tr>
+                                <td><span class="badge bg-primary text-white">@t.HistoriaCodigo</span></td>
+                                <td>
+                                    <strong>@t.Titulo</strong>
+                                    @if (t.Atrasada) { <span class="badge badge-atrasada ms-1">Atrasada</span> }
+                                    @if (t.Bloqueada) { <span class="badge badge-bloqueada ms-1">Bloqueada</span> }
+                                </td>
+                                <td>
+                                    <span class="status-badge-select @ObtenerClaseEstadoTarea(t.Estado)">
+                                        <span class="status-dot"></span>
+                                        <span class="status-text">@t.Estado</span>
+                                    </span>
+                                </td>
+                                <td><strong class="text-primary">@t.PorcentajeAvance%</strong></td>
+                                <td class="text-muted">@t.FechaEntregaEstimada.ToString("dd/MM/yyyy")</td>
+                                <td class="text-end">
+                                    @if (!string.Equals(sprint.SprintEstado, "Cerrado", StringComparison.OrdinalIgnoreCase) && t.Estado != "Finalizado")
+                                    {
+                                        <button type="button"
+                                                class="btn btn-sm btn-primary"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#modalRegistrarAvanceCliente"
+                                                data-id="@t.IdTarea"
+                                                data-titulo="@t.Titulo"
+                                                data-pct="@t.PorcentajeAvance"
+                                                data-estado="@t.Estado"
+                                                onclick="prepararModalCheckpointCliente(this)">
+                                            <i class="bi bi-graph-up-arrow"></i> Registrar avance
+                                        </button>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Tarjetas: móvil -->
+            <div class="d-md-none p-3 d-flex flex-column gap-3">
+                @foreach (var t in sprint.Tareas)
+                {
+                    <div class="card-custom p-3">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <div>
+                                <span class="badge bg-primary text-white">@t.HistoriaCodigo</span>
+                                <div class="mt-1"><strong>@t.Titulo</strong></div>
+                            </div>
+                            <strong class="text-primary flex-shrink-0 ms-2">@t.PorcentajeAvance%</strong>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                            <span class="status-badge-select @ObtenerClaseEstadoTarea(t.Estado)">
+                                <span class="status-dot"></span>
+                                <span class="status-text">@t.Estado</span>
+                            </span>
+                            <small class="text-muted">Entrega: @t.FechaEntregaEstimada.ToString("dd/MM/yyyy")</small>
+                        </div>
+                        @if (t.Atrasada || t.Bloqueada)
+                        {
+                            <div class="mt-2">
+                                @if (t.Atrasada) { <span class="badge badge-atrasada me-1">Atrasada</span> }
+                                @if (t.Bloqueada) { <span class="badge badge-bloqueada">Bloqueada</span> }
+                            </div>
+                        }
+                        @if (!string.Equals(sprint.SprintEstado, "Cerrado", StringComparison.OrdinalIgnoreCase) && t.Estado != "Finalizado")
+                        {
+                            <button type="button"
+                                    class="btn btn-sm btn-primary w-100 mt-3"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#modalRegistrarAvanceCliente"
+                                    data-id="@t.IdTarea"
+                                    data-titulo="@t.Titulo"
+                                    data-pct="@t.PorcentajeAvance"
+                                    data-estado="@t.Estado"
+                                    onclick="prepararModalCheckpointCliente(this)">
+                                <i class="bi bi-graph-up-arrow"></i> Registrar avance
+                            </button>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    }
+}
+
+<!-- Modal: Registrar Avance (Cliente) -->
+<div class="modal fade" id="modalRegistrarAvanceCliente" tabindex="-1" aria-labelledby="modalRegistrarAvanceClienteLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-dark text-white px-4 py-3">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="bg-primary p-2 rounded text-white">
+                        <i class="bi bi-graph-up-arrow fs-5"></i>
+                    </div>
+                    <div>
+                        <h5 class="modal-title fw-bold fs-5 mb-0" id="modalRegistrarAvanceClienteLabel">Registrar Avance</h5>
+                        <small class="text-light text-opacity-75" id="modalCheckpointClienteSubtitulo">Tarea</small>
+                    </div>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+
+            <form asp-action="RegistrarAvanceCliente" method="post" id="formModalCheckpointCliente" class="form-validar-scrum" data-scrum-form="checkpoint" data-pct-actual="0" novalidate>
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="IdTarea" id="chkClienteIdTarea" />
+
+                <div class="modal-body p-4">
+                    <div class="d-flex align-items-center justify-content-between p-2 px-3 mb-2 rounded-3 bg-light border small">
+                        <span>Situación actual registrada:</span>
+                        <span>
+                            <strong class="text-primary fs-6" id="chkClientePorcentajeAnteriorTexto">0%</strong>
+                            <span class="badge bg-white text-dark border ms-1" id="chkClienteEstadoAnteriorTexto">Pendiente</span>
+                        </span>
+                    </div>
+
+                    <div class="alert alert-light border small py-2 px-3 mb-3 text-muted">
+                        <i class="bi bi-shield-lock text-primary me-1"></i>
+                        Los checkpoints de avance son <strong>inmutables</strong>: una vez guardados quedan en la bitácora y no pueden editarse ni eliminarse.
+                    </div>
+
+                    <div id="chkClienteAlertaModal" class="alert alert-warning rounded-3 small d-none mb-3 alerta-validacion-scrum"></div>
+
+                    <div class="row g-3">
+                        <div class="col-12 col-sm-6">
+                            <label class="form-label fw-semibold text-dark small">Nuevo Avance (%) <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <input type="number"
+                                       name="PorcentajeNuevo"
+                                       id="chkClientePorcentajeNuevo"
+                                       class="form-control fw-bold"
+                                       min="0"
+                                       max="100"
+                                       required
+                                       data-msg-required="Ingrese el nuevo porcentaje de avance (0 a 100)."
+                                       data-msg-min="El porcentaje no puede ser menor a 0%."
+                                       data-msg-max="El porcentaje no puede superar 100%." />
+                                <span class="input-group-text bg-light">%</span>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-sm-6">
+                            <label class="form-label fw-semibold text-dark small">Horas Trabajadas <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <input type="number"
+                                       name="HorasTrabajadas"
+                                       id="chkClienteHorasTrabajadas"
+                                       class="form-control"
+                                       value="2"
+                                       step="0.5"
+                                       min="0"
+                                       max="500"
+                                       required
+                                       data-msg-required="Ingrese las horas trabajadas (0 o mayor)."
+                                       data-msg-min="Las horas trabajadas no pueden ser negativas." />
+                                <span class="input-group-text bg-light">hrs</span>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label fw-semibold text-dark small">Nuevo Estado <span class="text-danger">*</span></label>
+                            <select name="EstadoNuevo" id="chkClienteEstadoNuevo" class="form-select" required data-msg-required="Seleccione el nuevo estado de la tarea.">
+                                <option value="Pendiente">Pendiente</option>
+                                <option value="En progreso">En progreso</option>
+                                <option value="En revisión">En revisión</option>
+                                <option value="Finalizado">Finalizado (100%)</option>
+                            </select>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <label class="form-label fw-semibold text-dark small mb-1">
+                                    Justificación / Notas
+                                    <span id="chkClienteAsteriscoJust" class="text-danger d-none">* (Obligatorio por retroceso)</span>
+                                </label>
+                                <span id="contadorChkJustModalCliente" class="char-counter">0 / 300</span>
+                            </div>
+                            <textarea name="Justificacion"
+                                      id="chkClienteJustificacion"
+                                      rows="2"
+                                      maxlength="300"
+                                      data-char-counter="#contadorChkJustModalCliente"
+                                      class="form-control"
+                                      placeholder="Describe el avance o justifica cualquier disminución del porcentaje..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer bg-light px-4 py-3">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary d-flex align-items-center gap-2">
+                        <i class="bi bi-shield-check"></i>
+                        <span>Registrar Avance</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/modulos-rodrigo.js" asp-append-version="true"></script>
+    <script>
+        let pctAnteriorModalCliente = 0;
+
+        function prepararModalCheckpointCliente(btn) {
+            const id = btn.getAttribute('data-id') || '';
+            const titulo = btn.getAttribute('data-titulo') || '';
+            pctAnteriorModalCliente = parseInt(btn.getAttribute('data-pct') || '0', 10);
+            const estado = btn.getAttribute('data-estado') || 'En progreso';
+
+            const form = document.getElementById('formModalCheckpointCliente');
+            if (form) {
+                form.setAttribute('data-pct-actual', pctAnteriorModalCliente.toString());
+            }
+
+            document.getElementById('chkClienteIdTarea').value = id;
+            document.getElementById('modalCheckpointClienteSubtitulo').textContent = 'Tarea #' + id + ': ' + titulo;
+            document.getElementById('chkClientePorcentajeAnteriorTexto').textContent = pctAnteriorModalCliente + '%';
+            document.getElementById('chkClienteEstadoAnteriorTexto').textContent = estado;
+            document.getElementById('chkClientePorcentajeNuevo').value = pctAnteriorModalCliente;
+            document.getElementById('chkClienteEstadoNuevo').value = estado;
+            document.getElementById('chkClienteHorasTrabajadas').value = '2';
+            document.getElementById('chkClienteJustificacion').value = '';
+            document.getElementById('chkClienteAlertaModal').classList.add('d-none');
+            document.getElementById('chkClienteAsteriscoJust').classList.add('d-none');
+        }
+
+        (function () {
+            const formChk = document.getElementById('formModalCheckpointCliente');
+            if (!formChk) return;
+
+            const inputPct = document.getElementById('chkClientePorcentajeNuevo');
+            const selectEstado = document.getElementById('chkClienteEstadoNuevo');
+            const alerta = document.getElementById('chkClienteAlertaModal');
+            const asterisco = document.getElementById('chkClienteAsteriscoJust');
+
+            function revisarReglas() {
+                const nuevo = parseInt(inputPct.value || '0', 10);
+                const est = selectEstado.value;
+                alerta.classList.add('d-none');
+
+                if (!isNaN(nuevo) && nuevo < pctAnteriorModalCliente) {
+                    asterisco.classList.remove('d-none');
+                    alerta.classList.remove('d-none');
+                    alerta.innerHTML = '<i class="bi bi-exclamation-triangle-fill me-1"></i> Retroceso detectado (' + pctAnteriorModalCliente + '% → ' + nuevo + '%). Es obligatorio ingresar una justificación.';
+                } else {
+                    asterisco.classList.add('d-none');
+                }
+
+                if (est === 'Finalizado' && nuevo !== 100) {
+                    alerta.classList.remove('d-none');
+                    alerta.innerHTML = '<i class="bi bi-info-circle-fill me-1"></i> Para marcar la tarea como <strong>Finalizado</strong>, el porcentaje de avance debe ser exactamente 100%.';
+                }
+            }
+
+            selectEstado.addEventListener('change', function () {
+                if (selectEstado.value === 'Finalizado') {
+                    inputPct.value = '100';
+                    if (window.ScrumValidador) window.ScrumValidador.limpiarInvalido(inputPct);
+                }
+                revisarReglas();
+            });
+
+            inputPct.addEventListener('input', function () {
+                const nuevo = parseInt(inputPct.value || '0', 10);
+                if (nuevo === 100 && selectEstado.value === 'Pendiente') {
+                    selectEstado.value = 'Finalizado';
+                }
+                revisarReglas();
+            });
+        })();
+    </script>
+}
