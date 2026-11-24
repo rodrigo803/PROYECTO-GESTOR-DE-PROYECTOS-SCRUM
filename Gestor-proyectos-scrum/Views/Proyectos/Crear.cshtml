@@ -1,0 +1,31 @@
+@model Gestor_proyectos_scrum.Models.ProyectoFormViewModel
+@{
+    ViewData["Title"] = "Nuevo Proyecto";
+}
+
+<div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-start gap-3 mb-4">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-1 small text-muted">
+                <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-decoration-none text-muted">Inicio</a></li>
+                <li class="breadcrumb-item"><a asp-action="Index" class="text-decoration-none text-muted">Gestión de Proyectos</a></li>
+                <li class="breadcrumb-item active text-primary fw-medium" aria-current="page">Nuevo Proyecto</li>
+            </ol>
+        </nav>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+            <h1 class="page-title mb-0">Nuevo Proyecto</h1>
+            <span class="badge bg-primary-subtle text-primary border border-primary-subtle">HU-03</span>
+        </div>
+        <p class="page-subtitle mb-0">Define los datos generales, el equipo y las fechas del proyecto.</p>
+    </div>
+</div>
+
+<div class="card-custom p-4">
+    <form asp-action="Crear" method="post" novalidate>
+        <partial name="_Formulario" />
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

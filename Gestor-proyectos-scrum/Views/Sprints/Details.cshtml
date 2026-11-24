@@ -1,0 +1,452 @@
+@model Gestor_proyectos_scrum.Models.SprintDetailsViewModel
+@{
+    var s = Model.Sprint;
+    ViewData["Title"] = $"Detalle {s.Nombre}";
+    var puedeGestionar = Model.PerfilActual.PuedeGestionarSprints;
+    var porcentajeBarra = (int)Math.Clamp(Math.Round(s.AvancePonderado), 0, 100);
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/modulos-rodrigo.css" asp-append-version="true" />
+}
+
+@await Html.PartialAsync("_BarraPerfilPruebas")
+
+<!-- Encabezado -->
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-1 small text-muted">
+                <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-decoration-none text-muted">Inicio</a></li>
+                <li class="breadcrumb-item"><a asp-controller="Sprints" asp-action="Index" class="text-decoration-none text-muted">Gestión de Sprints</a></li>
+                <li class="breadcrumb-item active text-primary fw-medium" aria-current="page">@s.Nombre (@s.ProyectoCodigo)</li>
+            </ol>
+        </nav>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+            <h1 class="page-title mb-0">@s.Nombre — @s.ProyectoNombre</h1>
+            <span class="badge bg-primary-subtle text-primary border border-primary-subtle">HU-05</span>
+            @if (s.Estado == "Activo")
+            {
+                <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">
+                    <i class="bi bi-record-fill me-1"></i> Activo
+                </span>
+            }
+            else if (s.Estado == "Planificado")
+            {
+                <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle px-2 py-1">
+                    <i class="bi bi-hourglass-split me-1"></i> Planificado
+                </span>
+            }
+            else
+            {
+                <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle px-2 py-1">
+                    <i class="bi bi-archive-fill me-1"></i> Cerrado
+                </span>
+            }
+        </div>
+        <p class="page-subtitle mb-0 mt-1">
+            <strong>Objetivo del Sprint:</strong> @s.Objetivo
+        </p>
+    </div>
+
+    <div class="d-flex align-items-center gap-2 flex-wrap">
+        <a asp-controller="Tareas" asp-action="Index" asp-route-idSprint="@s.IdSprint" class="btn btn-outline-primary d-inline-flex align-items-center gap-1">
+            <i class="bi bi-card-checklist"></i>
+            <span>Ver Tareas del Sprint</span>
+        </a>
+        @if (puedeGestionar && s.Estado != "Cerrado")
+        {
+            <a asp-action="Edit" asp-route-id="@s.IdSprint" class="btn btn-outline-secondary d-inline-flex align-items-center gap-1">
+                <i class="bi bi-pencil"></i>
+                <span>Editar</span>
+            </a>
+        }
+        <a asp-action="Index" class="btn btn-outline-secondary d-inline-flex align-items-center gap-1">
+            <i class="bi bi-arrow-left"></i>
+            <span>Volver</span>
+        </a>
+    </div>
+</div>
+
+<!-- Panel de Resumen General y Controles de Ciclo de Vida -->
+<div class="row g-3 mb-4">
+    <!-- Metadatos y Barra de Avance Ponderado -->
+    <div class="col-12 col-lg-7">
+        <div class="card-custom p-4 h-100">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+                <div>
+                    <span class="text-muted small text-uppercase fw-semibold">Avance Ponderado del Sprint</span>
+                    <h3 class="fw-bold text-primary mb-0">@s.AvancePonderado.ToString("0.#")%</h3>
+                </div>
+                <div class="text-end">
+                    <span class="badge bg-light text-dark border px-3 py-2">
+                        <i class="bi bi-calendar-range me-1 text-primary"></i>
+                        @s.FechaInicio.ToString("dd/MM/yyyy") al @s.FechaFin.ToString("dd/MM/yyyy") (@s.DuracionDias días)
+                    </span>
+                </div>
+            </div>
+
+            <div class="progress-md mb-4">
+                <div class="progress-bar @(porcentajeBarra == 100 ? "bg-success" : "bg-primary")"
+                     role="progressbar"
+                     style="width: @(porcentajeBarra)%; height: 100%;"></div>
+            </div>
+
+            <div class="row g-3 text-center">
+                <div class="col-6 col-sm-3">
+                    <div class="p-2 rounded-3 bg-light border">
+                        <div class="text-muted small">Capacidad</div>
+                        <div class="fw-bold text-dark fs-5">@s.CapacidadPuntos pts</div>
+                    </div>
+                </div>
+                <div class="col-6 col-sm-3">
+                    <div class="p-2 rounded-3 bg-light border">
+                        <div class="text-muted small">Comprometidos</div>
+                        <div class="fw-bold text-primary fs-5">@s.PuntosComprometidos pts</div>
+                    </div>
+                </div>
+                <div class="col-6 col-sm-3">
+                    <div class="p-2 rounded-3 bg-light border">
+                        <div class="text-muted small">Horas Estimadas</div>
+                        <div class="fw-bold text-dark fs-5">@s.HorasEstimadas.ToString("0.#") h</div>
+                    </div>
+                </div>
+                <div class="col-6 col-sm-3">
+                    <div class="p-2 rounded-3 bg-light border">
+                        <div class="text-muted small">Horas Reales</div>
+                        <div class="fw-bold text-info fs-5">@s.HorasReales.ToString("0.#") h</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Controles de Ciclo de Vida del Sprint -->
+    <div class="col-12 col-lg-5">
+        <div class="card-custom p-4 h-100 d-flex flex-column justify-content-between">
+            <div>
+                <h6 class="fw-bold text-dark mb-1">
+                    <i class="bi bi-gear-wide-connected text-primary me-1"></i>
+                    Control de Ciclo de Vida del Sprint
+                </h6>
+                <p class="text-muted small mb-3">
+                    Transiciones permitidas: <strong>Planificado → Activo → Cerrado</strong> (solo un Sprint activo por proyecto).
+                </p>
+
+                @if (!puedeGestionar)
+                {
+                    <div class="alert alert-light border small mb-0">
+                        <i class="bi bi-lock me-1"></i>
+                        Tu rol actual (<strong>@Model.PerfilActual.Rol</strong>) es de consulta. Solo el <strong>Scrum Master</strong> o <strong>Administrador</strong> pueden iniciar, cerrar o eliminar Sprints.
+                    </div>
+                }
+                else if (s.Estado == "Planificado")
+                {
+                    <div class="p-3 rounded-3 bg-light border mb-3">
+                        <div class="fw-semibold text-dark small mb-2">Este Sprint está Planificado</div>
+                        <p class="small text-muted mb-3">
+                            Al iniciarlo pasará a estado <strong>Activo</strong> (verificando que no exista otro Sprint activo en el proyecto @s.ProyectoCodigo).
+                        </p>
+                        <div class="d-flex flex-wrap gap-2">
+                            <form asp-action="Iniciar" asp-route-id="@s.IdSprint" method="post" novalidate>
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-success btn-sm d-inline-flex align-items-center gap-1 px-3">
+                                    <i class="bi bi-play-circle-fill"></i>
+                                    <span>Iniciar Sprint</span>
+                                </button>
+                            </form>
+
+                            @if (s.TotalHistorias == 0)
+                            {
+                                <button type="button"
+                                        class="btn btn-outline-danger btn-sm d-inline-flex align-items-center gap-1"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#modalEliminarSprintDetalle">
+                                    <i class="bi bi-trash"></i>
+                                    <span>Eliminar Sprint</span>
+                                </button>
+                            }
+                        </div>
+                    </div>
+                }
+                else if (s.Estado == "Activo")
+                {
+                    <div class="p-3 rounded-3 bg-light border">
+                        <div class="fw-semibold text-dark small mb-1">Cerrar Sprint Activo</div>
+                        <p class="small text-muted mb-2">
+                            Al cerrar el Sprint: las historias cuyas tareas estén 100% finalizadas pasarán a <strong>Terminada</strong>. Las historias incompletas regresarán automáticamente al Product Backlog en estado <strong>Lista</strong>.
+                        </p>
+                        <button type="button"
+                                class="btn btn-danger btn-sm w-100 d-inline-flex align-items-center justify-content-center gap-1"
+                                data-bs-toggle="modal"
+                                data-bs-target="#modalCerrarSprintDetalle">
+                            <i class="bi bi-check2-square"></i>
+                            <span>Cerrar Sprint y Procesar Historias</span>
+                        </button>
+                    </div>
+                }
+                else
+                {
+                    <div class="alert alert-secondary small mb-0">
+                        <i class="bi bi-archive-fill me-1"></i>
+                        Este Sprint ya fue <strong>Cerrado</strong>. Sus registros e indicadores históricos son de solo lectura.
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 4 Indicadores de Tareas por Estado -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="card-custom p-3 border-start border-4 border-warning">
+            <span class="text-muted small fw-medium">Tareas Pendientes</span>
+            <h4 class="fw-bold text-dark mt-1 mb-0">@s.Pendientes</h4>
+            <small class="text-warning-emphasis">de @s.TotalTareas tareas totales</small>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card-custom p-3 border-start border-4 border-info">
+            <span class="text-muted small fw-medium">En Progreso</span>
+            <h4 class="fw-bold text-dark mt-1 mb-0">@s.EnProgreso</h4>
+            <small class="text-info">En desarrollo activo</small>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card-custom p-3 border-start border-4" style="border-left-color: #9333ea !important;">
+            <span class="text-muted small fw-medium">En Revisión</span>
+            <h4 class="fw-bold text-dark mt-1 mb-0">@s.EnRevision</h4>
+            <small style="color: #9333ea;">Esperando QA / Aprobación</small>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card-custom p-3 border-start border-4 border-success">
+            <span class="text-muted small fw-medium">Finalizadas (100%)</span>
+            <h4 class="fw-bold text-dark mt-1 mb-0">@s.Finalizadas</h4>
+            <small class="text-success">Completadas al 100%</small>
+        </div>
+    </div>
+</div>
+
+<!-- Tabla de Historias Comprometidas en este Sprint -->
+<div class="card-custom overflow-hidden">
+    <div class="p-3 border-bottom d-flex flex-wrap align-items-center justify-content-between gap-2 bg-white">
+        <div class="d-flex align-items-center gap-2">
+            <h5 class="mb-0 fw-bold fs-6 text-dark">Historias de Usuario Comprometidas en el Sprint</h5>
+            <span class="badge bg-primary-subtle text-primary rounded-pill">@Model.Historias.Count historia(s)</span>
+        </div>
+        @if (s.Estado != "Cerrado" && Model.Historias.Count > 0)
+        {
+            <a asp-controller="Tareas" asp-action="Create" asp-route-idSprint="@s.IdSprint" class="btn btn-sm btn-primary d-inline-flex align-items-center gap-1">
+                <i class="bi bi-plus-lg"></i>
+                <span>Agregar Tarea al Sprint</span>
+            </a>
+        }
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-custom table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>Código</th>
+                    <th>Historia de Usuario (Como / Quiero / Para)</th>
+                    <th>Prioridad</th>
+                    <th>Story Pts</th>
+                    <th>Tareas &amp; Horas</th>
+                    <th style="min-width: 175px;">Avance Ponderado</th>
+                    <th>Resultado Sprint</th>
+                    <th class="text-end">Acción</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Historias.Count == 0)
+                {
+                    <tr>
+                        <td colspan="8" class="text-center py-5 text-muted">
+                            <i class="bi bi-inbox fs-2 d-block mb-2"></i>
+                            <div class="fw-semibold text-dark mb-1">Sin Historias de Usuario comprometidas</div>
+                            <p class="small mb-0">Este Sprint aún no tiene Historias de Usuario asociadas en su Sprint Backlog.</p>
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var h in Model.Historias)
+                    {
+                        var pct = (int)Math.Clamp(Math.Round(h.AvancePonderado), 0, 100);
+                        <tr>
+                            <td>
+                                <span class="badge bg-primary text-white px-2 py-1">@h.Codigo</span>
+                            </td>
+                            <td>
+                                <div class="fw-semibold text-dark">Como @h.Como, quiero @h.Quiero</div>
+                                <small class="text-muted">Para: @h.Para</small>
+                            </td>
+                            <td>
+                                @if (h.Prioridad == "Alta")
+                                {
+                                    <span class="badge bg-danger-subtle text-danger border border-danger-subtle">Alta</span>
+                                }
+                                else if (h.Prioridad == "Media")
+                                {
+                                    <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle">Media</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle">Baja</span>
+                                }
+                            </td>
+                            <td>
+                                <span class="fw-bold text-dark">@(h.Estimacion?.ToString() ?? "-") pts</span>
+                            </td>
+                            <td>
+                                <div class="small">
+                                    <span class="fw-semibold text-dark">@h.TotalTareas tarea(s)</span>
+                                    <span class="text-muted">(@h.PuntosTotales pts esfuerzo)</span>
+                                </div>
+                                <small class="text-muted">@h.HorasReales.ToString("0.#") / @h.HorasEstimadas.ToString("0.#") hrs</small>
+                            </td>
+                            <td>
+                                <div class="d-flex justify-content-between small mb-1">
+                                    <span class="fw-bold text-primary">@h.AvancePonderado.ToString("0.#")%</span>
+                                    <span class="text-muted" title="Avance simple promedio">Simple: @h.AvanceSimple.ToString("0.#")%</span>
+                                </div>
+                                <div class="progress-thin">
+                                    <div class="progress-bar @(pct == 100 ? "bg-success" : "bg-primary")"
+                                         role="progressbar"
+                                         style="width: @(pct)%; height: 100%;"></div>
+                                </div>
+                            </td>
+                            <td>
+                                @if (h.Resultado == "Terminada")
+                                {
+                                    <span class="badge bg-success-subtle text-success border border-success-subtle">Terminada</span>
+                                }
+                                else if (h.Resultado == "Comprometida")
+                                {
+                                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle">Comprometida</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle">@h.Resultado</span>
+                                }
+                            </td>
+                            <td class="text-end">
+                                @if (s.Estado != "Cerrado" && h.Resultado == "Comprometida")
+                                {
+                                    <a asp-controller="Tareas" asp-action="Create" asp-route-idSprintHistoria="@h.IdSprintHistoria"
+                                       class="btn btn-sm btn-outline-primary" title="Crear tarea para esta historia">
+                                        <i class="bi bi-plus-circle me-1"></i> Tarea
+                                    </a>
+                                }
+                                else
+                                {
+                                    <a asp-controller="Tareas" asp-action="Index" asp-route-idSprint="@s.IdSprint"
+                                       class="btn btn-sm btn-outline-secondary">
+                                        Ver tareas
+                                    </a>
+                                }
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@if (puedeGestionar && s.Estado == "Activo")
+{
+    <!-- Modal Oscuro: Cerrar Sprint desde Details -->
+    <div class="modal fade" id="modalCerrarSprintDetalle" tabindex="-1" aria-labelledby="modalCerrarSprintDetalleLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header bg-dark text-white px-4 py-3">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="bg-danger p-2 rounded text-white">
+                            <i class="bi bi-check2-square fs-5"></i>
+                        </div>
+                        <div>
+                            <h5 class="modal-title fw-bold fs-5 mb-0" id="modalCerrarSprintDetalleLabel">Cerrar @s.Nombre</h5>
+                            <small class="text-light text-opacity-75">Cierre formal y retorno de historias incompletas</small>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+
+                <form asp-action="Cerrar" asp-route-id="@s.IdSprint" method="post" novalidate>
+                    @Html.AntiForgeryToken()
+                    <div class="modal-body p-4">
+                        <p class="small text-muted mb-3">
+                            Al confirmar el cierre de <strong>@s.Nombre</strong>:
+                        </p>
+                        <ul class="small text-muted mb-3">
+                            <li>Las historias comprometidas con todas sus tareas al 100% pasarán a estado <strong>Terminada</strong>.</li>
+                            <li>Las historias con tareas pendientes o en curso regresarán al Product Backlog en estado <strong>Lista</strong>.</li>
+                        </ul>
+                        <div class="mb-2">
+                            <label class="form-label fw-semibold text-dark small">Resultado para historias incompletas <span class="text-danger">*</span></label>
+                            <select name="destinoIncompletas" class="form-select">
+                                <option value="Devuelta">Devuelta al Product Backlog (Estado = Lista)</option>
+                                <option value="Replanificada">Replanificada para siguiente Sprint (Estado = Lista)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer bg-light px-4 py-3">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-danger d-flex align-items-center gap-2">
+                            <i class="bi bi-check2-circle"></i>
+                            <span>Confirmar Cierre del Sprint</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+}
+
+@if (puedeGestionar && s.Estado == "Planificado" && s.TotalHistorias == 0)
+{
+    <!-- Modal Oscuro: Eliminar Sprint desde Details -->
+    <div class="modal fade" id="modalEliminarSprintDetalle" tabindex="-1" aria-labelledby="modalEliminarSprintDetalleLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header bg-dark text-white px-4 py-3">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="bg-danger p-2 rounded text-white">
+                            <i class="bi bi-trash fs-5"></i>
+                        </div>
+                        <div>
+                            <h5 class="modal-title fw-bold fs-5 mb-0" id="modalEliminarSprintDetalleLabel">Eliminar @s.Nombre</h5>
+                            <small class="text-light text-opacity-75">Confirmación de eliminación</small>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+
+                <form asp-action="Eliminar" asp-route-id="@s.IdSprint" method="post" novalidate>
+                    @Html.AntiForgeryToken()
+                    <div class="modal-body p-4">
+                        <p class="mb-0 text-dark">
+                            ¿Confirmas que deseas eliminar el Sprint Planificado <strong>@s.Nombre (@s.ProyectoCodigo)</strong>?
+                        </p>
+                    </div>
+
+                    <div class="modal-footer bg-light px-4 py-3">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-danger d-flex align-items-center gap-2">
+                            <i class="bi bi-trash"></i>
+                            <span>Eliminar Sprint</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script src="~/js/modulos-rodrigo.js" asp-append-version="true"></script>
+}
